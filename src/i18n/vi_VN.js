@@ -9,6 +9,10 @@ export default {
     dashboard: "Trang chủ",
     blog: "Blog",
     posts: "Bài đăng",
-    authors: "Tác giả"
+    authors: "Tác giả",
+    language: "Ngôn ngữ",
+    theme: "Giao diện",
+    themeLight: "Light",
+    themeDark: "Dark"
   }
 };

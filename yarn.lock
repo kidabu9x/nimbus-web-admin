@@ -1638,6 +1638,13 @@
   dependencies:
     "@types/react" "*"
 
+"@types/react-facebook-login@^4.1.1":
+  version "4.1.1"
+  resolved "https://registry.yarnpkg.com/@types/react-facebook-login/-/react-facebook-login-4.1.1.tgz#6dd2a49bd7d4aca78ccc931a736d8141822bf94d"
+  integrity sha512-FkybRpwGhpwjen5chmPDy7tdZwPLuDRYD4NsL+PHuV87HdoNeT8AtuLrOk7FCfU1hEqyLpwELrdMS+bvdrJCmw==
+  dependencies:
+    "@types/react" "*"
+
 "@types/react-redux@^7.1.7":
   version "7.1.7"
   resolved "https://registry.yarnpkg.com/@types/react-redux/-/react-redux-7.1.7.tgz#12a0c529aba660696947384a059c5c6e08185c7a"
@@ -9466,7 +9473,7 @@ ra-data-simple-rest@^3.3.2:
   dependencies:
     query-string "^5.1.1"
 
-ra-i18n-polyglot@^3.3.3:
+ra-i18n-polyglot@^3.0.0, ra-i18n-polyglot@^3.3.3:
   version "3.3.3"
   resolved "https://registry.yarnpkg.com/ra-i18n-polyglot/-/ra-i18n-polyglot-3.3.3.tgz#52cad332a71c6cda26fd02be1372e03ee1bc8b27"
   integrity sha512-dV00IZ5/gLLhTAbcmKeb4F5BsDE1anQMYRR1y6DeZobW4uMDjIX23HPUPGUGi4Cj6Na3M+j+lXqKsjpuQu6ZVg==
@@ -9659,6 +9666,11 @@ react-error-overlay@^6.0.7:
   resolved "https://registry.yarnpkg.com/react-error-overlay/-/react-error-overlay-6.0.7.tgz#1dcfb459ab671d53f660a991513cb2f0a0553108"
   integrity sha512-TAv1KJFh3RhqxNvhzxj6LeT5NWklP6rDr2a0jaTfsZ5wSZWHOGeqQyejUp3xxLfPt2UpyJEcVQB/zyPcmonNFA==
 
+react-facebook-login@^4.1.1:
+  version "4.1.1"
+  resolved "https://registry.yarnpkg.com/react-facebook-login/-/react-facebook-login-4.1.1.tgz#005121236a6ac0dee02099976fb1a3265f9d633e"
+  integrity sha512-COnHEHlYGTKipz4963safFAK9PaNTcCiXfPXMS/yxo8El+/AJL5ye8kMJf23lKSSGGPgqFQuInskIHVqGqTvSw==
+
 react-final-form-arrays@^3.1.1:
   version "3.1.1"
   resolved "https://registry.yarnpkg.com/react-final-form-arrays/-/react-final-form-arrays-3.1.1.tgz#39d23e7ede966e418cad209e8fde46da1d603e99"
@@ -9673,6 +9685,14 @@ react-final-form@^6.3.3:
   dependencies:
     "@babel/runtime" "^7.8.3"
     ts-essentials "^5.0.0"
+
+react-google-login@^5.1.2:
+  version "5.1.2"
+  resolved "https://registry.yarnpkg.com/react-google-login/-/react-google-login-5.1.2.tgz#217a3337438b20ea45b72722aacdf919dd6ec428"
+  integrity sha512-kxqMiQ2+8kV9W0PDiJYHtedddTZmMtVLrDo1BWpFq7c4ZEm938JhrwONeWsEjRhO1cVtCis6HEF9J7e9vxhVYQ==
+  dependencies:
+    "@types/react" "*"
+    prop-types "^15.6.0"
 
 react-is@^16.12.0, react-is@^16.5.2, react-is@^16.6.0, react-is@^16.7.0, react-is@^16.8.0, react-is@^16.8.1, react-is@^16.8.4, react-is@^16.9.0:
   version "16.13.1"
