@@ -2,7 +2,7 @@ import React, { FC, useState } from 'react';
 import { useSelector } from 'react-redux';
 import SettingsIcon from '@material-ui/icons/Settings';
 import { useMediaQuery, Theme } from '@material-ui/core';
-import { DashboardMenuItem, MenuItemLink } from 'react-admin';
+import { DashboardMenuItem, MenuItemLink, useTranslate } from 'react-admin';
 
 import products from '../products';
 import categories from '../categories';
@@ -18,6 +18,7 @@ interface Props {
 }
 
 const Menu: FC<Props> = ({ onMenuClick, dense, logout }) => {
+    const translate = useTranslate();
     const [state, setState] = useState({
         menuCatalog: false,
         menuSales: false,
@@ -35,18 +36,18 @@ const Menu: FC<Props> = ({ onMenuClick, dense, logout }) => {
 
     return (
         <div>
-            <DashboardMenuItem onClick={onMenuClick} sidebarIsOpen={open} />
+            <DashboardMenuItem onClick={onMenuClick} sidebarIsOpen={open} primaryText={translate('dashboard.dashboard')}/>
             <SubMenu
                 handleToggle={() => handleToggle('menuCatalog')}
                 isOpen={state.menuCatalog}
                 sidebarIsOpen={open}
-                name="Categories"
+                name={translate('dashboard.blog')}
                 icon={<products.icon />}
                 dense={dense}
             >
                 <MenuItemLink
                     to={`/post`}
-                    primaryText={'Posts'}
+                    primaryText={translate('dashboard.posts')}
                     leftIcon={<products.icon />}
                     onClick={onMenuClick}
                     sidebarIsOpen={open}
@@ -54,7 +55,7 @@ const Menu: FC<Props> = ({ onMenuClick, dense, logout }) => {
                 />
                 <MenuItemLink
                     to={`/user`}
-                    primaryText={'Users'}
+                    primaryText={translate('dashboard.authors')}
                     leftIcon={<categories.icon />}
                     onClick={onMenuClick}
                     sidebarIsOpen={open}

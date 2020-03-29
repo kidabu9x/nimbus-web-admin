@@ -2,6 +2,7 @@ import React, { forwardRef } from "react";
 import { AppBar, UserMenu, MenuItemLink } from "react-admin";
 import SettingsIcon from "@material-ui/icons/Settings";
 import { makeStyles } from "@material-ui/core/styles";
+import { useTranslate } from "react-admin";
 
 const useStyles = makeStyles({
   title: {
@@ -16,11 +17,12 @@ const useStyles = makeStyles({
 });
 
 const ConfigurationMenu = forwardRef<any, any>((props, ref) => {
+  const translate = useTranslate();
   return (
     <MenuItemLink
       ref={ref}
       to="/configuration"
-      primaryText={"Configuration"}
+      primaryText={translate("dashboard.configuration")}
       leftIcon={<SettingsIcon />}
       onClick={props.onClick}
     />
@@ -35,9 +37,10 @@ const CustomUserMenu = (props: any) => (
 
 const CustomAppBar = (props: any) => {
   const classes = useStyles();
+  const translate = useTranslate();
   return (
     <AppBar {...props} userMenu={<CustomUserMenu />}>
-      NIMBUS ADMIN
+      {translate("dashboard.nameWeb")}
       <span className={classes.spacer} />
     </AppBar>
   );
