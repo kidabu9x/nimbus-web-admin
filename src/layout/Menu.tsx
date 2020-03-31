@@ -46,7 +46,7 @@ const Menu: FC<Props> = ({ onMenuClick, dense, logout }) => {
                 dense={dense}
             >
                 <MenuItemLink
-                    to={`/post`}
+                    to={`/posts`}
                     primaryText={translate('dashboard.posts')}
                     leftIcon={<products.icon />}
                     onClick={onMenuClick}
@@ -54,7 +54,7 @@ const Menu: FC<Props> = ({ onMenuClick, dense, logout }) => {
                     dense={dense}
                 />
                 <MenuItemLink
-                    to={`/user`}
+                    to={`/users`}
                     primaryText={translate('dashboard.authors')}
                     leftIcon={<categories.icon />}
                     onClick={onMenuClick}

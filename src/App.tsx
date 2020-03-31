@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Admin, Resource } from "react-admin";
 
 import "./App.css";
@@ -9,12 +9,10 @@ import { Login, Layout } from "./layout";
 import { Dashboard } from "./dashboard";
 import customRoutes from "./routes";
 
-import categories from "./categories";
-
-import dataProviderFactory from "./dataProvider";
-import fakeServerFactory from "./fakeServer";
 import polyglotI18nProvider from "ra-i18n-polyglot";
 import vnMessage from "./i18n/vi_VN";
+import posts from "./posts";
+import dataProvider from "./dataProvider";
 
 const i18nProvider = polyglotI18nProvider(locale => {
   // Always fallback on english
@@ -22,29 +20,6 @@ const i18nProvider = polyglotI18nProvider(locale => {
 }, "vi");
 
 const App = () => {
-  const [dataProvider, setDataProvider] = useState(null);
-
-  useEffect(() => {
-    let restoreFetch;
-
-    const fetchDataProvider = async () => {
-      restoreFetch = await fakeServerFactory(
-        process.env.REACT_APP_DATA_PROVIDER
-      );
-      const dataProviderInstance = await dataProviderFactory(
-        process.env.REACT_APP_DATA_PROVIDER
-      );
-      setDataProvider(
-        // GOTCHA: dataProviderInstance can be a function
-        () => dataProviderInstance
-      );
-    };
-
-    fetchDataProvider();
-
-    return restoreFetch;
-  }, []);
-
   if (!dataProvider) {
     return (
       <div className="loader-container">
@@ -65,7 +40,7 @@ const App = () => {
       layout={Layout}
       i18nProvider={i18nProvider}
     >
-      <Resource name="categories" {...categories} />
+      <Resource name="posts" {...posts} />
     </Admin>
   );
 };

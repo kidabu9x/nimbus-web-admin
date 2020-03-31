@@ -188,7 +188,7 @@ const Login = () => {
                   appId={OAUTH_IDS.FACEBOOK}
                   autoLoad={true}
                   fields="name,email,picture"
-                  scope="public_profile,user_friends,user_actions.books"
+                  scope="public_profile"
                   callback={responseFacebook}
                   size="small"
                   buttonStyle={styles.fbButton}
