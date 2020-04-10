@@ -1,15 +1,25 @@
 <!DOCTYPE html>
+<!--
+Theme: Metronic - The Ultimate Bootstrap Admin Theme
+Author: KeenThemes
+Website: http://www.keenthemes.com/
+Contact: support@keenthemes.com
+Follow: www.twitter.com/keenthemes
+Dribbble: www.dribbble.com/keenthemes
+Like: www.facebook.com/keenthemes
+License: You must have a valid license purchased only from https://themes.getbootstrap.com/product/keen-the-ultimate-bootstrap-admin-theme/ in order to legally use the theme for your project.
+-->
 <html lang="en">
-    <head>
-        <meta charset="utf-8" />
-        <meta
-            name="viewport"
-            content="minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no"
-        />
-        <meta name="theme-color" content="#000000" />
-        <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-        <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico" />
-        <!--
+  <head>
+    <meta charset="utf-8" />
+    <title>Nimbus Service Admin</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!--
+      manifest.json provides metadata used when your web app is installed on a
+      user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
+    -->
+    <!-- <link rel="manifest" href="%PUBLIC_URL%/manifest.json" /> -->
+    <!--
       Notice the use of %PUBLIC_URL% in the tags above.
       It will be replaced with the URL of the `public` folder during the build.
       Only files inside the `public` folder can be referenced from the HTML.
@@ -18,107 +28,50 @@
       work correctly both with client-side routing and a non-root public URL.
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
-        <title>Nimbus Administration</title>
-        <style>
-            .loader-container {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                flex-direction: column;
-                position: absolute;
-                top: 0;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                background-color: #fafafa;
-            }
+    <link rel="icon" type="image/x-icon" href="%PUBLIC_URL%/media/logos/favicon.ico" />
 
-            /* CSS Spinner from https://projects.lukehaas.me/css-loaders/ */
-
-            .loader,
-            .loader:before,
-            .loader:after {
-                border-radius: 50%;
-            }
-
-            .loader {
-                color: #283593;
-                font-size: 11px;
-                text-indent: -99999em;
-                margin: 55px auto;
-                position: relative;
-                width: 10em;
-                height: 10em;
-                box-shadow: inset 0 0 0 1em;
-                -webkit-transform: translateZ(0);
-                -ms-transform: translateZ(0);
-                transform: translateZ(0);
-            }
-
-            .loader:before,
-            .loader:after {
-                position: absolute;
-                content: '';
-            }
-
-            .loader:before {
-                width: 5.2em;
-                height: 10.2em;
-                background: #fafafa;
-                border-radius: 10.2em 0 0 10.2em;
-                top: -0.1em;
-                left: -0.1em;
-                -webkit-transform-origin: 5.2em 5.1em;
-                transform-origin: 5.2em 5.1em;
-                -webkit-animation: load2 2s infinite ease 1.5s;
-                animation: load2 2s infinite ease 1.5s;
-            }
-
-            .loader:after {
-                width: 5.2em;
-                height: 10.2em;
-                background: #fafafa;
-                border-radius: 0 10.2em 10.2em 0;
-                top: -0.1em;
-                left: 5.1em;
-                -webkit-transform-origin: 0px 5.1em;
-                transform-origin: 0px 5.1em;
-                -webkit-animation: load2 2s infinite ease;
-                animation: load2 2s infinite ease;
-            }
-
-            @-webkit-keyframes load2 {
-                0% {
-                    -webkit-transform: rotate(0deg);
-                    transform: rotate(0deg);
-                }
-                100% {
-                    -webkit-transform: rotate(360deg);
-                    transform: rotate(360deg);
-                }
-            }
-
-            @keyframes load2 {
-                0% {
-                    -webkit-transform: rotate(0deg);
-                    transform: rotate(0deg);
-                }
-                100% {
-                    -webkit-transform: rotate(360deg);
-                    transform: rotate(360deg);
-                }
-            }
-        </style>
-    </head>
-
-    <body>
-        <noscript>
-            You need to enable JavaScript to run this app.
-        </noscript>
-        <div id="root">
-            <div class="loader-container">
-                <div class="loader">Loading...</div>
-            </div>
-        </div>
-    </body>
+    <link
+      href="//fonts.googleapis.com/css?family=Poppins:300,400,500,600,700%7CRoboto:300,400,500,600,700"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css?family=Roboto:300,400,500"
+    />
+    <!-- SPLASH SCREEN-->
+    <link
+      rel="stylesheet"
+      id="layout-styles-anchor"
+      href="%PUBLIC_URL%/css/splash-screen.css"
+    />
+    <!--  Setup `default`, `es2015`, `es2016`, `es2017`, and `Intl` polyfills from https://cdn.polyfill.io/v3/url-builder/ -->
+    <script
+      crossorigin="anonymous"
+      src="https://polyfill.io/v3/polyfill.min.js?features=es2017%2Cdefault%2Ces2015%2Ces2016%2CIntl"
+    ></script>
+  </head>
+  <!-- <body dir="rtl"> RTL version body -->
+  <!-- Standard version of body -->
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+    <div id="splash-screen" class="kt-splash-screen">
+      <img src="%PUBLIC_URL%/media/logos/logo-mini-md.png" alt="Metronic logo" />
+      <svg class="spinner" viewBox="0 0 50 50">
+        <circle
+          class="path"
+          cx="25"
+          cy="25"
+          r="20"
+          fill="none"
+          stroke-width="5"
+        ></circle>
+      </svg>
+    </div>
+    <div id="layout-scripts-anchor"></div>
+  </body>
 </html>
