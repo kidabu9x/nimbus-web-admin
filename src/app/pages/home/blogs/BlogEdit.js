@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
-import { getBlog } from "../../../crud/blog.crud";
+import { getBlog, updateBlog, createBlog } from "../../../crud/blog.crud";
 import { useParams } from "react-router-dom";
 import {
   Card,
@@ -19,10 +19,14 @@ import {
 import CKEditor from "@ckeditor/ckeditor5-react";
 import AddIcon from "@material-ui/icons/Add";
 import SaveIcon from "@material-ui/icons/Save";
+import ClearIcon from "@material-ui/icons/Clear";
+import DeleteIcon from "@material-ui/icons/Delete";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import useStyles from "./styles";
 import ChipInput from "material-ui-chip-input";
 import { BLOG } from "../../../../_metronic/utils/constants";
+import useColors from "../../../../_metronic/utils/styleColor";
+import { remove } from "lodash";
 
 const initCKEContent = {
   content: "string",
@@ -41,7 +45,6 @@ const initDefaultBlog = {
   title: "string",
   contents: [
     {
-      id: 99,
       content: "string",
       type: "string" // HTML
     }
@@ -52,14 +55,12 @@ const initDefaultBlog = {
   updated_at: "string",
   authors: [
     {
-      id: "string",
       email: "string",
       first_name: "string",
       last_name: "string",
       avatar: "string"
     },
     {
-      id: "string",
       email: "string",
       first_name: "string",
       last_name: "string",
@@ -71,6 +72,7 @@ const initDefaultBlog = {
 const BlogEdit = ({ blogData }) => {
   const { id } = useParams();
   const classes = useStyles();
+  const colors = useColors();
   const [blog, setBlog] = useState(blogData[id]);
 
   useEffect(() => {
@@ -90,11 +92,15 @@ const BlogEdit = ({ blogData }) => {
   };
 
   const handleAddChip = chip => {
-    console.log(chip);
+    let newTags = blog.tags;
+    newTags[newTags.length] = chip;
+    setBlog({ ...blog, tags: newTags });
   };
 
   const handleDeleteChip = (chip, index) => {
-    console.log("handleDeleteChip", chip, index);
+    let newTags = blog.tags;
+    newTags = remove(newTags, tag => tag !== chip);
+    setBlog({ ...blog, tags: newTags });
   };
 
   const onChangeStatus = event => {
@@ -107,7 +113,45 @@ const BlogEdit = ({ blogData }) => {
     setBlog({ ...blog, authors: newAuthors });
   };
 
-  const onSubmit = () => {};
+  const onSubmit = () => {
+    if (id !== BLOG.QUERY_NEW) {
+      updateBlog(id, blog).then(data => {
+        console.log("updatedBlog");
+        console.log(data);
+        console.log("====================================");
+      });
+    } else {
+      createBlog(blog).then(data => {
+        console.log("createdBlog");
+        console.log(data);
+        console.log("====================================");
+      });
+    }
+  };
+
+  const onClear = () => {};
+
+  const onDelete = () => {};
+
+  const onTitleChange = event => {
+    setBlog({ ...blog, title: event.target.value });
+  };
+
+  const onContentChange = (index, content, data) => {
+    const newContents = blog.contents;
+    let newContent = blog.contents[index];
+    newContent = { ...content, type: data };
+    newContents[index] = newContent;
+    setBlog({ ...blog, contents: newContents });
+  };
+
+  const onChangeAuthor = (event, author, index, key) => {
+    const newAuthors = blog.authors;
+    let newAuthor = newAuthors[index];
+    newAuthor[key] = event.target.value;
+    newAuthors[index] = newAuthor;
+    setBlog({ ...blog, authors: newAuthors });
+  };
 
   return (
     <>
@@ -115,15 +159,37 @@ const BlogEdit = ({ blogData }) => {
         <Typography variant="h3">
           {id !== BLOG.QUERY_NEW ? "Edit" : "New"}
         </Typography>
-        <Button
-          variant="contained"
-          color="secondary"
-          className={classes.button}
-          startIcon={<SaveIcon />}
-          onClick={onSubmit}
-        >
-          Submit
-        </Button>
+        <div>
+          <Button
+            variant="contained"
+            color="secondary"
+            className={classes.btnHeader}
+            startIcon={<SaveIcon />}
+            onClick={onSubmit}
+          >
+            Submit
+          </Button>
+          {id !== BLOG.QUERY_NEW && (
+            <Button
+              variant="contained"
+              color="secondary"
+              className={`${classes.btnHeader} ${colors.lightRed}`}
+              startIcon={<DeleteIcon />}
+              onClick={onDelete}
+            >
+              Delete
+            </Button>
+          )}
+          <Button
+            variant="contained"
+            color="inherit"
+            className={classes.btnHeader}
+            startIcon={<ClearIcon />}
+            onClick={onClear}
+          >
+            Cancel
+          </Button>
+        </div>
       </div>
       <div className={`row ${classes.container}`}>
         {blog && (
@@ -131,7 +197,7 @@ const BlogEdit = ({ blogData }) => {
             <Card className={`col-xl-6 ${classes.cardContainer}`}>
               <CardContent>
                 <Typography>Title</Typography>
-                <Input value={blog.title}></Input>
+                <Input value={blog.title} onChange={onTitleChange}></Input>
               </CardContent>
               <CardContent>
                 <div className={`row row-full-height ${classes.rowBody}`}>
@@ -147,20 +213,23 @@ const BlogEdit = ({ blogData }) => {
                   </Fab>
                 </div>
                 {blog.contents.map((content, index) => (
-                  <CKEditor
-                    key={index}
-                    editor={ClassicEditor}
-                    data={content.type}
-                    onInit={editor => {
-                      // You can store the "editor" and use when it is needed.
-                    }}
-                    onChange={(event, editor) => {
-                      const data = editor.getData();
-                      console.log({ event, editor, data });
-                    }}
-                    onBlur={(event, editor) => {}}
-                    onFocus={(event, editor) => {}}
-                  />
+                  <div key={index}>
+                    <CKEditor
+                      key={index}
+                      editor={ClassicEditor}
+                      data={content.type}
+                      onInit={editor => {
+                        // You can store the "editor" and use when it is needed.
+                      }}
+                      onChange={(event, editor) => {
+                        const data = editor.getData();
+                        onContentChange(index, content, data);
+                      }}
+                      onBlur={(event, editor) => {}}
+                      onFocus={(event, editor) => {}}
+                    />
+                    <div className="kt-space-20" />
+                  </div>
                 ))}
               </CardContent>
             </Card>
@@ -169,7 +238,9 @@ const BlogEdit = ({ blogData }) => {
                 <Typography>Tags</Typography>
                 <ChipInput
                   value={blog.tags}
-                  onAdd={chip => handleAddChip(chip)}
+                  onAdd={chip => {
+                    handleAddChip(chip);
+                  }}
                   onDelete={(chip, index) => handleDeleteChip(chip, index)}
                 />
               </CardContent>
@@ -223,15 +294,30 @@ const BlogEdit = ({ blogData }) => {
                   <div key={index} className={classes.rowBody}>
                     <TextField
                       className={classes.textField}
-                      error={!`${author.first_name} ${author.last_name}`.length}
-                      label="Name"
-                      defaultValue={`${author.first_name} ${author.last_name}`}
+                      error={!`${author.first_name}`.length}
+                      label="First Name"
+                      onChange={event => {
+                        onChangeAuthor(event, author, index, "first_name");
+                      }}
+                      defaultValue={`${author.first_name}`}
+                    />
+                    <TextField
+                      className={classes.textField}
+                      error={!`${author.last_name}`.length}
+                      label="Last Name"
+                      onChange={event => {
+                        onChangeAuthor(event, author, index, "last_name");
+                      }}
+                      defaultValue={`${author.last_name}`}
                     />
                     <TextField
                       className={classes.textField}
                       error={!author.email.length}
                       label="Email"
                       defaultValue={author.email}
+                      onChange={event => {
+                        onChangeAuthor(event, author, index, "email");
+                      }}
                     />
                   </div>
                 ))}

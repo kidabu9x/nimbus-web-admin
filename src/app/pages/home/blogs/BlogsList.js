@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { connect } from "react-redux";
 import * as blog from "../../../store/blog";
-import { getAllBlogs } from "../../../crud/blog.crud";
+import { getAllBlogs, deleteBlog } from "../../../crud/blog.crud";
 import PropTypes from "prop-types";
 import {
   Table,
@@ -24,19 +24,26 @@ const BlogsList = ({ getBlogsSuccess, blogs }) => {
   const classes = useStyles();
   const history = useHistory();
   useEffect(() => {
-    getAllBlogs().then(res => {
-      getBlogsSuccess(res.data);
-    });
+    loadBlogs();
   }, []);
+
+  const loadBlogs = () => {
+    getAllBlogs().then(res => {
+      console.log("====================================");
+      console.log(res);
+      console.log("====================================");
+      getBlogsSuccess(res.data.data);
+    });
+  };
 
   const onEditBlog = blog => {
     history.push(`/blog/${blog.id}`);
   };
 
-  const onDeleteBlog = blog => {
-    console.log("onDeleteBlog");
-    console.log(blog);
-    console.log("====================================");
+  const onDeleteBlog = blogId => {
+    deleteBlog(blogId).then(data => {
+      loadBlogs();
+    });
   };
 
   const onAddNew = () => {
@@ -97,7 +104,7 @@ const BlogsList = ({ getBlogsSuccess, blogs }) => {
                             aria-label="delete"
                             color="primary"
                             onClick={() => {
-                              onDeleteBlog(blog);
+                              onDeleteBlog(blog.id);
                             }}
                           >
                             <DeleteIcon />

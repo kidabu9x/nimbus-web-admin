@@ -30,6 +30,13 @@ const useStyles = makeStyles(theme => ({
   },
   textField: {
     marginRight: 20
+  },
+  editorContainer: {
+    marginBottom: 20,
+    paddingBottom: 20
+  },
+  btnHeader: {
+    marginLeft: 15
   }
 }));
 
