@@ -22,7 +22,7 @@ export default function HomePage() {
           <Redirect exact from="/" to="/dashboard" />
         }
         <Route path="/builder" component={Builder} />
-        <Route path="/blogs" component={BlogPage} />
+        <Route path="/blog" component={BlogPage} />
         <Route path="/dashboard" component={Dashboard} />
         <Route path="/google-material" component={GoogleMaterialPage} />
         <Route path="/react-bootstrap" component={ReactBootstrapPage} />

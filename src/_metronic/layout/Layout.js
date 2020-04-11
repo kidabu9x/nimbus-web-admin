@@ -13,7 +13,6 @@ import LayoutConfig from "./LayoutConfig";
 import MenuConfig from "./MenuConfig";
 import LayoutInitializer from "./LayoutInitializer";
 import KtContent from "./KtContent";
-import QuickPanel from "../../app/partials/layout/QuickPanel";
 import "./assets/Base.scss";
 
 const htmlClassService = new HTMLClassService();
@@ -57,19 +56,16 @@ function Layout({
             id="kt_wrapper"
           >
             {/* <!-- begin:: Header READY --> */}
-
             <Header />
             {/* <!-- end:: Header --> */}
-
             {/* <!-- begin:: Content --> */}
             <div
               id="kt_content"
               className={`kt-content ${contentCssClasses} kt-grid__item kt-grid__item--fluid kt-grid kt-grid--hor`}
             >
               {/* <!-- begin:: Content Head --> */}
-              {subheaderDisplay && <SubHeader />}
+              {/* {subheaderDisplay && <SubHeader />} */}
               {/* <!-- end:: Content Head --> */}
-
               {/* <!-- begin:: Content Body --> */}
               <KtContent>{children}</KtContent>
               {/*<!-- end:: Content Body -->*/}
@@ -80,7 +76,7 @@ function Layout({
         </div>
         {/* <!-- end:: Body --> */}
       </div>
-      <QuickPanel />
+      {/* <QuickPanel /> */}
       <ScrollTop />
     </LayoutInitializer>
   ) : (

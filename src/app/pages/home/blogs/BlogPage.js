@@ -6,8 +6,9 @@ import BlogEdit from "./BlogEdit";
 export default function BlogPage() {
   return (
     <Switch>
-      <Route path="/blogs" component={BlogsList} />
-      <Route path="/blogs/edit/:id" component={BlogEdit} />
+      <Route exact path="/blog" component={BlogsList} />
+      <Route path="/blog/:id" component={BlogEdit} />
+      <Route path="/blog/new" component={BlogEdit} />
     </Switch>
   );
 }

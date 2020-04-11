@@ -1,7 +1,7 @@
 /* eslint-disable no-script-url,jsx-a11y/anchor-is-valid */
 import React from "react";
 import clsx from "clsx";
-import Dropdown from "react-bootstrap/Dropdown";
+import { Dropdown } from "react-bootstrap";
 import HeaderDropdownToggle from "../content/CustomDropdowns/HeaderDropdownToggle";
 import { ReactComponent as EqualizerIcon } from "../../../_metronic/layout/assets/layout-svg-icons/Equalizer.svg";
 import { ReactComponent as EuroIcon } from "../../../_metronic/layout/assets/layout-svg-icons/Euro.svg";

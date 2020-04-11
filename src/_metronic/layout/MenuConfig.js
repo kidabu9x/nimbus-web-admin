@@ -18,7 +18,7 @@ export default {
         title: "Blogs",
         root: true,
         icon: "flaticon-folder-1",
-        page: "blogs",
+        page: "blog",
       },
     ],
   },

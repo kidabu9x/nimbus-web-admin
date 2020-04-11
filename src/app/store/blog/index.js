@@ -1,14 +1,16 @@
 import { persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage";
+import { keyBy } from "lodash";
 
 export const actionBlogTypes = {
   GetAllBlogs: "[GetAllBlogs] Action",
   GetBlog: "[GetBlog] Action",
-  GetBlogsSuccess: "[GetBlogsSuccess] Action",
+  GetBlogsSuccess: "[GetBlogsSuccess] Action"
 };
 
 const initialBookState = {
   blogsList: [],
+  blogData: {}
 };
 
 export const reducer = persistReducer(
@@ -24,7 +26,11 @@ export const reducer = persistReducer(
       }
 
       case actionBlogTypes.GetBlogsSuccess: {
-        return { ...state, blogsList: action.payload };
+        return {
+          ...state,
+          blogsList: action.payload,
+          blogData: keyBy(action.payload, "id")
+        };
       }
 
       default:
@@ -35,16 +41,16 @@ export const reducer = persistReducer(
 
 export const actions = {
   getAllBlogs: () => ({
-    type: actionBlogTypes.GetAllBlogs,
+    type: actionBlogTypes.GetAllBlogs
   }),
-  getBlog: (blogId) => ({
+  getBlog: blogId => ({
     type: actionBlogTypes.GetBlog,
-    payload: { blogId },
+    payload: { blogId }
   }),
-  getBlogsSuccess: (data) => ({
+  getBlogsSuccess: data => ({
     type: actionBlogTypes.GetBlogsSuccess,
-    payload: data,
-  }),
+    payload: data
+  })
 };
 
 export function* saga() {}
