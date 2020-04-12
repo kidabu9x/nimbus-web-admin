@@ -8,14 +8,14 @@ export const actionBlogTypes = {
   GetBlogsSuccess: "[GetBlogsSuccess] Action"
 };
 
-const initialBookState = {
+const initialBlogState = {
   blogsList: [],
   blogData: {}
 };
 
 export const reducer = persistReducer(
   { storage, key: "nimbus-blog", whitelist: [] },
-  (state = initialBookState, action) => {
+  (state = initialBlogState, action) => {
     switch (action.type) {
       case actionBlogTypes.GetAllBlogs: {
         return state;

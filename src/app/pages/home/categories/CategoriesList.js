@@ -1,7 +1,12 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
-import * as blog from "../../../store/blog";
-import { getAllBlogs, deleteBlog } from "../../../crud/blog.crud";
+import * as category from "../../../store/category";
+import {
+  getAllCategories,
+  deleteCategory,
+  createCategory,
+  updateCategory
+} from "../../../crud/category.crud";
 import PropTypes from "prop-types";
 import {
   Table,
@@ -16,36 +21,53 @@ import {
 import DeleteIcon from "@material-ui/icons/Delete";
 import EditIcon from "@material-ui/icons/Edit";
 import { useHistory } from "react-router-dom";
-import dayjs from "dayjs";
 import AddIcon from "@material-ui/icons/Add";
 import useStyles from "./styles";
-import { ROUTES } from "../../../../_metronic/utils/routerList";
+import CategoryEdit from "./CategoryEdit";
 
-const BlogsList = ({ getBlogsSuccess, blogs }) => {
+const CategoriesList = ({ getCategoriesSuccess, categories }) => {
   const classes = useStyles();
   const history = useHistory();
+  const [openModalEdit, setOpenModalEdit] = useState(false);
+  const [categoryEdit, setCategoryEdit] = useState(null);
   useEffect(() => {
-    loadBlogs();
+    loadCategories();
   }, []);
 
-  const loadBlogs = () => {
-    getAllBlogs().then(res => {
-      getBlogsSuccess(res.data.data);
+  const loadCategories = () => {
+    getAllCategories().then(res => {
+      getCategoriesSuccess(res.data.data);
     });
   };
 
-  const onEditBlog = blog => {
-    history.push(`${ROUTES.blogs}/${blog.id}`);
+  const onEditCategory = category => {
+    setCategoryEdit(category);
+    setOpenModalEdit(true);
   };
 
-  const onDeleteBlog = blogId => {
-    deleteBlog(blogId).then(data => {
-      loadBlogs();
+  const onDeleteCategory = categoryId => {
+    deleteCategory(categoryId).then(data => {
+      loadCategories();
     });
   };
 
   const onAddNew = () => {
-    history.push(`${ROUTES.blogs}/new`);
+    setCategoryEdit(null);
+    setOpenModalEdit(true);
+  };
+
+  const onSubmitCategory = category => {
+    if (category.id) {
+      updateCategory(category.id, category).then(data => {
+        setOpenModalEdit(false);
+        loadCategories();
+      });
+    } else {
+      createCategory(category).then(data => {
+        setOpenModalEdit(false);
+        loadCategories();
+      });
+    }
   };
 
   return (
@@ -71,32 +93,24 @@ const BlogsList = ({ getBlogsSuccess, blogs }) => {
                 <TableHead>
                   <TableRow>
                     <TableCell>ID</TableCell>
-                    <TableCell align="right">Create At</TableCell>
                     <TableCell align="left">Title</TableCell>
-                    <TableCell align="left">Description</TableCell>
-                    <TableCell align="right">Status</TableCell>
                     <TableCell align="right">Actions</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {blogs.map(blog => (
-                    <TableRow key={blog.id}>
-                      <TableCell align="right">{blog.id}</TableCell>
+                  {categories.map(category => (
+                    <TableRow key={category.id}>
+                      <TableCell align="left">{category.id}</TableCell>
+                      <TableCell component="th" scope="category" align="left">
+                        {category.title}
+                      </TableCell>
                       <TableCell align="right">
-                        {dayjs(blog.created_at).format("DD/MM/YY")}
-                      </TableCell>
-                      <TableCell component="th" scope="blog" align="left">
-                        {blog.title}
-                      </TableCell>
-                      <TableCell align="left">{blog.description}</TableCell>
-                      <TableCell align="right">{blog.status}</TableCell>
-                      <TableCell>
                         <div className={classes.actions}>
                           <IconButton
                             aria-label="edit"
                             color="secondary"
                             onClick={() => {
-                              onEditBlog(blog);
+                              onEditCategory(category);
                             }}
                           >
                             <EditIcon />
@@ -105,7 +119,7 @@ const BlogsList = ({ getBlogsSuccess, blogs }) => {
                             aria-label="delete"
                             color="primary"
                             onClick={() => {
-                              onDeleteBlog(blog.id);
+                              onDeleteCategory(category.id);
                             }}
                           >
                             <DeleteIcon />
@@ -118,23 +132,31 @@ const BlogsList = ({ getBlogsSuccess, blogs }) => {
               </Table>
             </Paper>
           </div>
+          <CategoryEdit
+            open={openModalEdit}
+            setOpen={value => {
+              setOpenModalEdit(value);
+            }}
+            category={categoryEdit}
+            onSubmit={onSubmitCategory}
+          />
         </div>
       </div>
     </>
   );
 };
 
-BlogsList.propTypes = {
-  getBlogsSuccess: PropTypes.func.isRequired
+CategoriesList.propTypes = {
+  getCategoriesSuccess: PropTypes.func.isRequired
 };
-BlogsList.defaultProps = {};
+CategoriesList.defaultProps = {};
 
 const mapStateToProps = state => ({
-  blogs: state.blog.blogsList
+  categories: state.category.categoriesList
 });
 
 const mapDispatchToProps = {
-  getBlogsSuccess: blog.actions.getBlogsSuccess
+  getCategoriesSuccess: category.actions.getCategoriesSuccess
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(BlogsList);
+export default connect(mapStateToProps, mapDispatchToProps)(CategoriesList);

@@ -21,7 +21,8 @@ const useStyles = makeStyles(theme => ({
   },
   rowBody: {
     marginBottom: 12,
-    alignItems: "center"
+    alignItems: "center",
+    display: "flex"
   },
   rowHeader: {
     marginBottom: 12,
@@ -37,6 +38,12 @@ const useStyles = makeStyles(theme => ({
   },
   btnHeader: {
     marginLeft: 15
+  },
+  inputTitle: {
+    width: "50%"
+  },
+  inputDescription: {
+    width: "100%"
   }
 }));
 

@@ -5,6 +5,8 @@ import Dashboard from "./Dashboard";
 import DocsPage from "./docs/DocsPage";
 import { LayoutSplashScreen } from "../../../_metronic";
 import BlogPage from "./blogs/BlogPage";
+import { ROUTES } from "../../../_metronic/utils/routerList";
+import CategoryPage from "./categories/CategoryPage";
 
 const GoogleMaterialPage = lazy(() =>
   import("./google-material/GoogleMaterialPage")
@@ -19,15 +21,16 @@ export default function HomePage() {
       <Switch>
         {
           /* Redirect from root URL to /dashboard. */
-          <Redirect exact from="/" to="/dashboard" />
+          <Redirect exact from="/" to={ROUTES.dashboard} />
         }
         <Route path="/builder" component={Builder} />
-        <Route path="/blog" component={BlogPage} />
-        <Route path="/dashboard" component={Dashboard} />
+        <Route path={ROUTES.blogs} component={BlogPage} />
+        <Route path={ROUTES.categories} component={CategoryPage} />
+        <Route path={ROUTES.dashboard} component={Dashboard} />
         <Route path="/google-material" component={GoogleMaterialPage} />
         <Route path="/react-bootstrap" component={ReactBootstrapPage} />
         <Route path="/docs" component={DocsPage} />
-        <Redirect to="/error/error-v1" />
+        <Redirect to={`${ROUTES.error}/error-v1`} />
       </Switch>
     </Suspense>
   );

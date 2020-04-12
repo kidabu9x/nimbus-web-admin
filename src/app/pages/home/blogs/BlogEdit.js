@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
-import { getBlog, updateBlog, createBlog } from "../../../crud/blog.crud";
+import {
+  getBlog,
+  updateBlog,
+  createBlog,
+  deleteBlog
+} from "../../../crud/blog.crud";
 import { useParams, useHistory } from "react-router-dom";
 import {
   Card,
@@ -13,7 +18,6 @@ import {
   FormControlLabel,
   Radio,
   FormControl,
-  TextField,
   Button
 } from "@material-ui/core";
 import CKEditor from "@ckeditor/ckeditor5-react";
@@ -27,6 +31,7 @@ import ChipInput from "material-ui-chip-input";
 import { BLOG } from "../../../../_metronic/utils/constants";
 import useColors from "../../../../_metronic/utils/styleColor";
 import { remove } from "lodash";
+import { ROUTES } from "../../../../_metronic/utils/routerList";
 
 const initCKEContent = {
   content: "string",
@@ -117,18 +122,24 @@ const BlogEdit = ({ blogData }) => {
   const onSubmit = () => {
     if (id !== BLOG.QUERY_NEW) {
       updateBlog(id, blog).then(data => {
-        history.push("/blog");
+        history.push(ROUTES.blogs);
       });
     } else {
       createBlog(blog).then(data => {
-        history.push("/blog");
+        history.push(ROUTES.blogs);
       });
     }
   };
 
-  const onClear = () => {};
+  const onClear = () => {
+    history.push(`${ROUTES.blogs}`);
+  };
 
-  const onDelete = () => {};
+  const onDelete = () => {
+    deleteBlog(blog.id).then(data => {
+      history.push(`${ROUTES.blogs}`);
+    });
+  };
 
   const onTitleChange = event => {
     setBlog({ ...blog, title: event.target.value });
@@ -192,20 +203,30 @@ const BlogEdit = ({ blogData }) => {
           </Button>
         </div>
       </div>
-      <div className={`row ${classes.container}`}>
+      <div className={`${classes.container}`}>
         {blog && (
           <>
-            <Card className={`col-xl-6 ${classes.cardContainer}`}>
+            <Card className={`col-xl-9 ${classes.cardContainer}`}>
               <CardContent>
                 <Typography>Title</Typography>
-                <Input value={blog.title} onChange={onTitleChange}></Input>
+                <div className="kt-space-20" />
+                <Input
+                  className={classes.inputTitle}
+                  value={blog.title}
+                  onChange={onTitleChange}
+                ></Input>
               </CardContent>
               <CardContent>
                 <Typography>Description</Typography>
-                <Input value={blog.description} onChange={onDescChange}></Input>
+                <div className="kt-space-20" />
+                <Input
+                  className={classes.inputDescription}
+                  value={blog.description}
+                  onChange={onDescChange}
+                ></Input>
               </CardContent>
               <CardContent>
-                <div className={`row row-full-height ${classes.rowBody}`}>
+                <div className={`${classes.rowBody}`}>
                   <Typography>Body</Typography>
                   <Fab
                     size="small"
@@ -222,7 +243,7 @@ const BlogEdit = ({ blogData }) => {
                     <CKEditor
                       key={index}
                       editor={ClassicEditor}
-                      data={content.type}
+                      data={content.content}
                       onInit={editor => {
                         // You can store the "editor" and use when it is needed.
                       }}
@@ -238,9 +259,10 @@ const BlogEdit = ({ blogData }) => {
                 ))}
               </CardContent>
             </Card>
-            <Card className={`col-xl-6 ${classes.cardContainer}`}>
+            <Card className={`col-xl-9 ${classes.cardContainer}`}>
               <CardContent>
                 <Typography>Tags</Typography>
+                <div className="kt-space-20" />
                 <ChipInput
                   value={blog.tags}
                   onAdd={chip => {
@@ -281,7 +303,8 @@ const BlogEdit = ({ blogData }) => {
                 </FormControl>
               </CardContent>
             </Card>
-            {/* <Card className={`col-xl-6 ${classes.cardContainer}`}>
+            {/* TODO: Authors
+            <Card className={`col-xl-9 ${classes.cardContainer}`}>
               <CardContent>
                 <div className={`row row-full-height ${classes.rowBody}`}>
                   <Typography>Authors</Typography>

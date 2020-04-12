@@ -1,7 +1,7 @@
 export default {
   header: {
     self: {},
-    items: [],
+    items: []
   },
   aside: {
     self: {},
@@ -12,14 +12,20 @@ export default {
         icon: "flaticon2-architecture-and-city",
         page: "dashboard",
         translate: "MENU.DASHBOARD",
-        bullet: "dot",
+        bullet: "dot"
       },
       {
         title: "Blogs",
         root: true,
         icon: "flaticon-folder-1",
-        page: "blog",
+        page: "blogs"
       },
-    ],
-  },
+      {
+        title: "Categories",
+        root: true,
+        icon: "flaticon2-layers-2",
+        page: "categories"
+      }
+    ]
+  }
 };
