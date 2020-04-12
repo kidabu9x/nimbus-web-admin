@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { getBlog, updateBlog, createBlog } from "../../../crud/blog.crud";
-import { useParams } from "react-router-dom";
+import { useParams, useHistory } from "react-router-dom";
 import {
   Card,
   CardContent,
@@ -46,7 +46,7 @@ const initDefaultBlog = {
   contents: [
     {
       content: "string",
-      type: "string" // HTML
+      type: "HTML" // HTML
     }
   ],
   tags: ["string"],
@@ -71,14 +71,15 @@ const initDefaultBlog = {
 
 const BlogEdit = ({ blogData }) => {
   const { id } = useParams();
+  const history = useHistory();
   const classes = useStyles();
   const colors = useColors();
   const [blog, setBlog] = useState(blogData[id]);
 
   useEffect(() => {
     if (id !== BLOG.QUERY_NEW) {
-      getBlog(id).then(data => {
-        setBlog(data.data);
+      getBlog(id).then(res => {
+        setBlog(res.data.data);
       });
     } else {
       setBlog(initDefaultBlog);
@@ -116,15 +117,11 @@ const BlogEdit = ({ blogData }) => {
   const onSubmit = () => {
     if (id !== BLOG.QUERY_NEW) {
       updateBlog(id, blog).then(data => {
-        console.log("updatedBlog");
-        console.log(data);
-        console.log("====================================");
+        history.push("/blog");
       });
     } else {
       createBlog(blog).then(data => {
-        console.log("createdBlog");
-        console.log(data);
-        console.log("====================================");
+        history.push("/blog");
       });
     }
   };
@@ -137,10 +134,14 @@ const BlogEdit = ({ blogData }) => {
     setBlog({ ...blog, title: event.target.value });
   };
 
+  const onDescChange = event => {
+    setBlog({ ...blog, description: event.target.value });
+  };
+
   const onContentChange = (index, content, data) => {
     const newContents = blog.contents;
     let newContent = blog.contents[index];
-    newContent = { ...content, type: data };
+    newContent = { ...content, content: data, type: "HTML" };
     newContents[index] = newContent;
     setBlog({ ...blog, contents: newContents });
   };
@@ -198,6 +199,10 @@ const BlogEdit = ({ blogData }) => {
               <CardContent>
                 <Typography>Title</Typography>
                 <Input value={blog.title} onChange={onTitleChange}></Input>
+              </CardContent>
+              <CardContent>
+                <Typography>Description</Typography>
+                <Input value={blog.description} onChange={onDescChange}></Input>
               </CardContent>
               <CardContent>
                 <div className={`row row-full-height ${classes.rowBody}`}>
@@ -276,7 +281,7 @@ const BlogEdit = ({ blogData }) => {
                 </FormControl>
               </CardContent>
             </Card>
-            <Card className={`col-xl-6 ${classes.cardContainer}`}>
+            {/* <Card className={`col-xl-6 ${classes.cardContainer}`}>
               <CardContent>
                 <div className={`row row-full-height ${classes.rowBody}`}>
                   <Typography>Authors</Typography>
@@ -322,7 +327,7 @@ const BlogEdit = ({ blogData }) => {
                   </div>
                 ))}
               </CardContent>
-            </Card>
+            </Card> */}
           </>
         )}
       </div>

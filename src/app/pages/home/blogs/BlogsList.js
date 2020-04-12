@@ -29,9 +29,6 @@ const BlogsList = ({ getBlogsSuccess, blogs }) => {
 
   const loadBlogs = () => {
     getAllBlogs().then(res => {
-      console.log("====================================");
-      console.log(res);
-      console.log("====================================");
       getBlogsSuccess(res.data.data);
     });
   };
@@ -72,7 +69,7 @@ const BlogsList = ({ getBlogsSuccess, blogs }) => {
                     <TableCell>ID</TableCell>
                     <TableCell align="right">Create At</TableCell>
                     <TableCell align="right">Title</TableCell>
-                    <TableCell align="right">Author</TableCell>
+                    <TableCell align="right">Description</TableCell>
                     <TableCell align="right">Status</TableCell>
                     <TableCell align="right">Actions</TableCell>
                   </TableRow>
@@ -87,7 +84,7 @@ const BlogsList = ({ getBlogsSuccess, blogs }) => {
                       <TableCell component="th" scope="blog">
                         {blog.title}
                       </TableCell>
-                      <TableCell align="right">{blog.author}</TableCell>
+                      <TableCell align="right">{blog.description}</TableCell>
                       <TableCell align="right">{blog.status}</TableCell>
                       <TableCell>
                         <div className={classes.actions}>
