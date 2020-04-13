@@ -6,10 +6,14 @@ import { FormattedMessage, injectIntl } from "react-intl";
 import { TextField } from "@material-ui/core";
 import clsx from "clsx";
 import * as auth from "../../store/auth";
-import { login } from "../../crud/auth.crud";
+import { login, loginWithGoogle } from "../../crud/auth.crud";
+import GoogleLogin from "react-google-login";
+import { LOGIN_CLIENT_ID } from "../../../_metronic/utils/constants";
+import useStyles from "./styles";
 
 function Login(props) {
   const { intl } = props;
+  const classes = useStyles();
   const [loading, setLoading] = useState(false);
   const [loadingButtonStyle, setLoadingButtonStyle] = useState({
     paddingRight: "2.5rem"
@@ -23,6 +27,12 @@ function Login(props) {
   const disableLoading = () => {
     setLoading(false);
     setLoadingButtonStyle({ paddingRight: "2.5rem" });
+  };
+
+  const responseGoogle = response => {
+    loginWithGoogle(response.profileObj).then(res => {
+      props.login(res.data.data.access_token);
+    });
   };
 
   return (
@@ -45,7 +55,6 @@ function Login(props) {
               <FormattedMessage id="AUTH.LOGIN.TITLE" />
             </h3>
           </div>
-
           <Formik
             initialValues={{
               email: "admin@demo.com",
@@ -177,6 +186,14 @@ function Login(props) {
               </form>
             )}
           </Formik>
+          <GoogleLogin
+            clientId={LOGIN_CLIENT_ID.GOOGLE}
+            buttonText="Login with Google"
+            onSuccess={responseGoogle}
+            onFailure={responseGoogle}
+            cookiePolicy={"single_host_origin"}
+            className={classes.btnGoogle}
+          />
         </div>
       </div>
     </>

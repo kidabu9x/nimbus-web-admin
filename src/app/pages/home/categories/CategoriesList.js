@@ -20,14 +20,12 @@ import {
 } from "@material-ui/core";
 import DeleteIcon from "@material-ui/icons/Delete";
 import EditIcon from "@material-ui/icons/Edit";
-import { useHistory } from "react-router-dom";
 import AddIcon from "@material-ui/icons/Add";
 import useStyles from "./styles";
 import CategoryEdit from "./CategoryEdit";
 
 const CategoriesList = ({ getCategoriesSuccess, categories }) => {
   const classes = useStyles();
-  const history = useHistory();
   const [openModalEdit, setOpenModalEdit] = useState(false);
   const [categoryEdit, setCategoryEdit] = useState(null);
   useEffect(() => {

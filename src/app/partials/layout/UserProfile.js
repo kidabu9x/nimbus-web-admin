@@ -3,7 +3,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { Dropdown } from "react-bootstrap";
 import { connect } from "react-redux";
-import { toAbsoluteUrl } from "../../../_metronic";
+import { toAbsoluteUrl, getKeyOfName } from "../../../_metronic";
 import HeaderDropdownToggle from "../content/CustomDropdowns/HeaderDropdownToggle";
 
 class UserProfile extends React.Component {
@@ -29,7 +29,7 @@ class UserProfile extends React.Component {
 
             {showHi && (
               <span className="kt-header__topbar-username kt-hidden-mobile">
-                {user.fullname}
+                {user.first_name}
               </span>
             )}
 
@@ -37,7 +37,10 @@ class UserProfile extends React.Component {
 
             {showBadge && (
               <span className="kt-badge kt-badge--username kt-badge--unified-success kt-badge--lg kt-badge--rounded kt-badge--bold">
-                {user && user.fullname[0]}
+                {user &&
+                  `${getKeyOfName(user.first_name)}${getKeyOfName(
+                    user.last_name
+                  )}`}
               </span>
             )}
           </div>
@@ -47,16 +50,20 @@ class UserProfile extends React.Component {
           <div
             className="kt-user-card kt-user-card--skin-dark kt-notification-item-padding-x"
             style={{
-              backgroundImage: `url(${toAbsoluteUrl("/media/misc/bg-1.jpg")})`,
+              backgroundImage: `url(${toAbsoluteUrl("/media/misc/bg-1.jpg")})`
             }}
           >
             <div className="kt-user-card__avatar">
               <img alt="Pic" className="kt-hidden" src={user.pic} />
               <span className="kt-badge kt-badge--lg kt-badge--rounded kt-badge--bold kt-font-success">
-                S
+                {`${getKeyOfName(user.first_name)}${getKeyOfName(
+                  user.last_name
+                )}`}
               </span>
             </div>
-            <div className="kt-user-card__name">{user.fullname}</div>
+            <div className="kt-user-card__name">
+              {`${user.first_name} ${user.last_name}`}
+            </div>
           </div>
           <div className="kt-notification">
             <a className="kt-notification__item">
@@ -88,7 +95,7 @@ class UserProfile extends React.Component {
 }
 
 const mapStateToProps = ({ auth: { user } }) => ({
-  user,
+  user
 });
 
 export default connect(mapStateToProps)(UserProfile);

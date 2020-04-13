@@ -7,22 +7,22 @@ export function addCSSClass(ele, cls) {
   ele.classList.add(cls);
 }
 
-export const toAbsoluteUrl = (pathname) => process.env.PUBLIC_URL + pathname;
+export const toAbsoluteUrl = pathname => process.env.PUBLIC_URL + pathname;
 
 export function setupAxios(axios, store) {
   axios.interceptors.request.use(
-    (config) => {
+    config => {
       const {
-        auth: { authToken },
+        auth: { authToken }
       } = store.getState();
 
       if (authToken) {
-        // config.headers.Authorization = `Bearer ${authToken}`;
+        config.headers.Authorization = `Bearer ${authToken}`;
       }
 
       return config;
     },
-    (err) => Promise.reject(err)
+    err => Promise.reject(err)
   );
 }
 
@@ -111,4 +111,8 @@ export function setStorage(key, value, expires) {
     return false;
   }
   return true;
+}
+
+export function getKeyOfName(name) {
+  return name.charAt(0);
 }
