@@ -147,7 +147,9 @@ const CategoriesList = ({ getCategoriesSuccess, categories }) => {
 CategoriesList.propTypes = {
   getCategoriesSuccess: PropTypes.func.isRequired
 };
-CategoriesList.defaultProps = {};
+CategoriesList.defaultProps = {
+  categories: []
+};
 
 const mapStateToProps = state => ({
   categories: state.category.categoriesList

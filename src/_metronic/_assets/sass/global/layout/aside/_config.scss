@@ -472,20 +472,20 @@ $kt-aside-config: (
 								self: (
 									bg-color: (
 										default: transparent,
-										open: #1b1b28,
-										here: #1b1b28,
-										active: #1b1b28,
-										hover: #1b1b28
+										open: #fafafa,
+										here: #fafafa,
+										active: #fafafa,
+										hover: #fafafa
 									)
 								),					
 								// link icon
 								icon: (
 									font-color:	(
 										default: #3a3a5d,
-										open: kt-brand-color(),
-										here: kt-brand-color(),
-										active: kt-brand-color(),
-										hover: kt-brand-color()
+										open: #207347,
+										here: #207347,
+										active: #207347,
+										hover: #207347
 									),
 								),		
 								// link bullet
@@ -513,10 +513,10 @@ $kt-aside-config: (
 								text:	(
 									font-color:	(
 										default: #9899ac,
-										open: #ffffff,
-										here: #ffffff,
-										active: #ffffff,
-										hover: #ffffff	
+										open: #207347,
+										here: #207347,
+										active: #207347,
+										hover: #207347	
 									)	
 								),
 								// link arrow
@@ -560,10 +560,10 @@ $kt-aside-config: (
 										self: (
 											bg-color: (
 												default: transparent,
-												open: #1b1b28,
-												here: #1b1b28,
-												active: #1b1b28,
-												hover: #1b1b28
+												open: #fafafa,
+												here: #fafafa,
+												active: #fafafa,
+												hover: #fafafa
 											)
 										),					
 

@@ -7,7 +7,7 @@ export const initLayoutConfig = {
       light: "#ffffff",
       dark: "#282a3c",
 
-      primary: "#5867dd",
+      primary: "#207347",
       success: "#34bfa3",
       info: "#36a3f7",
       warning: "#ffb822",

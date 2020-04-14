@@ -5,6 +5,8 @@ import objectPath from "object-path";
 import { withRouter } from "react-router-dom";
 import * as builder from "../../ducks/builder";
 import { LayoutContextConsumer } from "../LayoutContext";
+import { IconButton } from "@material-ui/core";
+import ArrowBack from "@material-ui/icons/ArrowBack";
 // import BreadCrumbs from "./components/BreadCrumbs";
 
 class SubHeader extends React.Component {
@@ -13,6 +15,7 @@ class SubHeader extends React.Component {
       subheaderCssClasses,
       subheaderContainerCssClasses,
       subheaderMobileToggle,
+      history
     } = this.props;
 
     return (
@@ -34,7 +37,19 @@ class SubHeader extends React.Component {
             <LayoutContextConsumer>
               {({ subheader: { title } }) => (
                 <>
-                  <h3 className="kt-subheader__title">{title}</h3>
+                  {title ? (
+                    <h3 className="kt-subheader__title">{title}</h3>
+                  ) : (
+                    <IconButton
+                      aria-label="back"
+                      size="medium"
+                      onClick={() => {
+                        history.goBack();
+                      }}
+                    >
+                      <ArrowBack fontSize="inherit" />
+                    </IconButton>
+                  )}
                 </>
               )}
             </LayoutContextConsumer>
@@ -47,21 +62,21 @@ class SubHeader extends React.Component {
   }
 }
 
-const mapStateToProps = (store) => ({
+const mapStateToProps = store => ({
   subheaderCssClasses: builder.selectors.getClasses(store, {
     path: "subheader",
-    toString: true,
+    toString: true
   }),
   subheaderContainerCssClasses: builder.selectors.getClasses(store, {
     path: "subheader_container",
-    toString: true,
+    toString: true
   }),
   config: store.builder.layoutConfig,
   menuConfig: store.builder.menuConfig,
   subheaderMobileToggle: objectPath.get(
     store.builder.layoutConfig,
     "subheader.mobile-toggle"
-  ),
+  )
 });
 
 export default withRouter(connect(mapStateToProps)(SubHeader));

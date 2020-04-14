@@ -89,7 +89,7 @@ $kt-state-colors: (
 
     // Bootstrap states
     primary: (
-        base: #5867dd,
+        base: #207347,
         inverse: #ffffff
     ),
     success: (
@@ -167,18 +167,18 @@ $kt-social-colors: (
 
 // Root Font Settings
 $kt-font-families: (
-    regular: unquote('Poppins, Helvetica, sans-serif'),
-    heading: unquote('Poppins, Helvetica, sans-serif')
+    regular: unquote('Roboto, Poppins, Helvetica, sans-serif'),
+    heading: unquote('Roboto, Poppins, Helvetica, sans-serif')
 ) !default;
 
 // Root Font Settings
 $kt-font-size: (
     size: (
-        desktop: 13px,
-        tablet: 12px,
-        mobile: 12px
+        desktop: 16px,
+        tablet: 15px,
+        mobile: 15px
     ),
-    weight: 300
+    weight: 400
 ) !default;
 
 // General Link Settings

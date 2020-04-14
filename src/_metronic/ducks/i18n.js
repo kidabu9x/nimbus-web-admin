@@ -6,11 +6,11 @@ const actionTypes = {
 };
 
 const initialState = {
-  lang: "en"
+  lang: "vi"
 };
 
 export const reducer = persistReducer(
-  { storage, key: "i18n" },
+  { storage, key: "i18n-nimbus" },
   (state = initialState, action) => {
     switch (action.type) {
       case actionTypes.SetLanguage:

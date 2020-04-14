@@ -10,8 +10,13 @@ const useStyles = makeStyles(theme => ({
   table: {
     minWidth: 650
   },
-  cardContainer: {
-    marginBottom: 20
+  cardContainerLeft: {
+    marginBottom: 20,
+    marginLeft: 10,
+    marginRight: 20
+  },
+  cardContainerRight: {
+    marginBottom: 20,
   },
   actions: {
     display: "flex"
@@ -26,6 +31,7 @@ const useStyles = makeStyles(theme => ({
   },
   rowHeader: {
     marginBottom: 12,
+    marginLeft: 8,
     alignItems: "center",
     justifyContent: "space-between"
   },
@@ -40,10 +46,38 @@ const useStyles = makeStyles(theme => ({
     marginLeft: 15
   },
   inputTitle: {
-    width: "50%"
+    width: "65%"
   },
   inputDescription: {
     width: "100%"
+  },
+  ckeContainer: {
+    display: "flex",
+    flexDirection: "column"
+  },
+  btnRemoveCKE: {
+    width: 40,
+    left: "95%"
+  },
+  ckeField: {
+    display: "flex"
+  },
+  categoriesContainer: {
+    width: "100%"
+  },
+  categoryTag: {
+    width: "100%",
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: 20,
+    marginLeft: 20
+  },
+  categoryTagBtn: { float: "right" },
+  statusContainer: {
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginLeft: 0
   }
 }));
 

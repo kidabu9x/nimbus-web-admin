@@ -19,9 +19,10 @@ import { useHistory } from "react-router-dom";
 import dayjs from "dayjs";
 import AddIcon from "@material-ui/icons/Add";
 import useStyles from "./styles";
+import { FormattedMessage, injectIntl } from "react-intl";
 import { ROUTES } from "../../../../_metronic/utils/routerList";
 
-const BlogsList = ({ getBlogsSuccess, blogs }) => {
+const BlogsList = ({ getBlogsSuccess, blogs, intl }) => {
   const classes = useStyles();
   const history = useHistory();
   useEffect(() => {
@@ -51,7 +52,7 @@ const BlogsList = ({ getBlogsSuccess, blogs }) => {
   return (
     <>
       <div className="row">
-        <div className="col-xl-9">
+        <div className="col-xl-11">
           <div className="row row-full-height">
             <Button
               variant="contained"
@@ -60,22 +61,29 @@ const BlogsList = ({ getBlogsSuccess, blogs }) => {
               startIcon={<AddIcon />}
               onClick={onAddNew}
             >
-              Add new
+              <FormattedMessage id="BLOGS.LIST.ADD_NEW" />
             </Button>
             <div className="kt-space-20" />
             <Paper className={classes.root}>
-              <Table
-                className={`col-xl-12 ${classes.table}`}
-                aria-label="simple table"
-              >
+              <Table className={`${classes.table}`} aria-label="simple table">
                 <TableHead>
                   <TableRow>
                     <TableCell>ID</TableCell>
-                    <TableCell align="right">Create At</TableCell>
-                    <TableCell align="left">Title</TableCell>
-                    <TableCell align="left">Description</TableCell>
-                    <TableCell align="right">Status</TableCell>
-                    <TableCell align="right">Actions</TableCell>
+                    <TableCell align="right">
+                      <FormattedMessage id="BLOGS.LIST.TABLE.CREATE_AT" />
+                    </TableCell>
+                    <TableCell align="left">
+                      <FormattedMessage id="BLOGS.LIST.TABLE.TITLE" />
+                    </TableCell>
+                    <TableCell align="left">
+                      <FormattedMessage id="BLOGS.LIST.TABLE.DESCRIPTION" />
+                    </TableCell>
+                    <TableCell align="right">
+                      <FormattedMessage id="BLOGS.LIST.TABLE.STATUS" />
+                    </TableCell>
+                    <TableCell align="right">
+                      <FormattedMessage id="BLOGS.LIST.TABLE.ACTIONS" />
+                    </TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -127,7 +135,9 @@ const BlogsList = ({ getBlogsSuccess, blogs }) => {
 BlogsList.propTypes = {
   getBlogsSuccess: PropTypes.func.isRequired
 };
-BlogsList.defaultProps = {};
+BlogsList.defaultProps = {
+  blog: []
+};
 
 const mapStateToProps = state => ({
   blogs: state.blog.blogsList
@@ -137,4 +147,6 @@ const mapDispatchToProps = {
   getBlogsSuccess: blog.actions.getBlogsSuccess
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(BlogsList);
+export default injectIntl(
+  connect(mapStateToProps, mapDispatchToProps)(BlogsList)
+);

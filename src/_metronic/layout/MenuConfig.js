@@ -7,7 +7,7 @@ export default {
     self: {},
     items: [
       {
-        title: "Dashboard",
+        title: "Trang chủ",
         root: true,
         icon: "flaticon2-architecture-and-city",
         page: "dashboard",
@@ -21,7 +21,7 @@ export default {
         page: "blogs"
       },
       {
-        title: "Categories",
+        title: "Danh mục",
         root: true,
         icon: "flaticon2-layers-2",
         page: "categories"

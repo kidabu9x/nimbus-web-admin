@@ -18,7 +18,13 @@ class Brand extends React.Component {
       >
         <div className="kt-aside__brand-logo">
           <Link to="">
-            <img alt="logo" src={toAbsoluteUrl("/media/logos/logo.png")} />
+            <img
+              alt="logo"
+              src={toAbsoluteUrl("/media/logos/logo.png")}
+              style={{
+                width: "100%"
+              }}
+            />
           </Link>
         </div>
       </div>

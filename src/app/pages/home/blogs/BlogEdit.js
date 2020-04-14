@@ -14,11 +14,10 @@ import {
   Typography,
   Input,
   Fab,
-  RadioGroup,
-  FormControlLabel,
-  Radio,
-  FormControl,
-  Button
+  Button,
+  IconButton,
+  TextField,
+  Switch
 } from "@material-ui/core";
 import CKEditor from "@ckeditor/ckeditor5-react";
 import AddIcon from "@material-ui/icons/Add";
@@ -32,10 +31,19 @@ import { BLOG } from "../../../../_metronic/utils/constants";
 import useColors from "../../../../_metronic/utils/styleColor";
 import { remove } from "lodash";
 import { ROUTES } from "../../../../_metronic/utils/routerList";
+import { injectIntl, FormattedMessage } from "react-intl";
+import * as category from "../../../store/category";
+import { getAllCategories } from "../../../crud/category.crud";
+import Autocomplete from "@material-ui/lab/Autocomplete";
+import { keyBy, filter } from "lodash";
+import {
+  BLOG_STATUS,
+  BLOG_EXTRA_DATA
+} from "../../../../_metronic/utils/types";
 
 const initCKEContent = {
-  content: "string",
-  type: "<h1>New content</h1>"
+  content: "Chèn nội dung",
+  type: "HTML"
 };
 const initAuthor = {
   id: "string",
@@ -47,34 +55,26 @@ const initAuthor = {
 
 const initDefaultBlog = {
   id: "string",
-  title: "string",
+  title: "Tiêu đề mới",
   contents: [
     {
-      content: "string",
+      content: "Chèn nội dung",
       type: "HTML" // HTML
     }
   ],
-  tags: ["string"],
-  status: "string", // DELETED, PUBLISHED, DISABLED
-  created_at: "string",
-  updated_at: "string",
-  authors: [
-    {
-      email: "string",
-      first_name: "string",
-      last_name: "string",
-      avatar: "string"
-    },
-    {
-      email: "string",
-      first_name: "string",
-      last_name: "string",
-      avatar: "string"
-    }
-  ]
+  tags: [],
+  description: "Mô tả mới",
+  status: "DISABLED", // DELETED, PUBLISHED, DISABLED
+  created_at: new Date().toDateString(),
+  updated_at: new Date().toDateString(),
+  authors: [],
+  extra_data: {
+    [BLOG_EXTRA_DATA.FB_PIXEL_ID]: "",
+    [BLOG_EXTRA_DATA.GOOGLE_ANALYTICS_ID]: ""
+  }
 };
 
-const BlogEdit = ({ blogData }) => {
+const BlogEdit = ({ blogData, categories, getCategoriesSuccess }) => {
   const { id } = useParams();
   const history = useHistory();
   const classes = useStyles();
@@ -89,7 +89,14 @@ const BlogEdit = ({ blogData }) => {
     } else {
       setBlog(initDefaultBlog);
     }
+    loadCategories();
   }, []);
+
+  const loadCategories = () => {
+    getAllCategories().then(res => {
+      getCategoriesSuccess(res.data.data);
+    });
+  };
 
   const onAddCKE = () => {
     const newContents = blog.contents;
@@ -109,14 +116,8 @@ const BlogEdit = ({ blogData }) => {
     setBlog({ ...blog, tags: newTags });
   };
 
-  const onChangeStatus = event => {
-    setBlog({ ...blog, status: event.target.value });
-  };
-
-  const onAddAuthor = () => {
-    const newAuthors = blog.authors;
-    newAuthors[newAuthors.length] = initAuthor;
-    setBlog({ ...blog, authors: newAuthors });
+  const onChangeStatus = value => {
+    setBlog({ ...blog, status: value });
   };
 
   const onSubmit = () => {
@@ -157,6 +158,59 @@ const BlogEdit = ({ blogData }) => {
     setBlog({ ...blog, contents: newContents });
   };
 
+  const onRemoveCKE = index => {
+    let newContents = blog.contents;
+    newContents = newContents
+      .slice(0, index)
+      .concat(newContents.slice(index + 1, newContents.length));
+    setBlog({ ...blog, contents: newContents });
+  };
+
+  const onChooseCategory = category => {
+    let newCategories = blog.categories;
+    newCategories[newCategories.length] = category;
+    setBlog({ ...blog, categories: newCategories });
+  };
+
+  const onDeleteCategory = (category, index) => {
+    let newCategories = blog.categories;
+    newCategories = newCategories
+      .slice(0, index)
+      .concat(newCategories.slice(index + 1, newCategories.length));
+    setBlog({ ...blog, categories: newCategories });
+  };
+
+  const filterCategoriesByArray = (arr, arrDif) => {
+    let lookup = keyBy(arrDif, o => {
+      return o.id ? o.id.toString() : "" + o.title;
+    });
+    // find all users where "user + age" exists in index, one loop, quick lookup. no nested loops
+    let result = filter(arr, u => {
+      return lookup[u.id ? u.id.toString() : "" + u.title] === undefined;
+    });
+    return result;
+  };
+
+  const onFBPixelIdChange = evt => {
+    setBlog({
+      ...blog,
+      extra_data: {
+        ...blog.extra_data,
+        [BLOG_EXTRA_DATA.FB_PIXEL_ID]: evt.target.value
+      }
+    });
+  };
+
+  const onGAIdChange = evt => {
+    setBlog({
+      ...blog,
+      extra_data: {
+        ...blog.extra_data,
+        [BLOG_EXTRA_DATA.GOOGLE_ANALYTICS_ID]: evt.target.value
+      }
+    });
+  };
+
   const onChangeAuthor = (event, author, index, key) => {
     const newAuthors = blog.authors;
     let newAuthor = newAuthors[index];
@@ -165,11 +219,21 @@ const BlogEdit = ({ blogData }) => {
     setBlog({ ...blog, authors: newAuthors });
   };
 
+  const onAddAuthor = () => {
+    const newAuthors = blog.authors;
+    newAuthors[newAuthors.length] = initAuthor;
+    setBlog({ ...blog, authors: newAuthors });
+  };
+
   return (
     <>
       <div className={`row ${classes.rowHeader}`}>
-        <Typography variant="h3">
-          {id !== BLOG.QUERY_NEW ? "Edit" : "New"}
+        <Typography variant="h4">
+          {id !== BLOG.QUERY_NEW ? (
+            <FormattedMessage id="BLOGS.EDIT.EDIT" />
+          ) : (
+            <FormattedMessage id="BLOGS.EDIT.NEW" />
+          )}
         </Typography>
         <div>
           <Button
@@ -179,7 +243,7 @@ const BlogEdit = ({ blogData }) => {
             startIcon={<SaveIcon />}
             onClick={onSubmit}
           >
-            Submit
+            <FormattedMessage id="BLOGS.EDIT.SUBMIT" />
           </Button>
           {id !== BLOG.QUERY_NEW && (
             <Button
@@ -189,7 +253,7 @@ const BlogEdit = ({ blogData }) => {
               startIcon={<DeleteIcon />}
               onClick={onDelete}
             >
-              Delete
+              <FormattedMessage id="BLOGS.EDIT.DELETE" />
             </Button>
           )}
           <Button
@@ -199,38 +263,45 @@ const BlogEdit = ({ blogData }) => {
             startIcon={<ClearIcon />}
             onClick={onClear}
           >
-            Cancel
+            <FormattedMessage id="BLOGS.EDIT.CANCEL" />
           </Button>
         </div>
       </div>
-      <div className={`${classes.container}`}>
+      <div className={`row ${classes.container}`}>
         {blog && (
           <>
-            <Card className={`col-xl-9 ${classes.cardContainer}`}>
+            <Card className={`col-xl-7 ${classes.cardContainerLeft}`}>
               <CardContent>
-                <Typography>Title</Typography>
+                <Typography>
+                  <FormattedMessage id="BLOGS.EDIT.TITLE" />
+                </Typography>
                 <div className="kt-space-20" />
                 <Input
                   className={classes.inputTitle}
                   value={blog.title}
                   onChange={onTitleChange}
-                ></Input>
+                />
               </CardContent>
               <CardContent>
-                <Typography>Description</Typography>
+                <Typography>
+                  <FormattedMessage id="BLOGS.EDIT.DESCRIPTION" />
+                </Typography>
                 <div className="kt-space-20" />
                 <Input
                   className={classes.inputDescription}
                   value={blog.description}
                   onChange={onDescChange}
-                ></Input>
+                  multiline
+                />
               </CardContent>
               <CardContent>
                 <div className={`${classes.rowBody}`}>
-                  <Typography>Body</Typography>
+                  <Typography>
+                    <FormattedMessage id="BLOGS.EDIT.BODY" />
+                  </Typography>
                   <Fab
                     size="small"
-                    color="primary"
+                    color="default"
                     aria-label="add"
                     onClick={onAddCKE}
                     className={classes.btnAdd}
@@ -239,7 +310,16 @@ const BlogEdit = ({ blogData }) => {
                   </Fab>
                 </div>
                 {blog.contents.map((content, index) => (
-                  <div key={index}>
+                  <div key={index} className={classes.ckeContainer}>
+                    <IconButton
+                      aria-label="delete"
+                      className={classes.btnRemoveCKE}
+                      onClick={() => {
+                        onRemoveCKE(index);
+                      }}
+                    >
+                      <ClearIcon fontSize="small" />
+                    </IconButton>
                     <CKEditor
                       key={index}
                       editor={ClassicEditor}
@@ -259,50 +339,124 @@ const BlogEdit = ({ blogData }) => {
                 ))}
               </CardContent>
             </Card>
-            <Card className={`col-xl-9 ${classes.cardContainer}`}>
-              <CardContent>
-                <Typography>Tags</Typography>
-                <div className="kt-space-20" />
-                <ChipInput
-                  value={blog.tags}
-                  onAdd={chip => {
-                    handleAddChip(chip);
-                  }}
-                  onDelete={(chip, index) => handleDeleteChip(chip, index)}
-                />
-              </CardContent>
-              <CardContent>
-                <Typography>Status</Typography>
-                <FormControl component="fieldset">
-                  <RadioGroup
-                    aria-label="position"
-                    name="position"
-                    value={blog.status}
-                    onChange={onChangeStatus}
-                    row
-                  >
-                    <FormControlLabel
-                      value="DELETED"
-                      control={<Radio color="primary" />}
-                      label="DELETED"
-                      labelPlacement="end"
-                    />
-                    <FormControlLabel
-                      value="PUBLISHED"
-                      control={<Radio color="primary" />}
-                      label="PUBLISHED"
-                      labelPlacement="end"
-                    />
-                    <FormControlLabel
-                      value="DISABLED"
-                      control={<Radio color="primary" />}
-                      label="DISABLED"
-                      labelPlacement="end"
-                    />
-                  </RadioGroup>
-                </FormControl>
-              </CardContent>
-            </Card>
+            <div className={`col-xl-4`}>
+              <Card className={`${classes.cardContainerRight}`}>
+                <CardContent className={`row ${classes.statusContainer}`}>
+                  <Typography>
+                    <FormattedMessage id="BLOGS.EDIT.STATUS" />
+                  </Typography>
+                  <Switch
+                    checked={blog.status !== BLOG_STATUS.DISABLED}
+                    color="primary"
+                    inputProps={{ "aria-label": "primary checkbox" }}
+                    onChange={() => {
+                      onChangeStatus(
+                        blog.status !== BLOG_STATUS.DISABLED
+                          ? BLOG_STATUS.DISABLED
+                          : BLOG_STATUS.PUBLISHED
+                      );
+                    }}
+                  />
+                </CardContent>
+                <CardContent>
+                  <Typography>
+                    <FormattedMessage id="BLOGS.EDIT.CATEGORIES" />
+                  </Typography>
+                  <div className="kt-space-20" />
+                  <Autocomplete
+                    id="combo-box-demo"
+                    options={filterCategoriesByArray(
+                      categories,
+                      blog.categories
+                    )}
+                    getOptionLabel={category => category.title}
+                    onChange={(event, value) => {
+                      onChooseCategory(value);
+                    }}
+                    value={null}
+                    renderInput={params => (
+                      <TextField
+                        {...params}
+                        label={
+                          <FormattedMessage id="BLOGS.EDIT.CHOOSE_CATEGORY" />
+                        }
+                        className={classes.categoriesContainer}
+                        variant="outlined"
+                      />
+                    )}
+                  />
+                  {blog.categories.map((category, index) => (
+                    <div key={index}>
+                      <div className={classes.categoryTag}>
+                        <Typography>{category.title}</Typography>
+                        <Button
+                          color="primary"
+                          size="small"
+                          className={classes.categoryTagBtn}
+                          onClick={() => {
+                            onDeleteCategory(category, index);
+                          }}
+                        >
+                          <ClearIcon />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </CardContent>
+                <CardContent>
+                  <Typography>
+                    <FormattedMessage id="BLOGS.EDIT.TAGS" />
+                  </Typography>
+                  <div className="kt-space-20" />
+                  <ChipInput
+                    value={blog.tags}
+                    onAdd={chip => {
+                      handleAddChip(chip);
+                    }}
+                    onDelete={(chip, index) => handleDeleteChip(chip, index)}
+                  />
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent>
+                  {/* <Typography>
+                    <FormattedMessage id="BLOGS.EDIT.EXTRA_DATA.FB" />
+                  </Typography> */}
+                  <div className="kt-space-20" />
+                  {/* <Input
+                    className={classes.inputTitle}
+                    onChange={onFBPixelIdChange}
+                    value={blog.extra_data[BLOG_EXTRA_DATA.FB_PIXEL_ID]}
+                  /> */}
+                  <TextField
+                    id="filled-search"
+                    label={<FormattedMessage id="BLOGS.EDIT.EXTRA_DATA.FB" />}
+                    variant="outlined"
+                    value={blog.extra_data[BLOG_EXTRA_DATA.FB_PIXEL_ID]}
+                    onChange={onFBPixelIdChange}
+                  />
+                </CardContent>
+                <CardContent>
+                  {/* <Typography>
+                    <FormattedMessage id="BLOGS.EDIT.EXTRA_DATA.GG" />
+                  </Typography> */}
+                  <div className="kt-space-20" />
+                  {/* <Input
+                    variant="outlined"
+                    className={classes.inputTitle}
+                    onChange={onGAIdChange}
+                    value={blog.extra_data[BLOG_EXTRA_DATA.GOOGLE_ANALYTICS_ID]}
+                  /> */}
+                  <TextField
+                    id="filled-search"
+                    label={<FormattedMessage id="BLOGS.EDIT.EXTRA_DATA.GG" />}
+                    variant="outlined"
+                    onChange={onGAIdChange}
+                    value={blog.extra_data[BLOG_EXTRA_DATA.GOOGLE_ANALYTICS_ID]}
+                  />
+                </CardContent>
+              </Card>
+            </div>
             {/* TODO: Authors
             <Card className={`col-xl-9 ${classes.cardContainer}`}>
               <CardContent>
@@ -359,14 +513,22 @@ const BlogEdit = ({ blogData }) => {
 };
 
 BlogEdit.propTypes = {
-  blogData: PropTypes.shape({})
+  blogData: PropTypes.shape({}),
+  getCategoriesSuccess: PropTypes.func.isRequired
 };
-BlogEdit.defaultProps = {};
+BlogEdit.defaultProps = {
+  categories: []
+};
 
 const mapStateToProps = state => ({
-  blogData: state.blog.blogData
+  blogData: state.blog.blogData,
+  categories: state.category.categoriesList
 });
 
-const mapDispatchToProps = {};
+const mapDispatchToProps = {
+  getCategoriesSuccess: category.actions.getCategoriesSuccess
+};
 
-export default connect(mapStateToProps, mapDispatchToProps)(BlogEdit);
+export default injectIntl(
+  connect(mapStateToProps, mapDispatchToProps)(BlogEdit)
+);
