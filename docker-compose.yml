@@ -1,0 +1,8 @@
+version: '3'
+services:
+  nimbus-web-internal:
+    hostname: nimbus-web-internal.local
+    container_name: nimbus-web-internal
+    ports:
+      - 46080:80
+    build: .

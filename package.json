@@ -2,7 +2,6 @@
   "name": "demo3",
   "version": "6.1.5",
   "private": true,
-  "homepage": "https://5e81d2b4c130270016a37701.mockapi.io/api/v1",
   "scripts": {
     "serve": "cp-cli build _site/metronic/preview/react && serve",
     "start": "react-scripts start",
