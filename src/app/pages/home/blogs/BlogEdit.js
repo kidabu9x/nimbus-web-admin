@@ -28,7 +28,6 @@ import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import useStyles from "./styles";
 import ChipInput from "material-ui-chip-input";
 import { BLOG } from "../../../../_metronic/utils/constants";
-import useColors from "../../../../_metronic/utils/styleColor";
 import { remove } from "lodash";
 import { ROUTES } from "../../../../_metronic/utils/routerList";
 import { injectIntl, FormattedMessage } from "react-intl";
@@ -68,6 +67,7 @@ const initDefaultBlog = {
   created_at: new Date().toDateString(),
   updated_at: new Date().toDateString(),
   authors: [],
+  categories: [],
   extra_data: {
     [BLOG_EXTRA_DATA.FB_PIXEL_ID]: "",
     [BLOG_EXTRA_DATA.GOOGLE_ANALYTICS_ID]: ""
@@ -78,7 +78,6 @@ const BlogEdit = ({ blogData, categories, getCategoriesSuccess }) => {
   const { id } = useParams();
   const history = useHistory();
   const classes = useStyles();
-  const colors = useColors();
   const [blog, setBlog] = useState(blogData[id]);
 
   useEffect(() => {
@@ -471,7 +470,7 @@ const BlogEdit = ({ blogData, categories, getCategoriesSuccess }) => {
         )}
       </div>
       <div className={`${classes.rowFootHeader}`}>
-        {id !== BLOG.QUERY_NEW && (
+        {id !== BLOG.QUERY_NEW ? (
           <Button
             variant="contained"
             color="inherit"
@@ -481,6 +480,8 @@ const BlogEdit = ({ blogData, categories, getCategoriesSuccess }) => {
           >
             <FormattedMessage id="BLOGS.EDIT.DELETE" />
           </Button>
+        ) : (
+          <div></div>
         )}
         <div>
           <Button
