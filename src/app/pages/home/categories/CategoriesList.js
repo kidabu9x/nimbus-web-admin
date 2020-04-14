@@ -75,7 +75,7 @@ const CategoriesList = ({ getCategoriesSuccess, categories }) => {
           <div className="row row-full-height">
             <Button
               variant="contained"
-              color="secondary"
+              color="primary"
               className={classes.button}
               startIcon={<AddIcon />}
               onClick={onAddNew}
