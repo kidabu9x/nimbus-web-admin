@@ -227,7 +227,7 @@ const BlogEdit = ({ blogData, categories, getCategoriesSuccess }) => {
 
   return (
     <>
-      <div className={`row ${classes.rowHeader}`}>
+      <div className={`${classes.rowHeader}`}>
         <Typography variant="h4">
           {id !== BLOG.QUERY_NEW ? (
             <FormattedMessage id="BLOGS.EDIT.EDIT" />
@@ -235,44 +235,22 @@ const BlogEdit = ({ blogData, categories, getCategoriesSuccess }) => {
             <FormattedMessage id="BLOGS.EDIT.NEW" />
           )}
         </Typography>
-        <div>
-          <Button
-            variant="contained"
-            color="secondary"
-            className={classes.btnHeader}
-            startIcon={<SaveIcon />}
-            onClick={onSubmit}
-          >
-            <FormattedMessage id="BLOGS.EDIT.SUBMIT" />
-          </Button>
-          {id !== BLOG.QUERY_NEW && (
-            <Button
-              variant="contained"
-              color="secondary"
-              className={`${classes.btnHeader} ${colors.lightRed}`}
-              startIcon={<DeleteIcon />}
-              onClick={onDelete}
-            >
-              <FormattedMessage id="BLOGS.EDIT.DELETE" />
-            </Button>
-          )}
-          <Button
-            variant="contained"
-            color="inherit"
-            className={classes.btnHeader}
-            startIcon={<ClearIcon />}
-            onClick={onClear}
-          >
-            <FormattedMessage id="BLOGS.EDIT.CANCEL" />
-          </Button>
-        </div>
+        <Button
+          variant="contained"
+          color="primary"
+          className={classes.btnHeader}
+          startIcon={<SaveIcon />}
+          onClick={onSubmit}
+        >
+          <FormattedMessage id="BLOGS.EDIT.SUBMIT" />
+        </Button>
       </div>
-      <div className={`row ${classes.container}`}>
+      <div className={`${classes.container}`}>
         {blog && (
           <>
-            <Card className={`col-xl-7 ${classes.cardContainerLeft}`}>
+            <Card className={`col-xl-8 ${classes.cardContainerLeft}`}>
               <CardContent>
-                <Typography>
+                <Typography className={classes.cardTitle}>
                   <FormattedMessage id="BLOGS.EDIT.TITLE" />
                 </Typography>
                 <div className="kt-space-20" />
@@ -283,7 +261,7 @@ const BlogEdit = ({ blogData, categories, getCategoriesSuccess }) => {
                 />
               </CardContent>
               <CardContent>
-                <Typography>
+                <Typography className={classes.cardTitle}>
                   <FormattedMessage id="BLOGS.EDIT.DESCRIPTION" />
                 </Typography>
                 <div className="kt-space-20" />
@@ -296,7 +274,7 @@ const BlogEdit = ({ blogData, categories, getCategoriesSuccess }) => {
               </CardContent>
               <CardContent>
                 <div className={`${classes.rowBody}`}>
-                  <Typography>
+                  <Typography className={classes.cardTitle}>
                     <FormattedMessage id="BLOGS.EDIT.BODY" />
                   </Typography>
                   <Fab
@@ -339,10 +317,10 @@ const BlogEdit = ({ blogData, categories, getCategoriesSuccess }) => {
                 ))}
               </CardContent>
             </Card>
-            <div className={`col-xl-4`}>
+            <div className={`col-xl-4 ${classes.containerRight}`}>
               <Card className={`${classes.cardContainerRight}`}>
                 <CardContent className={`row ${classes.statusContainer}`}>
-                  <Typography>
+                  <Typography className={classes.cardTitle}>
                     <FormattedMessage id="BLOGS.EDIT.STATUS" />
                   </Typography>
                   <Switch
@@ -359,7 +337,7 @@ const BlogEdit = ({ blogData, categories, getCategoriesSuccess }) => {
                   />
                 </CardContent>
                 <CardContent>
-                  <Typography>
+                  <Typography className={classes.cardTitle}>
                     <FormattedMessage id="BLOGS.EDIT.CATEGORIES" />
                   </Typography>
                   <div className="kt-space-20" />
@@ -404,11 +382,12 @@ const BlogEdit = ({ blogData, categories, getCategoriesSuccess }) => {
                   ))}
                 </CardContent>
                 <CardContent>
-                  <Typography>
+                  <Typography className={classes.cardTitle}>
                     <FormattedMessage id="BLOGS.EDIT.TAGS" />
                   </Typography>
                   <div className="kt-space-20" />
                   <ChipInput
+                    variant="outlined"
                     value={blog.tags}
                     onAdd={chip => {
                       handleAddChip(chip);
@@ -419,17 +398,9 @@ const BlogEdit = ({ blogData, categories, getCategoriesSuccess }) => {
               </Card>
               <Card>
                 <CardContent>
-                  {/* <Typography>
-                    <FormattedMessage id="BLOGS.EDIT.EXTRA_DATA.FB" />
-                  </Typography> */}
                   <div className="kt-space-20" />
-                  {/* <Input
-                    className={classes.inputTitle}
-                    onChange={onFBPixelIdChange}
-                    value={blog.extra_data[BLOG_EXTRA_DATA.FB_PIXEL_ID]}
-                  /> */}
                   <TextField
-                    id="filled-search"
+                    className={classes.inputTitle}
                     label={<FormattedMessage id="BLOGS.EDIT.EXTRA_DATA.FB" />}
                     variant="outlined"
                     value={blog.extra_data[BLOG_EXTRA_DATA.FB_PIXEL_ID]}
@@ -437,18 +408,9 @@ const BlogEdit = ({ blogData, categories, getCategoriesSuccess }) => {
                   />
                 </CardContent>
                 <CardContent>
-                  {/* <Typography>
-                    <FormattedMessage id="BLOGS.EDIT.EXTRA_DATA.GG" />
-                  </Typography> */}
                   <div className="kt-space-20" />
-                  {/* <Input
-                    variant="outlined"
-                    className={classes.inputTitle}
-                    onChange={onGAIdChange}
-                    value={blog.extra_data[BLOG_EXTRA_DATA.GOOGLE_ANALYTICS_ID]}
-                  /> */}
                   <TextField
-                    id="filled-search"
+                    className={classes.inputTitle}
                     label={<FormattedMessage id="BLOGS.EDIT.EXTRA_DATA.GG" />}
                     variant="outlined"
                     onChange={onGAIdChange}
@@ -507,6 +469,38 @@ const BlogEdit = ({ blogData, categories, getCategoriesSuccess }) => {
             </Card> */}
           </>
         )}
+      </div>
+      <div className={`${classes.rowFootHeader}`}>
+        {id !== BLOG.QUERY_NEW && (
+          <Button
+            variant="contained"
+            color="inherit"
+            className={`${classes.btnFooter}`}
+            startIcon={<DeleteIcon />}
+            onClick={onDelete}
+          >
+            <FormattedMessage id="BLOGS.EDIT.DELETE" />
+          </Button>
+        )}
+        <div>
+          <Button
+            variant="contained"
+            color="primary"
+            className={classes.btnHeader}
+            startIcon={<SaveIcon />}
+            onClick={onSubmit}
+          >
+            <FormattedMessage id="BLOGS.EDIT.SUBMIT" />
+          </Button>
+          <Button
+            variant="contained"
+            color="inherit"
+            className={classes.btnHeader}
+            onClick={onClear}
+          >
+            <FormattedMessage id="BLOGS.EDIT.CANCEL" />
+          </Button>
+        </div>
       </div>
     </>
   );

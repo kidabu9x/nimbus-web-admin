@@ -6,17 +6,27 @@ const useStyles = makeStyles(theme => ({
     marginTop: theme.spacing(3),
     overflowX: "auto"
   },
-  container: {},
+  container: {
+    display: "flex"
+  },
   table: {
     minWidth: 650
   },
+  cardTitle: {
+    color: '#646c9a',
+    fontSize: 17,
+    fontWeight: 500
+  },
   cardContainerLeft: {
     marginBottom: 20,
-    marginLeft: 10,
-    marginRight: 20
+    marginRight: 10
+  },
+  containerRight: {
+    marginBottom: 10,
+    width: "100%"
   },
   cardContainerRight: {
-    marginBottom: 20,
+    marginBottom: 10
   },
   actions: {
     display: "flex"
@@ -32,8 +42,18 @@ const useStyles = makeStyles(theme => ({
   rowHeader: {
     marginBottom: 12,
     marginLeft: 8,
+    marginRight: 0,
     alignItems: "center",
-    justifyContent: "space-between"
+    justifyContent: "space-between",
+    display: "flex"
+  },
+  rowFootHeader: {
+    marginBottom: 12,
+    marginLeft: 0,
+    marginRight: 0,
+    alignItems: "center",
+    justifyContent: "space-between",
+    display: "flex"
   },
   textField: {
     marginRight: 20
@@ -45,8 +65,11 @@ const useStyles = makeStyles(theme => ({
   btnHeader: {
     marginLeft: 15
   },
+  btnFooter: {
+    marginLeft: 0
+  },
   inputTitle: {
-    width: "65%"
+    width: "100%"
   },
   inputDescription: {
     width: "100%"
@@ -70,7 +93,7 @@ const useStyles = makeStyles(theme => ({
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    marginTop: 20,
+    marginTop: 15,
     marginLeft: 20
   },
   categoryTagBtn: { float: "right" },
@@ -78,6 +101,9 @@ const useStyles = makeStyles(theme => ({
     justifyContent: "space-between",
     alignItems: "center",
     marginLeft: 0
+  },
+  listDeleteBtn: {
+    color: "#5d78ff"
   }
 }));
 

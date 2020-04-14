@@ -52,7 +52,7 @@ const BlogsList = ({ getBlogsSuccess, blogs, intl }) => {
   return (
     <>
       <div className="row">
-        <div className="col-xl-11">
+        <div className="col-xl-12">
           <div className="row row-full-height">
             <Button
               variant="contained"
@@ -115,6 +115,7 @@ const BlogsList = ({ getBlogsSuccess, blogs, intl }) => {
                             onClick={() => {
                               onDeleteBlog(blog.id);
                             }}
+                            className={classes.listDeleteBtn}
                           >
                             <DeleteIcon />
                           </IconButton>
