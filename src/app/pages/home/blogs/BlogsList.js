@@ -11,7 +11,7 @@ import {
   TableRow,
   Paper,
   IconButton,
-  Button
+  Button,
 } from "@material-ui/core";
 import DeleteIcon from "@material-ui/icons/Delete";
 import EditIcon from "@material-ui/icons/Edit";
@@ -30,17 +30,17 @@ const BlogsList = ({ getBlogsSuccess, blogs, intl }) => {
   }, []);
 
   const loadBlogs = () => {
-    getAllBlogs().then(res => {
+    getAllBlogs().then((res) => {
       getBlogsSuccess(res.data.data);
     });
   };
 
-  const onEditBlog = blog => {
+  const onEditBlog = (blog) => {
     history.push(`${ROUTES.blogs}/${blog.id}`);
   };
 
-  const onDeleteBlog = blogId => {
-    deleteBlog(blogId).then(data => {
+  const onDeleteBlog = (blogId) => {
+    deleteBlog(blogId).then((data) => {
       loadBlogs();
     });
   };
@@ -87,7 +87,7 @@ const BlogsList = ({ getBlogsSuccess, blogs, intl }) => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {blogs.map(blog => (
+                  {blogs.map((blog) => (
                     <TableRow key={blog.id}>
                       <TableCell align="right">{blog.id}</TableCell>
                       <TableCell align="right">
@@ -134,18 +134,18 @@ const BlogsList = ({ getBlogsSuccess, blogs, intl }) => {
 };
 
 BlogsList.propTypes = {
-  getBlogsSuccess: PropTypes.func.isRequired
+  getBlogsSuccess: PropTypes.func.isRequired,
 };
 BlogsList.defaultProps = {
-  blog: []
+  blog: [],
 };
 
-const mapStateToProps = state => ({
-  blogs: state.blog.blogsList
+const mapStateToProps = (state) => ({
+  blogs: state.blog.blogsList,
 });
 
 const mapDispatchToProps = {
-  getBlogsSuccess: blog.actions.getBlogsSuccess
+  getBlogsSuccess: blog.actions.getBlogsSuccess,
 };
 
 export default injectIntl(

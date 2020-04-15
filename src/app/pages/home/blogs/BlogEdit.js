@@ -5,7 +5,7 @@ import {
   getBlog,
   updateBlog,
   createBlog,
-  deleteBlog
+  deleteBlog,
 } from "../../../crud/blog.crud";
 import { useParams, useHistory } from "react-router-dom";
 import {
@@ -17,7 +17,7 @@ import {
   Button,
   IconButton,
   TextField,
-  Switch
+  Switch,
 } from "@material-ui/core";
 import CKEditor from "@ckeditor/ckeditor5-react";
 import AddIcon from "@material-ui/icons/Add";
@@ -37,19 +37,19 @@ import Autocomplete from "@material-ui/lab/Autocomplete";
 import { keyBy, filter } from "lodash";
 import {
   BLOG_STATUS,
-  BLOG_EXTRA_DATA
+  BLOG_EXTRA_DATA,
 } from "../../../../_metronic/utils/types";
 
 const initCKEContent = {
   content: "Chèn nội dung",
-  type: "HTML"
+  type: "HTML",
 };
 const initAuthor = {
   id: "string",
   email: "string",
   first_name: "string",
   last_name: "string",
-  avatar: "https://i.stack.imgur.com/34AD2.jpg"
+  avatar: "https://i.stack.imgur.com/34AD2.jpg",
 };
 
 const initDefaultBlog = {
@@ -58,8 +58,8 @@ const initDefaultBlog = {
   contents: [
     {
       content: "Chèn nội dung",
-      type: "HTML" // HTML
-    }
+      type: "HTML", // HTML
+    },
   ],
   tags: [],
   description: "Mô tả mới",
@@ -70,8 +70,8 @@ const initDefaultBlog = {
   categories: [],
   extra_data: {
     [BLOG_EXTRA_DATA.FB_PIXEL_ID]: "",
-    [BLOG_EXTRA_DATA.GOOGLE_ANALYTICS_ID]: ""
-  }
+    [BLOG_EXTRA_DATA.GOOGLE_ANALYTICS_ID]: "",
+  },
 };
 
 const BlogEdit = ({ blogData, categories, getCategoriesSuccess }) => {
@@ -82,7 +82,7 @@ const BlogEdit = ({ blogData, categories, getCategoriesSuccess }) => {
 
   useEffect(() => {
     if (id !== BLOG.QUERY_NEW) {
-      getBlog(id).then(res => {
+      getBlog(id).then((res) => {
         setBlog(res.data.data);
       });
     } else {
@@ -92,7 +92,7 @@ const BlogEdit = ({ blogData, categories, getCategoriesSuccess }) => {
   }, []);
 
   const loadCategories = () => {
-    getAllCategories().then(res => {
+    getAllCategories().then((res) => {
       getCategoriesSuccess(res.data.data);
     });
   };
@@ -103,7 +103,7 @@ const BlogEdit = ({ blogData, categories, getCategoriesSuccess }) => {
     setBlog({ ...blog, contents: newContents });
   };
 
-  const handleAddChip = chip => {
+  const handleAddChip = (chip) => {
     let newTags = blog.tags;
     newTags[newTags.length] = chip;
     setBlog({ ...blog, tags: newTags });
@@ -111,21 +111,21 @@ const BlogEdit = ({ blogData, categories, getCategoriesSuccess }) => {
 
   const handleDeleteChip = (chip, index) => {
     let newTags = blog.tags;
-    newTags = remove(newTags, tag => tag !== chip);
+    newTags = remove(newTags, (tag) => tag !== chip);
     setBlog({ ...blog, tags: newTags });
   };
 
-  const onChangeStatus = value => {
+  const onChangeStatus = (value) => {
     setBlog({ ...blog, status: value });
   };
 
   const onSubmit = () => {
     if (id !== BLOG.QUERY_NEW) {
-      updateBlog(id, blog).then(data => {
+      updateBlog(id, blog).then((data) => {
         history.push(ROUTES.blogs);
       });
     } else {
-      createBlog(blog).then(data => {
+      createBlog(blog).then((data) => {
         history.push(ROUTES.blogs);
       });
     }
@@ -136,16 +136,16 @@ const BlogEdit = ({ blogData, categories, getCategoriesSuccess }) => {
   };
 
   const onDelete = () => {
-    deleteBlog(blog.id).then(data => {
+    deleteBlog(blog.id).then((data) => {
       history.push(`${ROUTES.blogs}`);
     });
   };
 
-  const onTitleChange = event => {
+  const onTitleChange = (event) => {
     setBlog({ ...blog, title: event.target.value });
   };
 
-  const onDescChange = event => {
+  const onDescChange = (event) => {
     setBlog({ ...blog, description: event.target.value });
   };
 
@@ -157,7 +157,7 @@ const BlogEdit = ({ blogData, categories, getCategoriesSuccess }) => {
     setBlog({ ...blog, contents: newContents });
   };
 
-  const onRemoveCKE = index => {
+  const onRemoveCKE = (index) => {
     let newContents = blog.contents;
     newContents = newContents
       .slice(0, index)
@@ -165,7 +165,7 @@ const BlogEdit = ({ blogData, categories, getCategoriesSuccess }) => {
     setBlog({ ...blog, contents: newContents });
   };
 
-  const onChooseCategory = category => {
+  const onChooseCategory = (category) => {
     let newCategories = blog.categories;
     newCategories[newCategories.length] = category;
     setBlog({ ...blog, categories: newCategories });
@@ -180,33 +180,33 @@ const BlogEdit = ({ blogData, categories, getCategoriesSuccess }) => {
   };
 
   const filterCategoriesByArray = (arr, arrDif) => {
-    let lookup = keyBy(arrDif, o => {
+    let lookup = keyBy(arrDif, (o) => {
       return o.id ? o.id.toString() : "" + o.title;
     });
     // find all users where "user + age" exists in index, one loop, quick lookup. no nested loops
-    let result = filter(arr, u => {
+    let result = filter(arr, (u) => {
       return lookup[u.id ? u.id.toString() : "" + u.title] === undefined;
     });
     return result;
   };
 
-  const onFBPixelIdChange = evt => {
+  const onFBPixelIdChange = (evt) => {
     setBlog({
       ...blog,
       extra_data: {
         ...blog.extra_data,
-        [BLOG_EXTRA_DATA.FB_PIXEL_ID]: evt.target.value
-      }
+        [BLOG_EXTRA_DATA.FB_PIXEL_ID]: evt.target.value,
+      },
     });
   };
 
-  const onGAIdChange = evt => {
+  const onGAIdChange = (evt) => {
     setBlog({
       ...blog,
       extra_data: {
         ...blog.extra_data,
-        [BLOG_EXTRA_DATA.GOOGLE_ANALYTICS_ID]: evt.target.value
-      }
+        [BLOG_EXTRA_DATA.GOOGLE_ANALYTICS_ID]: evt.target.value,
+      },
     });
   };
 
@@ -301,7 +301,7 @@ const BlogEdit = ({ blogData, categories, getCategoriesSuccess }) => {
                       key={index}
                       editor={ClassicEditor}
                       data={content.content}
-                      onInit={editor => {
+                      onInit={(editor) => {
                         // You can store the "editor" and use when it is needed.
                       }}
                       onChange={(event, editor) => {
@@ -346,12 +346,12 @@ const BlogEdit = ({ blogData, categories, getCategoriesSuccess }) => {
                       categories,
                       blog.categories
                     )}
-                    getOptionLabel={category => category.title}
+                    getOptionLabel={(category) => category.title}
                     onChange={(event, value) => {
                       onChooseCategory(value);
                     }}
                     value={null}
-                    renderInput={params => (
+                    renderInput={(params) => (
                       <TextField
                         {...params}
                         label={
@@ -388,7 +388,7 @@ const BlogEdit = ({ blogData, categories, getCategoriesSuccess }) => {
                   <ChipInput
                     variant="outlined"
                     value={blog.tags}
-                    onAdd={chip => {
+                    onAdd={(chip) => {
                       handleAddChip(chip);
                     }}
                     onDelete={(chip, index) => handleDeleteChip(chip, index)}
@@ -509,19 +509,19 @@ const BlogEdit = ({ blogData, categories, getCategoriesSuccess }) => {
 
 BlogEdit.propTypes = {
   blogData: PropTypes.shape({}),
-  getCategoriesSuccess: PropTypes.func.isRequired
+  getCategoriesSuccess: PropTypes.func.isRequired,
 };
 BlogEdit.defaultProps = {
-  categories: []
+  categories: [],
 };
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   blogData: state.blog.blogData,
-  categories: state.category.categoriesList
+  categories: state.category.categoriesList,
 });
 
 const mapDispatchToProps = {
-  getCategoriesSuccess: category.actions.getCategoriesSuccess
+  getCategoriesSuccess: category.actions.getCategoriesSuccess,
 };
 
 export default injectIntl(
