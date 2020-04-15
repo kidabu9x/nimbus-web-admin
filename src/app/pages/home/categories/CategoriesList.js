@@ -24,9 +24,12 @@ import AddIcon from "@material-ui/icons/Add";
 import useStyles from "./styles";
 import CategoryEdit from "./CategoryEdit";
 import { FormattedMessage } from "react-intl";
+import { useSnackbar } from "notistack";
+import { ERR_CODE } from "../../../../_metronic/utils/errCode";
 
 const CategoriesList = ({ getCategoriesSuccess, categories }) => {
   const classes = useStyles();
+  const { enqueueSnackbar } = useSnackbar();
   const [openModalEdit, setOpenModalEdit] = useState(false);
   const [categoryEdit, setCategoryEdit] = useState(null);
   useEffect(() => {
@@ -62,10 +65,15 @@ const CategoriesList = ({ getCategoriesSuccess, categories }) => {
         loadCategories();
       });
     } else {
-      createCategory(category).then((data) => {
-        setOpenModalEdit(false);
-        loadCategories();
-      });
+      createCategory(category)
+        .then((data) => {
+          setOpenModalEdit(false);
+          loadCategories();
+        })
+        .catch(({ response }) => {
+          const data = response.data;
+          enqueueSnackbar(ERR_CODE[data.meta.code], { variant: "error" });
+        });
     }
   };
 
@@ -138,16 +146,16 @@ const CategoriesList = ({ getCategoriesSuccess, categories }) => {
               </Table>
             </Paper>
           </div>
-          <CategoryEdit
-            open={openModalEdit}
-            setOpen={(value) => {
-              setOpenModalEdit(value);
-            }}
-            category={categoryEdit}
-            onSubmit={onSubmitCategory}
-          />
         </div>
       </div>
+      <CategoryEdit
+        open={openModalEdit}
+        setOpen={(value) => {
+          setOpenModalEdit(value);
+        }}
+        category={categoryEdit}
+        onSubmit={onSubmitCategory}
+      />
     </>
   );
 };

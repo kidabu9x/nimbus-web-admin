@@ -41,6 +41,8 @@ import {
 } from "../../../../_metronic/utils/types";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic/build/ckeditor";
 import MyUploadAdapter from "../../../../_metronic/utils/uploadAdapter";
+import { useSnackbar } from "notistack";
+import { ERR_CODE } from "../../../../_metronic/utils/errCode";
 
 const initCKEContent = {
   content: "Chèn nội dung",
@@ -55,8 +57,7 @@ const initAuthor = {
 };
 
 const initDefaultBlog = {
-  id: "string",
-  title: "Tiêu đề mới",
+  title: "",
   contents: [
     {
       content: "Chèn nội dung",
@@ -64,7 +65,7 @@ const initDefaultBlog = {
     },
   ],
   tags: [],
-  description: "Mô tả mới",
+  description: "",
   status: "DISABLED", // DELETED, PUBLISHED, DISABLED
   created_at: new Date().toDateString(),
   updated_at: new Date().toDateString(),
@@ -80,6 +81,7 @@ const BlogEdit = ({ blogData, categories, getCategoriesSuccess }) => {
   const { id } = useParams();
   const history = useHistory();
   const classes = useStyles();
+  const { enqueueSnackbar } = useSnackbar();
   const [blog, setBlog] = useState(blogData[id]);
 
   useEffect(() => {
@@ -127,9 +129,23 @@ const BlogEdit = ({ blogData, categories, getCategoriesSuccess }) => {
         history.push(ROUTES.blogs);
       });
     } else {
-      createBlog(blog).then((data) => {
-        history.push(ROUTES.blogs);
-      });
+      createBlog(blog)
+        .then((data) => {
+          setBlog({
+            ...initDefaultBlog,
+            contents: [
+              {
+                content: "Chèn nội dung",
+                type: "HTML", // HTML
+              },
+            ],
+          });
+          history.push(ROUTES.blogs);
+        })
+        .catch(({ response }) => {
+          const data = response.data;
+          enqueueSnackbar(ERR_CODE[data.meta.code], { variant: "error" });
+        });
     }
   };
 
@@ -259,6 +275,7 @@ const BlogEdit = ({ blogData, categories, getCategoriesSuccess }) => {
                   className={classes.inputTitle}
                   value={blog.title}
                   onChange={onTitleChange}
+                  placeholder="Nhập tiêu đề..."
                 />
               </CardContent>
               <CardContent>
@@ -271,6 +288,7 @@ const BlogEdit = ({ blogData, categories, getCategoriesSuccess }) => {
                   value={blog.description}
                   onChange={onDescChange}
                   multiline
+                  placeholder="Nhập mô tả..."
                 />
               </CardContent>
               <CardContent>
@@ -300,7 +318,6 @@ const BlogEdit = ({ blogData, categories, getCategoriesSuccess }) => {
                       <ClearIcon fontSize="small" />
                     </IconButton>
                     <CKEditor
-                      key={index}
                       editor={ClassicEditor}
                       data={content.content}
                       config={{

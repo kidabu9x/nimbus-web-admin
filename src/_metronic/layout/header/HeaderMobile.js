@@ -18,7 +18,7 @@ class HeaderMobile extends React.Component {
     const {
       asideDisplay,
       headerMobileCssClasses,
-      headerMobileAttributes
+      headerMobileAttributes,
     } = this.props;
     return (
       <div
@@ -28,7 +28,13 @@ class HeaderMobile extends React.Component {
       >
         <div className="kt-header-mobile__logo">
           <Link to="/">
-            <img alt="logo" src={toAbsoluteUrl("/media/logos/logo-2-sm.png")} />
+            <img
+              alt="logo"
+              src={toAbsoluteUrl("/media/logos/logo.png")}
+              style={{
+                width: 64,
+              }}
+            />
           </Link>
         </div>
 
@@ -62,13 +68,13 @@ class HeaderMobile extends React.Component {
   }
 }
 
-const mapStateToProps = store => ({
+const mapStateToProps = (store) => ({
   headerMobileCssClasses: builder.selectors.getClasses(store, {
     path: "header_mobile",
-    toString: true
+    toString: true,
   }),
   headerMobileAttributes: builder.selectors.getAttributes(store, {
-    path: "header_mobile"
+    path: "header_mobile",
   }),
   asideDisplay: objectPath.get(
     store.builder.layoutConfig,
@@ -77,8 +83,8 @@ const mapStateToProps = store => ({
   toggleOptions: {
     target: "body",
     targetState: "kt-header__topbar--mobile-on",
-    togglerState: "kt-header-mobile__toolbar-topbar-toggler--active"
-  }
+    togglerState: "kt-header-mobile__toolbar-topbar-toggler--active",
+  },
 });
 
 export default connect(mapStateToProps)(HeaderMobile);

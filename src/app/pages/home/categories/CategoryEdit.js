@@ -6,12 +6,13 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  TextField
+  TextField,
 } from "@material-ui/core";
 import useStyles from "./styles";
+import { FormattedMessage } from "react-intl";
 
 const initCategory = {
-  title: "OK DUONG NHA"
+  title: "",
 };
 
 const CategoryEdit = ({ open, setOpen, category, onSubmit }) => {
@@ -35,45 +36,51 @@ const CategoryEdit = ({ open, setOpen, category, onSubmit }) => {
   const handleSubmit = () => {
     const newCategory = {
       ...category,
-      title: value
+      title: value,
     };
     onSubmit(newCategory);
   };
 
-  const onChangeTitle = event => {
+  const onChangeTitle = (event) => {
     setValue(event.target.value);
   };
 
   return (
-    <div>
+    <div className={classes.container}>
       <Dialog
         onClose={handleClose}
         aria-labelledby="customized-dialog-title"
         open={open}
         className={classes.modal}
       >
-        <>
-          <DialogTitle id="customized-dialog-title" onClose={handleClose}>
-            Change Title of{" "}
-            {category !== null ? category.title : initCategory.title}
-          </DialogTitle>
-          <DialogContent dividers>
-            <TextField
-              autoFocus
-              margin="dense"
-              id="name"
-              label="Title"
-              value={value}
-              onChange={onChangeTitle}
-              fullWidth
-            />
-          </DialogContent>
-          <DialogActions>
-            <Button autoFocus onClick={handleSubmit} color="primary">
-              Save changes
-            </Button>
-          </DialogActions>
-        </>
+        <DialogTitle id="customized-dialog-title" onClose={handleClose}>
+          {category !== null ? (
+            <FormattedMessage id="CATEGORIES.EDIT.TITLE_EDIT" />
+          ) : (
+            <FormattedMessage id="CATEGORIES.EDIT.TITLE_ADD" />
+          )}
+        </DialogTitle>
+        <DialogContent dividers className={classes.modalContent}>
+          <TextField
+            autoFocus
+            margin="dense"
+            id="name"
+            label=""
+            value={value}
+            onChange={onChangeTitle}
+            placeholder="Nhập danh mục..."
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button
+            autoFocus
+            onClick={handleSubmit}
+            disabled={!value.length}
+            color="primary"
+          >
+            <FormattedMessage id="CATEGORIES.EDIT.SAVE"></FormattedMessage>
+          </Button>
+        </DialogActions>
       </Dialog>
     </div>
   );
@@ -83,14 +90,14 @@ CategoryEdit.propTypes = {
   open: PropTypes.bool.isRequired,
   setOpen: PropTypes.func.isRequired,
   category: PropTypes.shape({}),
-  onSubmit: PropTypes.func
+  onSubmit: PropTypes.func,
 };
 
 CategoryEdit.defaultProps = {
   open: false,
   setOpen: () => {},
   category: null,
-  onSubmit: () => {}
+  onSubmit: () => {},
 };
 
 export default CategoryEdit;

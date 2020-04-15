@@ -12,6 +12,7 @@ import {
   Paper,
   IconButton,
   Button,
+  TablePagination,
 } from "@material-ui/core";
 import DeleteIcon from "@material-ui/icons/Delete";
 import EditIcon from "@material-ui/icons/Edit";
@@ -21,8 +22,15 @@ import AddIcon from "@material-ui/icons/Add";
 import useStyles from "./styles";
 import { FormattedMessage, injectIntl } from "react-intl";
 import { ROUTES } from "../../../../_metronic/utils/routerList";
+import { ROWS_PER_PAGE } from "../../../../_metronic/utils/constants";
 
-const BlogsList = ({ getBlogsSuccess, blogs }) => {
+const BlogsList = ({
+  getBlogsSuccess,
+  blogs,
+  totalBlog,
+  pagination,
+  getPage,
+}) => {
   const classes = useStyles();
   const history = useHistory();
   useEffect(() => {
@@ -31,7 +39,7 @@ const BlogsList = ({ getBlogsSuccess, blogs }) => {
 
   const loadBlogs = () => {
     getAllBlogs().then((res) => {
-      getBlogsSuccess(res.data.data);
+      getBlogsSuccess({ data: res.data.data, meta: res.data.meta });
     });
   };
 
@@ -47,6 +55,20 @@ const BlogsList = ({ getBlogsSuccess, blogs }) => {
 
   const onAddNew = () => {
     history.push(`${ROUTES.blogs}/new`);
+  };
+
+  const handleChangePage = (event, newPage) => {
+    if (newPage > pagination.page && totalBlog > blogs.length) {
+      getAllBlogs(newPage).then((res) => {
+        getBlogsSuccess({ data: res.data.data, meta: res.data.meta });
+      });
+    } else {
+      getPage(newPage);
+    }
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    console.log("handleChangeRowsPerPage");
   };
 
   return (
@@ -87,44 +109,64 @@ const BlogsList = ({ getBlogsSuccess, blogs }) => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {blogs.map((blog) => (
-                    <TableRow key={blog.id}>
-                      <TableCell align="right">{blog.id}</TableCell>
-                      <TableCell align="right">
-                        {dayjs(blog.created_at).format("DD/MM/YY")}
-                      </TableCell>
-                      <TableCell component="th" scope="blog" align="left">
-                        {blog.title}
-                      </TableCell>
-                      <TableCell align="left">{blog.description}</TableCell>
-                      <TableCell align="right">{blog.status}</TableCell>
-                      <TableCell>
-                        <div className={classes.actions}>
-                          <IconButton
-                            aria-label="edit"
-                            color="primary"
-                            onClick={() => {
-                              onEditBlog(blog);
-                            }}
-                          >
-                            <EditIcon />
-                          </IconButton>
-                          <IconButton
-                            aria-label="delete"
-                            color="primary"
-                            onClick={() => {
-                              onDeleteBlog(blog.id);
-                            }}
-                            className={classes.listDeleteBtn}
-                          >
-                            <DeleteIcon />
-                          </IconButton>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                  {blogs
+                    .slice(
+                      pagination.page * ROWS_PER_PAGE,
+                      pagination.page * ROWS_PER_PAGE + ROWS_PER_PAGE
+                    )
+                    .map((blog) => (
+                      <TableRow key={blog.id}>
+                        <TableCell align="right">{blog.id}</TableCell>
+                        <TableCell align="right">
+                          {dayjs(blog.created_at).format("DD/MM/YY")}
+                        </TableCell>
+                        <TableCell component="th" scope="blog" align="left">
+                          {blog.title}
+                        </TableCell>
+                        <TableCell align="left">{blog.description}</TableCell>
+                        <TableCell align="right">{blog.status}</TableCell>
+                        <TableCell>
+                          <div className={classes.actions}>
+                            <IconButton
+                              aria-label="edit"
+                              color="primary"
+                              onClick={() => {
+                                onEditBlog(blog);
+                              }}
+                            >
+                              <EditIcon />
+                            </IconButton>
+                            <IconButton
+                              aria-label="delete"
+                              color="primary"
+                              onClick={() => {
+                                onDeleteBlog(blog.id);
+                              }}
+                              className={classes.listDeleteBtn}
+                            >
+                              <DeleteIcon />
+                            </IconButton>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
                 </TableBody>
               </Table>
+              <TablePagination
+                rowsPerPageOptions={[ROWS_PER_PAGE]}
+                component="div"
+                count={totalBlog}
+                rowsPerPage={ROWS_PER_PAGE}
+                page={pagination.page}
+                backIconButtonProps={{
+                  "aria-label": "Previous Page",
+                }}
+                nextIconButtonProps={{
+                  "aria-label": "Next Page",
+                }}
+                onChangePage={handleChangePage}
+                onChangeRowsPerPage={handleChangeRowsPerPage}
+              />
             </Paper>
           </div>
         </div>
@@ -135,17 +177,29 @@ const BlogsList = ({ getBlogsSuccess, blogs }) => {
 
 BlogsList.propTypes = {
   getBlogsSuccess: PropTypes.func.isRequired,
+  getPage: PropTypes.func.isRequired,
+  totalBlog: PropTypes.number,
+  pagination: PropTypes.shape({}),
 };
 BlogsList.defaultProps = {
   blog: [],
+  totalBlog: 0,
+  pagination: {
+    page: 0,
+    limit: ROWS_PER_PAGE,
+    offset: 0,
+  },
 };
 
 const mapStateToProps = (state) => ({
   blogs: state.blog.blogsList,
+  totalBlog: state.blog.total,
+  pagination: state.blog.pagination,
 });
 
 const mapDispatchToProps = {
   getBlogsSuccess: blog.actions.getBlogsSuccess,
+  getPage: blog.actions.getPageBlog,
 };
 
 export default injectIntl(

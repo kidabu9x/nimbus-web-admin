@@ -5,12 +5,19 @@ import { keyBy } from "lodash";
 export const actionBlogTypes = {
   GetAllBlogs: "[GetAllBlogs] Action",
   GetBlog: "[GetBlog] Action",
-  GetBlogsSuccess: "[GetBlogsSuccess] Action"
+  GetBlogsSuccess: "[GetBlogsSuccess] Action",
+  GetPageBlog: "[GetPageBlog] Action",
 };
 
 const initialBlogState = {
   blogsList: [],
-  blogData: {}
+  blogData: {},
+  total: 0,
+  pagination: {
+    page: 0,
+    limit: 10,
+    offset: 0,
+  },
 };
 
 export const reducer = persistReducer(
@@ -25,11 +32,34 @@ export const reducer = persistReducer(
         return state;
       }
 
-      case actionBlogTypes.GetBlogsSuccess: {
+      case actionBlogTypes.GetPageBlog: {
         return {
           ...state,
-          blogsList: action.payload,
-          blogData: keyBy(action.payload, "id")
+          pagination: {
+            ...state.pagination,
+            page: action.payload,
+          },
+        };
+      }
+
+      case actionBlogTypes.GetBlogsSuccess: {
+        const newData = keyBy(action.payload.data, "id");
+        return {
+          ...state,
+          blogsList:
+            action.payload.meta.offset !== 0
+              ? state.blogsList.concat(action.payload.data)
+              : action.payload.data,
+          blogData:
+            action.payload.meta.offset !== 0
+              ? { ...state.blogData, ...newData }
+              : { ...newData },
+          total: action.payload.meta.total,
+          pagination: {
+            page: action.payload.meta.offset,
+            limit: 10,
+            offset: action.payload.meta.offset,
+          },
         };
       }
 
@@ -41,16 +71,20 @@ export const reducer = persistReducer(
 
 export const actions = {
   getAllBlogs: () => ({
-    type: actionBlogTypes.GetAllBlogs
+    type: actionBlogTypes.GetAllBlogs,
   }),
-  getBlog: blogId => ({
+  getBlog: (blogId) => ({
     type: actionBlogTypes.GetBlog,
-    payload: { blogId }
+    payload: { blogId },
   }),
-  getBlogsSuccess: data => ({
+  getBlogsSuccess: (data) => ({
     type: actionBlogTypes.GetBlogsSuccess,
-    payload: data
-  })
+    payload: data,
+  }),
+  getPageBlog: (page) => ({
+    type: actionBlogTypes.GetPageBlog,
+    payload: page,
+  }),
 };
 
 export function* saga() {}

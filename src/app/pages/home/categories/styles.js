@@ -1,18 +1,22 @@
 import { makeStyles } from "@material-ui/styles";
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {
     width: "100%",
     marginTop: theme.spacing(3),
-    overflowX: "auto"
+    overflowX: "auto",
   },
-  container: {},
+  container: {
+    // minWidth: 650,
+  },
   modal: {
-    minWidth: 650
+    // minWidth: 650,
+  },
+  modalContent: {
   },
   listDeleteBtn: {
-    color: "#D1E2E8"
-  }
+    color: "#D1E2E8",
+  },
 }));
 
 export default useStyles;

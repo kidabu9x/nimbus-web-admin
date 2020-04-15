@@ -4,8 +4,18 @@ import axios from "axios";
 export const BASE_URL = "http://api-internal-uat.nimbus.com.vn/v1/";
 // export const BASE_URL = "http://localhost:48080/v1/";
 
-export function getAllBlogs() {
-  return axios.get(`${BASE_URL}blogs`);
+const queryPagination = (page) => {
+  return {
+    page,
+    limit: 10,
+    offset: page,
+  };
+};
+
+export function getAllBlogs(page = 0) {
+  return axios.get(`${BASE_URL}blogs`, {
+    params: queryPagination(page),
+  });
 }
 
 export function getBlog(blogId) {
