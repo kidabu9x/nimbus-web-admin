@@ -24,7 +24,7 @@ import AddIcon from "@material-ui/icons/Add";
 import SaveIcon from "@material-ui/icons/Save";
 import ClearIcon from "@material-ui/icons/Clear";
 import DeleteIcon from "@material-ui/icons/Delete";
-import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
+// import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import useStyles from "./styles";
 import ChipInput from "material-ui-chip-input";
 import { BLOG } from "../../../../_metronic/utils/constants";
@@ -39,6 +39,8 @@ import {
   BLOG_STATUS,
   BLOG_EXTRA_DATA,
 } from "../../../../_metronic/utils/types";
+import ClassicEditor from "@ckeditor/ckeditor5-build-classic/build/ckeditor";
+import MyUploadAdapter from "../../../../_metronic/utils/uploadAdapter";
 
 const initCKEContent = {
   content: "Chèn nội dung",
@@ -301,8 +303,16 @@ const BlogEdit = ({ blogData, categories, getCategoriesSuccess }) => {
                       key={index}
                       editor={ClassicEditor}
                       data={content.content}
+                      config={{
+                        language: "vi",
+                      }}
                       onInit={(editor) => {
                         // You can store the "editor" and use when it is needed.
+                        editor.plugins.get(
+                          "FileRepository"
+                        ).createUploadAdapter = (loader) => {
+                          return new MyUploadAdapter(loader);
+                        };
                       }}
                       onChange={(event, editor) => {
                         const data = editor.getData();
