@@ -39,6 +39,7 @@ const CategoryEdit = ({ open, setOpen, category, onSubmit }) => {
       title: value,
     };
     onSubmit(newCategory);
+    setValue(initCategory.title);
   };
 
   const onChangeTitle = (event) => {

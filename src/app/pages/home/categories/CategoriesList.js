@@ -26,11 +26,13 @@ import CategoryEdit from "./CategoryEdit";
 import { FormattedMessage } from "react-intl";
 import { useSnackbar } from "notistack";
 import { ERR_CODE } from "../../../../_metronic/utils/errCode";
+import ConfirmDelete from "../../../components/ConfirmDelete/ConfirmDelete";
 
 const CategoriesList = ({ getCategoriesSuccess, categories }) => {
   const classes = useStyles();
   const { enqueueSnackbar } = useSnackbar();
   const [openModalEdit, setOpenModalEdit] = useState(false);
+  const [openModalDelete, setOpenModalDelete] = useState(false);
   const [categoryEdit, setCategoryEdit] = useState(null);
   useEffect(() => {
     loadCategories();
@@ -47,10 +49,16 @@ const CategoriesList = ({ getCategoriesSuccess, categories }) => {
     setOpenModalEdit(true);
   };
 
-  const onDeleteCategory = (categoryId) => {
-    deleteCategory(categoryId).then((data) => {
+  const onDeleteCategory = () => {
+    deleteCategory(categoryEdit.id).then((data) => {
+      setOpenModalDelete(false);
       loadCategories();
     });
+  };
+
+  const onOpenDeleteCategory = (category) => {
+    setCategoryEdit(category);
+    setOpenModalDelete(true);
   };
 
   const onAddNew = () => {
@@ -68,6 +76,7 @@ const CategoriesList = ({ getCategoriesSuccess, categories }) => {
       createCategory(category)
         .then((data) => {
           setOpenModalEdit(false);
+          setCategoryEdit(null);
           loadCategories();
         })
         .catch(({ response }) => {
@@ -132,7 +141,7 @@ const CategoriesList = ({ getCategoriesSuccess, categories }) => {
                             aria-label="delete"
                             color="primary"
                             onClick={() => {
-                              onDeleteCategory(category.id);
+                              onOpenDeleteCategory(category);
                             }}
                             className={classes.listDeleteBtn}
                           >
@@ -155,6 +164,16 @@ const CategoriesList = ({ getCategoriesSuccess, categories }) => {
         }}
         category={categoryEdit}
         onSubmit={onSubmitCategory}
+      />
+      <ConfirmDelete
+        message={`Bạn có chắc chắn muốn xóa danh mục "${categoryEdit !== null &&
+          categoryEdit.title}"`}
+        title={<FormattedMessage id="CATEGORIES.LIST.MODAL_DELETE.TITLE" />}
+        open={openModalDelete}
+        onSubmit={onDeleteCategory}
+        setOpen={(value) => {
+          setOpenModalDelete(value);
+        }}
       />
     </>
   );

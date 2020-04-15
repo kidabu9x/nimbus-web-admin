@@ -43,6 +43,7 @@ import ClassicEditor from "@ckeditor/ckeditor5-build-classic/build/ckeditor";
 import MyUploadAdapter from "../../../../_metronic/utils/uploadAdapter";
 import { useSnackbar } from "notistack";
 import { ERR_CODE } from "../../../../_metronic/utils/errCode";
+import ConfirmDelete from "../../../components/ConfirmDelete/ConfirmDelete";
 
 const initCKEContent = {
   content: "Chèn nội dung",
@@ -83,6 +84,7 @@ const BlogEdit = ({ blogData, categories, getCategoriesSuccess }) => {
   const classes = useStyles();
   const { enqueueSnackbar } = useSnackbar();
   const [blog, setBlog] = useState(blogData[id]);
+  const [openModalDelete, setOpenModalDelete] = useState(false);
 
   useEffect(() => {
     if (id !== BLOG.QUERY_NEW) {
@@ -155,6 +157,7 @@ const BlogEdit = ({ blogData, categories, getCategoriesSuccess }) => {
 
   const onDelete = () => {
     deleteBlog(blog.id).then((data) => {
+      setOpenModalDelete(false);
       history.push(`${ROUTES.blogs}`);
     });
   };
@@ -226,6 +229,10 @@ const BlogEdit = ({ blogData, categories, getCategoriesSuccess }) => {
         [BLOG_EXTRA_DATA.GOOGLE_ANALYTICS_ID]: evt.target.value,
       },
     });
+  };
+
+  const onOpenDeleteBlog = () => {
+    setOpenModalDelete(true);
   };
 
   const onChangeAuthor = (event, author, index, key) => {
@@ -503,7 +510,7 @@ const BlogEdit = ({ blogData, categories, getCategoriesSuccess }) => {
             color="inherit"
             className={`${classes.btnFooter}`}
             startIcon={<DeleteIcon />}
-            onClick={onDelete}
+            onClick={onOpenDeleteBlog}
           >
             <FormattedMessage id="BLOGS.EDIT.DELETE" />
           </Button>
@@ -530,6 +537,15 @@ const BlogEdit = ({ blogData, categories, getCategoriesSuccess }) => {
           </Button>
         </div>
       </div>
+      <ConfirmDelete
+        message={<FormattedMessage id="BLOGS.LIST.MODAL_DELETE.DESCRIPTION" />}
+        title={<FormattedMessage id="BLOGS.LIST.MODAL_DELETE.TITLE" />}
+        open={openModalDelete}
+        onSubmit={onDelete}
+        setOpen={(value) => {
+          setOpenModalDelete(value);
+        }}
+      />
     </>
   );
 };

@@ -1,43 +1,44 @@
 import { makeStyles } from "@material-ui/styles";
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {
     width: "100%",
     marginTop: theme.spacing(3),
-    overflowX: "auto"
+    overflowX: "auto",
   },
   container: {
-    display: "flex"
+    display: "flex",
   },
   table: {
-    minWidth: 650
+    minWidth: 650,
   },
   cardTitle: {
-    color: '#646c9a',
+    color: "#646c9a",
     fontSize: 17,
-    fontWeight: 500
+    fontWeight: 500,
   },
   cardContainerLeft: {
     marginBottom: 20,
-    marginRight: 10
+    marginRight: 10,
   },
   containerRight: {
     marginBottom: 10,
-    width: "100%"
+    width: "100%",
   },
   cardContainerRight: {
-    marginBottom: 10
+    marginBottom: 10,
   },
   actions: {
-    display: "flex"
+    display: "flex",
+    float: "right",
   },
   btnAdd: {
-    marginLeft: 12
+    marginLeft: 12,
   },
   rowBody: {
     marginBottom: 12,
     alignItems: "center",
-    display: "flex"
+    display: "flex",
   },
   rowHeader: {
     marginBottom: 12,
@@ -45,7 +46,7 @@ const useStyles = makeStyles(theme => ({
     marginRight: 0,
     alignItems: "center",
     justifyContent: "space-between",
-    display: "flex"
+    display: "flex",
   },
   rowFootHeader: {
     marginBottom: 12,
@@ -53,40 +54,40 @@ const useStyles = makeStyles(theme => ({
     marginRight: 0,
     alignItems: "center",
     justifyContent: "space-between",
-    display: "flex"
+    display: "flex",
   },
   textField: {
-    marginRight: 20
+    marginRight: 20,
   },
   editorContainer: {
     marginBottom: 20,
-    paddingBottom: 20
+    paddingBottom: 20,
   },
   btnHeader: {
-    marginLeft: 15
+    marginLeft: 15,
   },
   btnFooter: {
-    marginLeft: 0
+    marginLeft: 0,
   },
   inputTitle: {
-    width: "100%"
+    width: "100%",
   },
   inputDescription: {
-    width: "100%"
+    width: "100%",
   },
   ckeContainer: {
     display: "flex",
-    flexDirection: "column"
+    flexDirection: "column",
   },
   btnRemoveCKE: {
     width: 40,
-    left: "95%"
+    left: "95%",
   },
   ckeField: {
-    display: "flex"
+    display: "flex",
   },
   categoriesContainer: {
-    width: "100%"
+    width: "100%",
   },
   categoryTag: {
     width: "100%",
@@ -94,17 +95,17 @@ const useStyles = makeStyles(theme => ({
     justifyContent: "space-between",
     alignItems: "center",
     marginTop: 15,
-    marginLeft: 20
+    marginLeft: 20,
   },
   categoryTagBtn: { float: "right" },
   statusContainer: {
     justifyContent: "space-between",
     alignItems: "center",
-    marginLeft: 0
+    marginLeft: 0,
   },
   listDeleteBtn: {
-    color: "#D1E2E8"
-  }
+    color: "#D1E2E8",
+  },
 }));
 
 export default useStyles;

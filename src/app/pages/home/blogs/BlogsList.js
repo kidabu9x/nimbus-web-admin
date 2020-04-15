@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import * as blog from "../../../store/blog";
 import { getAllBlogs, deleteBlog } from "../../../crud/blog.crud";
@@ -23,6 +23,7 @@ import useStyles from "./styles";
 import { FormattedMessage, injectIntl } from "react-intl";
 import { ROUTES } from "../../../../_metronic/utils/routerList";
 import { ROWS_PER_PAGE } from "../../../../_metronic/utils/constants";
+import ConfirmDelete from "../../../components/ConfirmDelete/ConfirmDelete";
 
 const BlogsList = ({
   getBlogsSuccess,
@@ -33,6 +34,8 @@ const BlogsList = ({
 }) => {
   const classes = useStyles();
   const history = useHistory();
+  const [openModalDelete, setOpenModalDelete] = useState(false);
+  const [blogEdit, setBlogEdit] = useState(null);
   useEffect(() => {
     loadBlogs();
   }, []);
@@ -47,8 +50,9 @@ const BlogsList = ({
     history.push(`${ROUTES.blogs}/${blog.id}`);
   };
 
-  const onDeleteBlog = (blogId) => {
-    deleteBlog(blogId).then((data) => {
+  const onDeleteBlog = () => {
+    deleteBlog(blogEdit.id).then((data) => {
+      setOpenModalDelete(false);
       loadBlogs();
     });
   };
@@ -65,6 +69,11 @@ const BlogsList = ({
     } else {
       getPage(newPage);
     }
+  };
+
+  const onOpenDeleteBlog = (blog) => {
+    setBlogEdit(blog);
+    setOpenModalDelete(true);
   };
 
   const handleChangeRowsPerPage = (event) => {
@@ -125,7 +134,7 @@ const BlogsList = ({
                         </TableCell>
                         <TableCell align="left">{blog.description}</TableCell>
                         <TableCell align="right">{blog.status}</TableCell>
-                        <TableCell>
+                        <TableCell align="right">
                           <div className={classes.actions}>
                             <IconButton
                               aria-label="edit"
@@ -140,7 +149,7 @@ const BlogsList = ({
                               aria-label="delete"
                               color="primary"
                               onClick={() => {
-                                onDeleteBlog(blog.id);
+                                onOpenDeleteBlog(blog);
                               }}
                               className={classes.listDeleteBtn}
                             >
@@ -171,6 +180,15 @@ const BlogsList = ({
           </div>
         </div>
       </div>
+      <ConfirmDelete
+        message={<FormattedMessage id="BLOGS.LIST.MODAL_DELETE.DESCRIPTION" />}
+        title={<FormattedMessage id="BLOGS.LIST.MODAL_DELETE.TITLE" />}
+        open={openModalDelete}
+        onSubmit={onDeleteBlog}
+        setOpen={(value) => {
+          setOpenModalDelete(value);
+        }}
+      />
     </>
   );
 };
