@@ -457,11 +457,11 @@ export default function Builder() {
               />
 
               <PortletBody>
-                <CodeBlock
+                {/* <CodeBlock
                   disableCopy="true"
                   language="json"
                   code={JSON.stringify(values, null, 2)}
-                />
+                /> */}
               </PortletBody>
             </Portlet>
           </div>

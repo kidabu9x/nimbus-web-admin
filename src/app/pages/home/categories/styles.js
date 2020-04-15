@@ -9,6 +9,9 @@ const useStyles = makeStyles(theme => ({
   container: {},
   modal: {
     minWidth: 650
+  },
+  listDeleteBtn: {
+    color: "#D1E2E8"
   }
 }));
 

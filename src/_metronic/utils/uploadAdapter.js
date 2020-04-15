@@ -33,7 +33,7 @@ export default class MyUploadAdapter {
     // could be different.
     xhr.open(
       "POST",
-      "http://apt-internal-uat.nimbus.com.vn/image-service/v1/upload",
+      "http://api-internal-uat.nimbus.com.vn/image-service/v1/upload",
       true
     );
     xhr.responseType = "json";
@@ -67,7 +67,7 @@ export default class MyUploadAdapter {
       // This URL will be used to display the image in the content. Learn more in the
       // UploadAdapter#upload documentation.
       resolve({
-        default: response.url,
+        default: response.data.url,
       });
     });
 
@@ -89,7 +89,7 @@ export default class MyUploadAdapter {
     // Prepare the form data.
     const data = new FormData();
 
-    data.append("file", file);
+    data.append("file", file, file.name);
 
     // Important note: This is the right place to implement security mechanisms
     // like authentication and CSRF protection. For instance, you can use

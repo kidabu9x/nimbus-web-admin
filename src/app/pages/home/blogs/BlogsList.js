@@ -22,7 +22,7 @@ import useStyles from "./styles";
 import { FormattedMessage, injectIntl } from "react-intl";
 import { ROUTES } from "../../../../_metronic/utils/routerList";
 
-const BlogsList = ({ getBlogsSuccess, blogs, intl }) => {
+const BlogsList = ({ getBlogsSuccess, blogs }) => {
   const classes = useStyles();
   const history = useHistory();
   useEffect(() => {
@@ -102,7 +102,7 @@ const BlogsList = ({ getBlogsSuccess, blogs, intl }) => {
                         <div className={classes.actions}>
                           <IconButton
                             aria-label="edit"
-                            color="secondary"
+                            color="primary"
                             onClick={() => {
                               onEditBlog(blog);
                             }}

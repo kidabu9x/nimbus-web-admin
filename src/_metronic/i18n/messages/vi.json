@@ -91,5 +91,9 @@
   "BLOGS.EDIT.CATEGORIES": "Danh mục",
   "BLOGS.EDIT.CHOOSE_CATEGORY": "Chọn danh mục",
   "BLOGS.EDIT.EXTRA_DATA.FB": "Facebook Pixel ID",
-  "BLOGS.EDIT.EXTRA_DATA.GG": "Google Analytics ID"
+  "BLOGS.EDIT.EXTRA_DATA.GG": "Google Analytics ID",
+  "CATEGORIES.LIST.ADD_NEW": "Thêm mới danh mục",
+  "CATEGORIES.LIST.TABLE.ID": "ID",
+  "CATEGORIES.LIST.TABLE.TITLE": "Tiêu đề",
+  "CATEGORIES.LIST.TABLE.ACTIONS": "Tác động"
 }

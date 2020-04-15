@@ -103,7 +103,7 @@ const useStyles = makeStyles(theme => ({
     marginLeft: 0
   },
   listDeleteBtn: {
-    color: "#5d78ff"
+    color: "#D1E2E8"
   }
 }));
 

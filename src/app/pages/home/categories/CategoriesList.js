@@ -5,7 +5,7 @@ import {
   getAllCategories,
   deleteCategory,
   createCategory,
-  updateCategory
+  updateCategory,
 } from "../../../crud/category.crud";
 import PropTypes from "prop-types";
 import {
@@ -16,13 +16,14 @@ import {
   TableRow,
   Paper,
   IconButton,
-  Button
+  Button,
 } from "@material-ui/core";
 import DeleteIcon from "@material-ui/icons/Delete";
 import EditIcon from "@material-ui/icons/Edit";
 import AddIcon from "@material-ui/icons/Add";
 import useStyles from "./styles";
 import CategoryEdit from "./CategoryEdit";
+import { FormattedMessage } from "react-intl";
 
 const CategoriesList = ({ getCategoriesSuccess, categories }) => {
   const classes = useStyles();
@@ -33,18 +34,18 @@ const CategoriesList = ({ getCategoriesSuccess, categories }) => {
   }, []);
 
   const loadCategories = () => {
-    getAllCategories().then(res => {
+    getAllCategories().then((res) => {
       getCategoriesSuccess(res.data.data);
     });
   };
 
-  const onEditCategory = category => {
+  const onEditCategory = (category) => {
     setCategoryEdit(category);
     setOpenModalEdit(true);
   };
 
-  const onDeleteCategory = categoryId => {
-    deleteCategory(categoryId).then(data => {
+  const onDeleteCategory = (categoryId) => {
+    deleteCategory(categoryId).then((data) => {
       loadCategories();
     });
   };
@@ -54,14 +55,14 @@ const CategoriesList = ({ getCategoriesSuccess, categories }) => {
     setOpenModalEdit(true);
   };
 
-  const onSubmitCategory = category => {
+  const onSubmitCategory = (category) => {
     if (category.id) {
-      updateCategory(category.id, category).then(data => {
+      updateCategory(category.id, category).then((data) => {
         setOpenModalEdit(false);
         loadCategories();
       });
     } else {
-      createCategory(category).then(data => {
+      createCategory(category).then((data) => {
         setOpenModalEdit(false);
         loadCategories();
       });
@@ -80,7 +81,7 @@ const CategoriesList = ({ getCategoriesSuccess, categories }) => {
               startIcon={<AddIcon />}
               onClick={onAddNew}
             >
-              Add new
+              <FormattedMessage id="CATEGORIES.LIST.ADD_NEW" />
             </Button>
             <div className="kt-space-20" />
             <Paper className={classes.root}>
@@ -90,13 +91,19 @@ const CategoriesList = ({ getCategoriesSuccess, categories }) => {
               >
                 <TableHead>
                   <TableRow>
-                    <TableCell>ID</TableCell>
-                    <TableCell align="left">Title</TableCell>
-                    <TableCell align="right">Actions</TableCell>
+                    <TableCell>
+                      <FormattedMessage id="CATEGORIES.LIST.TABLE.ID" />
+                    </TableCell>
+                    <TableCell align="left">
+                      <FormattedMessage id="CATEGORIES.LIST.TABLE.TITLE" />
+                    </TableCell>
+                    <TableCell align="right">
+                      <FormattedMessage id="CATEGORIES.LIST.TABLE.ACTIONS" />
+                    </TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {categories.map(category => (
+                  {categories.map((category) => (
                     <TableRow key={category.id}>
                       <TableCell align="left">{category.id}</TableCell>
                       <TableCell component="th" scope="category" align="left">
@@ -106,7 +113,7 @@ const CategoriesList = ({ getCategoriesSuccess, categories }) => {
                         <div className={classes.actions}>
                           <IconButton
                             aria-label="edit"
-                            color="secondary"
+                            color="primary"
                             onClick={() => {
                               onEditCategory(category);
                             }}
@@ -119,6 +126,7 @@ const CategoriesList = ({ getCategoriesSuccess, categories }) => {
                             onClick={() => {
                               onDeleteCategory(category.id);
                             }}
+                            className={classes.listDeleteBtn}
                           >
                             <DeleteIcon />
                           </IconButton>
@@ -132,7 +140,7 @@ const CategoriesList = ({ getCategoriesSuccess, categories }) => {
           </div>
           <CategoryEdit
             open={openModalEdit}
-            setOpen={value => {
+            setOpen={(value) => {
               setOpenModalEdit(value);
             }}
             category={categoryEdit}
@@ -145,18 +153,18 @@ const CategoriesList = ({ getCategoriesSuccess, categories }) => {
 };
 
 CategoriesList.propTypes = {
-  getCategoriesSuccess: PropTypes.func.isRequired
+  getCategoriesSuccess: PropTypes.func.isRequired,
 };
 CategoriesList.defaultProps = {
-  categories: []
+  categories: [],
 };
 
-const mapStateToProps = state => ({
-  categories: state.category.categoriesList
+const mapStateToProps = (state) => ({
+  categories: state.category.categoriesList,
 });
 
 const mapDispatchToProps = {
-  getCategoriesSuccess: category.actions.getCategoriesSuccess
+  getCategoriesSuccess: category.actions.getCategoriesSuccess,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(CategoriesList);
