@@ -27,11 +27,6 @@ body {
 			padding-top: kt-get($kt-header-config, base, desktop, default, height);
 		}
 
-		// Fixed Content Head
-		.kt-header--fixed.kt-subheader--fixed.kt-subheader--enabled & {
-			padding-top: kt-get($kt-header-config, base, desktop, default, height) + kt-get($kt-subheader-config, fixed, height);
-		}
-
 		// Fixed Aside
 		.kt-aside--fixed & {
 			padding-left: kt-get($kt-aside-config, base, default, width);

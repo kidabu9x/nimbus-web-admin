@@ -36,15 +36,17 @@ const BlogsList = ({
   const history = useHistory();
   const [openModalDelete, setOpenModalDelete] = useState(false);
   const [blogEdit, setBlogEdit] = useState(null);
-  useEffect(() => {
-    loadBlogs();
-  }, []);
 
-  const loadBlogs = () => {
-    getAllBlogs().then((res) => {
-      getBlogsSuccess({ data: res.data.data, meta: res.data.meta });
-    });
-  };
+  useEffect(() => {
+    const loadBlogs = () => {
+      getAllBlogs().then((res) => {
+        getBlogsSuccess({ data: res.data.data, meta: res.data.meta });
+      });
+    };
+
+    loadBlogs();
+  }, [getBlogsSuccess]);
+
 
   const onEditBlog = (blog) => {
     history.push(`${ROUTES.blogs}/${blog.id}`);
@@ -53,7 +55,7 @@ const BlogsList = ({
   const onDeleteBlog = () => {
     deleteBlog(blogEdit.id).then((data) => {
       setOpenModalDelete(false);
-      loadBlogs();
+      // loadBlogs();
     });
   };
 
@@ -79,6 +81,13 @@ const BlogsList = ({
   const handleChangeRowsPerPage = (event) => {
     console.log("handleChangeRowsPerPage");
   };
+
+  const blogStatusExchange = (status) => {
+    if (status === "PUBLISHED") {
+      return "Đã xuất bản";
+    }
+    return "Bản nháp";
+  }
 
   return (
     <>
@@ -133,7 +142,7 @@ const BlogsList = ({
                           {blog.title}
                         </TableCell>
                         <TableCell align="left">{blog.description}</TableCell>
-                        <TableCell align="right">{blog.status}</TableCell>
+                        <TableCell align="right">{blogStatusExchange(blog.status)}</TableCell>
                         <TableCell align="right">
                           <div className={classes.actions}>
                             <IconButton

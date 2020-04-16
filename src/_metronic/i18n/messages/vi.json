@@ -79,6 +79,7 @@
   "BLOGS.LIST.MODAL_DELETE.DESCRIPTION": "Bạn có chắc chắn muốn xóa blog này?",
   "BLOGS.LIST.MODAL_DELETE.YES": "XÓA",
   "BLOGS.LIST.MODAL_DELETE.NO": "HỦY",
+  "BLOGS.EDIT.BLOGS": "Blogs",
   "BLOGS.EDIT.EDIT": "Chỉnh sửa",
   "BLOGS.EDIT.NEW": "Tạo mới",
   "BLOGS.EDIT.SUBMIT": "Lưu",

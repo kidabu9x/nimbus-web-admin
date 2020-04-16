@@ -41,27 +41,16 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
   },
   rowHeader: {
-    marginBottom: 12,
-    marginLeft: 8,
-    marginRight: 0,
+    margin: theme.spacing(2, 0),
     alignItems: "center",
     justifyContent: "space-between",
     display: "flex",
   },
   rowFootHeader: {
-    marginBottom: 12,
-    marginLeft: 0,
-    marginRight: 0,
+    margin: theme.spacing(2.5, 1.5, 0, 0),
     alignItems: "center",
     justifyContent: "space-between",
     display: "flex",
-  },
-  textField: {
-    marginRight: 20,
-  },
-  editorContainer: {
-    marginBottom: 20,
-    paddingBottom: 20,
   },
   btnHeader: {
     marginLeft: 15,
@@ -69,16 +58,10 @@ const useStyles = makeStyles((theme) => ({
   btnFooter: {
     marginLeft: 0,
   },
-  inputTitle: {
-    width: "100%",
+  inputFullWidth: {
+    width: "100%"
   },
-  inputDescription: {
-    width: "100%",
-  },
-  ckeContainer: {
-    display: "flex",
-    flexDirection: "column",
-  },
+
   btnRemoveCKE: {
     width: 40,
     left: "95%",
