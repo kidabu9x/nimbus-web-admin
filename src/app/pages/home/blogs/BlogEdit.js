@@ -13,17 +13,15 @@ import {
   CardContent,
   Typography,
   Input,
-  Fab,
   Button,
-  IconButton,
-  TextField,
   Switch,
+  TextField
 } from "@material-ui/core";
 import CKEditor from "@ckeditor/ckeditor5-react";
-import AddIcon from "@material-ui/icons/Add";
 import SaveIcon from "@material-ui/icons/Save";
 import ClearIcon from "@material-ui/icons/Clear";
 import DeleteIcon from "@material-ui/icons/Delete";
+import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
 // import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import useStyles from "./styles";
 import ChipInput from "material-ui-chip-input";
@@ -44,18 +42,7 @@ import MyUploadAdapter from "../../../../_metronic/utils/uploadAdapter";
 import { useSnackbar } from "notistack";
 import { ERR_CODE } from "../../../../_metronic/utils/errCode";
 import ConfirmDelete from "../../../components/ConfirmDelete/ConfirmDelete";
-
-const initCKEContent = {
-  content: "Chèn nội dung",
-  type: "HTML",
-};
-const initAuthor = {
-  id: "string",
-  email: "string",
-  first_name: "string",
-  last_name: "string",
-  avatar: "https://i.stack.imgur.com/34AD2.jpg",
-};
+import { Grid, Container } from "@material-ui/core";
 
 const initDefaultBlog = {
   title: "",
@@ -87,6 +74,12 @@ const BlogEdit = ({ blogData, categories, getCategoriesSuccess }) => {
   const [openModalDelete, setOpenModalDelete] = useState(false);
 
   useEffect(() => {
+    const loadCategories = () => {
+      getAllCategories().then((res) => {
+        getCategoriesSuccess(res.data.data);
+      });
+    };
+
     if (id !== BLOG.QUERY_NEW) {
       getBlog(id).then((res) => {
         setBlog(res.data.data);
@@ -94,20 +87,9 @@ const BlogEdit = ({ blogData, categories, getCategoriesSuccess }) => {
     } else {
       setBlog(initDefaultBlog);
     }
+
     loadCategories();
-  }, []);
-
-  const loadCategories = () => {
-    getAllCategories().then((res) => {
-      getCategoriesSuccess(res.data.data);
-    });
-  };
-
-  const onAddCKE = () => {
-    const newContents = blog.contents;
-    newContents[newContents.length] = initCKEContent;
-    setBlog({ ...blog, contents: newContents });
-  };
+  }, [getCategoriesSuccess, id]);
 
   const handleAddChip = (chip) => {
     let newTags = blog.tags;
@@ -137,7 +119,7 @@ const BlogEdit = ({ blogData, categories, getCategoriesSuccess }) => {
             ...initDefaultBlog,
             contents: [
               {
-                content: "Chèn nội dung",
+                content: "Nhập nội dung...",
                 type: "HTML", // HTML
               },
             ],
@@ -175,14 +157,6 @@ const BlogEdit = ({ blogData, categories, getCategoriesSuccess }) => {
     let newContent = blog.contents[index];
     newContent = { ...content, content: data, type: "HTML" };
     newContents[index] = newContent;
-    setBlog({ ...blog, contents: newContents });
-  };
-
-  const onRemoveCKE = (index) => {
-    let newContents = blog.contents;
-    newContents = newContents
-      .slice(0, index)
-      .concat(newContents.slice(index + 1, newContents.length));
     setBlog({ ...blog, contents: newContents });
   };
 
@@ -235,29 +209,18 @@ const BlogEdit = ({ blogData, categories, getCategoriesSuccess }) => {
     setOpenModalDelete(true);
   };
 
-  const onChangeAuthor = (event, author, index, key) => {
-    const newAuthors = blog.authors;
-    let newAuthor = newAuthors[index];
-    newAuthor[key] = event.target.value;
-    newAuthors[index] = newAuthor;
-    setBlog({ ...blog, authors: newAuthors });
-  };
-
-  const onAddAuthor = () => {
-    const newAuthors = blog.authors;
-    newAuthors[newAuthors.length] = initAuthor;
-    setBlog({ ...blog, authors: newAuthors });
-  };
-
   return (
-    <>
+    <Container >
+      <Button startIcon={<ArrowBackIosIcon />}>
+        <FormattedMessage id="BLOGS.EDIT.BLOGS" />
+      </Button>
       <div className={`${classes.rowHeader}`}>
         <Typography variant="h4">
           {id !== BLOG.QUERY_NEW ? (
             <FormattedMessage id="BLOGS.EDIT.EDIT" />
           ) : (
-            <FormattedMessage id="BLOGS.EDIT.NEW" />
-          )}
+              <FormattedMessage id="BLOGS.EDIT.NEW" />
+            )}
         </Typography>
         <Button
           variant="contained"
@@ -269,61 +232,43 @@ const BlogEdit = ({ blogData, categories, getCategoriesSuccess }) => {
           <FormattedMessage id="BLOGS.EDIT.SUBMIT" />
         </Button>
       </div>
-      <div className={`${classes.container}`}>
+      <Grid container spacing={3}>
         {blog && (
           <>
-            <Card className={`col-xl-8 ${classes.cardContainerLeft}`}>
-              <CardContent>
-                <Typography className={classes.cardTitle}>
-                  <FormattedMessage id="BLOGS.EDIT.TITLE" />
-                </Typography>
-                <div className="kt-space-20" />
-                <Input
-                  className={classes.inputTitle}
-                  value={blog.title}
-                  onChange={onTitleChange}
-                  placeholder="Nhập tiêu đề..."
-                />
-              </CardContent>
-              <CardContent>
-                <Typography className={classes.cardTitle}>
-                  <FormattedMessage id="BLOGS.EDIT.DESCRIPTION" />
-                </Typography>
-                <div className="kt-space-20" />
-                <Input
-                  className={classes.inputDescription}
-                  value={blog.description}
-                  onChange={onDescChange}
-                  multiline
-                  placeholder="Nhập mô tả..."
-                />
-              </CardContent>
-              <CardContent>
-                <div className={`${classes.rowBody}`}>
+            <Grid item xs={9} >
+              <Card>
+                <CardContent>
                   <Typography className={classes.cardTitle}>
-                    <FormattedMessage id="BLOGS.EDIT.BODY" />
+                    <FormattedMessage id="BLOGS.EDIT.TITLE" />
                   </Typography>
-                  <Fab
-                    size="small"
-                    color="default"
-                    aria-label="add"
-                    onClick={onAddCKE}
-                    className={classes.btnAdd}
-                  >
-                    <AddIcon />
-                  </Fab>
-                </div>
-                {blog.contents.map((content, index) => (
-                  <div key={index} className={classes.ckeContainer}>
-                    <IconButton
-                      aria-label="delete"
-                      className={classes.btnRemoveCKE}
-                      onClick={() => {
-                        onRemoveCKE(index);
-                      }}
-                    >
-                      <ClearIcon fontSize="small" />
-                    </IconButton>
+                  <Input
+                    className={classes.inputFullWidth}
+                    value={blog.title}
+                    onChange={onTitleChange}
+                    placeholder="Nhập tiêu đề..."
+                  />
+                </CardContent>
+                <CardContent>
+                  <Typography className={classes.cardTitle}>
+                    <FormattedMessage id="BLOGS.EDIT.DESCRIPTION" />
+                  </Typography>
+                  <Input
+                    className={classes.inputFullWidth}
+                    value={blog.description}
+                    onChange={onDescChange}
+                    multiline
+                    placeholder="Nhập mô tả..."
+                  />
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent>
+                  <div className={`${classes.rowBody}`}>
+                    <Typography className={classes.cardTitle}>
+                      <FormattedMessage id="BLOGS.EDIT.BODY" />
+                    </Typography>
+                  </div>
+                  {blog.contents.map((content, index) => (
                     <CKEditor
                       editor={ClassicEditor}
                       data={content.content}
@@ -342,16 +287,15 @@ const BlogEdit = ({ blogData, categories, getCategoriesSuccess }) => {
                         const data = editor.getData();
                         onContentChange(index, content, data);
                       }}
-                      onBlur={(event, editor) => {}}
-                      onFocus={(event, editor) => {}}
+                      onBlur={(event, editor) => { }}
+                      onFocus={(event, editor) => { }}
                     />
-                    <div className="kt-space-20" />
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-            <div className={`col-xl-4 ${classes.containerRight}`}>
-              <Card className={`${classes.cardContainerRight}`}>
+                  ))}
+                </CardContent>
+              </Card>
+            </Grid>
+            <Grid item xs={3}>
+              <Card>
                 <CardContent className={`row ${classes.statusContainer}`}>
                   <Typography className={classes.cardTitle}>
                     <FormattedMessage id="BLOGS.EDIT.STATUS" />
@@ -373,7 +317,6 @@ const BlogEdit = ({ blogData, categories, getCategoriesSuccess }) => {
                   <Typography className={classes.cardTitle}>
                     <FormattedMessage id="BLOGS.EDIT.CATEGORIES" />
                   </Typography>
-                  <div className="kt-space-20" />
                   <Autocomplete
                     id="combo-box-demo"
                     options={filterCategoriesByArray(
@@ -418,8 +361,8 @@ const BlogEdit = ({ blogData, categories, getCategoriesSuccess }) => {
                   <Typography className={classes.cardTitle}>
                     <FormattedMessage id="BLOGS.EDIT.TAGS" />
                   </Typography>
-                  <div className="kt-space-20" />
                   <ChipInput
+                    className={classes.inputFullWidth}
                     variant="outlined"
                     value={blog.tags}
                     onAdd={(chip) => {
@@ -431,9 +374,8 @@ const BlogEdit = ({ blogData, categories, getCategoriesSuccess }) => {
               </Card>
               <Card>
                 <CardContent>
-                  <div className="kt-space-20" />
                   <TextField
-                    className={classes.inputTitle}
+                    className={classes.inputFullWidth}
                     label={<FormattedMessage id="BLOGS.EDIT.EXTRA_DATA.FB" />}
                     variant="outlined"
                     value={blog.extra_data[BLOG_EXTRA_DATA.FB_PIXEL_ID]}
@@ -441,9 +383,8 @@ const BlogEdit = ({ blogData, categories, getCategoriesSuccess }) => {
                   />
                 </CardContent>
                 <CardContent>
-                  <div className="kt-space-20" />
                   <TextField
-                    className={classes.inputTitle}
+                    className={classes.inputFullWidth}
                     label={<FormattedMessage id="BLOGS.EDIT.EXTRA_DATA.GG" />}
                     variant="outlined"
                     onChange={onGAIdChange}
@@ -451,58 +392,10 @@ const BlogEdit = ({ blogData, categories, getCategoriesSuccess }) => {
                   />
                 </CardContent>
               </Card>
-            </div>
-            {/* TODO: Authors
-            <Card className={`col-xl-9 ${classes.cardContainer}`}>
-              <CardContent>
-                <div className={`row row-full-height ${classes.rowBody}`}>
-                  <Typography>Authors</Typography>
-                  <Fab
-                    size="small"
-                    color="primary"
-                    aria-label="add"
-                    onClick={onAddAuthor}
-                    className={classes.btnAdd}
-                  >
-                    <AddIcon />
-                  </Fab>
-                </div>
-                {blog.authors.map((author, index) => (
-                  <div key={index} className={classes.rowBody}>
-                    <TextField
-                      className={classes.textField}
-                      error={!`${author.first_name}`.length}
-                      label="First Name"
-                      onChange={event => {
-                        onChangeAuthor(event, author, index, "first_name");
-                      }}
-                      defaultValue={`${author.first_name}`}
-                    />
-                    <TextField
-                      className={classes.textField}
-                      error={!`${author.last_name}`.length}
-                      label="Last Name"
-                      onChange={event => {
-                        onChangeAuthor(event, author, index, "last_name");
-                      }}
-                      defaultValue={`${author.last_name}`}
-                    />
-                    <TextField
-                      className={classes.textField}
-                      error={!author.email.length}
-                      label="Email"
-                      defaultValue={author.email}
-                      onChange={event => {
-                        onChangeAuthor(event, author, index, "email");
-                      }}
-                    />
-                  </div>
-                ))}
-              </CardContent>
-            </Card> */}
+            </Grid>
           </>
         )}
-      </div>
+      </Grid>
       <div className={`${classes.rowFootHeader}`}>
         {id !== BLOG.QUERY_NEW ? (
           <Button
@@ -515,8 +408,8 @@ const BlogEdit = ({ blogData, categories, getCategoriesSuccess }) => {
             <FormattedMessage id="BLOGS.EDIT.DELETE" />
           </Button>
         ) : (
-          <div></div>
-        )}
+            <div></div>
+          )}
         <div>
           <Button
             variant="contained"
@@ -546,7 +439,7 @@ const BlogEdit = ({ blogData, categories, getCategoriesSuccess }) => {
           setOpenModalDelete(value);
         }}
       />
-    </>
+    </Container>
   );
 };
 

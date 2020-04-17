@@ -3,7 +3,6 @@ import { connect } from "react-redux";
 import objectPath from "object-path";
 import Header from "./header/Header";
 import { withRouter } from "react-router-dom";
-import SubHeader from "./sub-header/SubHeader";
 import HeaderMobile from "./header/HeaderMobile";
 import AsideLeft from "./aside/AsideLeft";
 import Footer from "./footer/Footer";
@@ -63,8 +62,6 @@ function Layout({
               id="kt_content"
               className={`kt-content ${contentCssClasses} kt-grid__item kt-grid__item--fluid kt-grid kt-grid--hor`}
             >
-              {/* <!-- begin:: Content Head --> */}
-              {subheaderDisplay && <SubHeader />}
               {/* <!-- end:: Content Head --> */}
               {/* <!-- begin:: Content Body --> */}
               <KtContent>{children}</KtContent>
@@ -80,11 +77,11 @@ function Layout({
       <ScrollTop />
     </LayoutInitializer>
   ) : (
-    // BLANK LAYOUT
-    <div className="kt-grid kt-grid--ver kt-grid--root kt-page">
-      <KtContent>{children}</KtContent>
-    </div>
-  );
+      // BLANK LAYOUT
+      <div className="kt-grid kt-grid--ver kt-grid--root kt-page">
+        <KtContent>{children}</KtContent>
+      </div>
+    );
 }
 
 const mapStateToProps = ({ builder: { layoutConfig } }) => ({
