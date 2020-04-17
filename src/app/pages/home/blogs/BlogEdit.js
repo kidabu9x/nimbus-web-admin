@@ -15,15 +15,14 @@ import {
   Input,
   Button,
   Switch,
-  TextField
+  TextField,
 } from "@material-ui/core";
-import CKEditor from "@ckeditor/ckeditor5-react";
 import SaveIcon from "@material-ui/icons/Save";
 import ClearIcon from "@material-ui/icons/Clear";
 import DeleteIcon from "@material-ui/icons/Delete";
-import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
-// import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
+import ArrowBackIosIcon from "@material-ui/icons/ArrowBackIos";
 import useStyles from "./styles";
+import CKEditor from "ckeditor4-react";
 import ChipInput from "material-ui-chip-input";
 import { BLOG } from "../../../../_metronic/utils/constants";
 import { remove } from "lodash";
@@ -37,12 +36,15 @@ import {
   BLOG_STATUS,
   BLOG_EXTRA_DATA,
 } from "../../../../_metronic/utils/types";
-import ClassicEditor from "@ckeditor/ckeditor5-build-classic/build/ckeditor";
 import MyUploadAdapter from "../../../../_metronic/utils/uploadAdapter";
 import { useSnackbar } from "notistack";
 import { ERR_CODE } from "../../../../_metronic/utils/errCode";
 import ConfirmDelete from "../../../components/ConfirmDelete/ConfirmDelete";
 import { Grid, Container } from "@material-ui/core";
+import {
+  handleFileUploadRequest,
+  handleFileUploadResponse,
+} from "../../../../_metronic/utils/utils";
 
 const initDefaultBlog = {
   title: "",
@@ -97,7 +99,7 @@ const BlogEdit = ({ blogData, categories, getCategoriesSuccess }) => {
     setBlog({ ...blog, tags: newTags });
   };
 
-  const handleDeleteChip = (chip, index) => {
+  const handleDeleteChip = (chip, indexs) => {
     let newTags = blog.tags;
     newTags = remove(newTags, (tag) => tag !== chip);
     setBlog({ ...blog, tags: newTags });
@@ -210,8 +212,13 @@ const BlogEdit = ({ blogData, categories, getCategoriesSuccess }) => {
   };
 
   return (
-    <Container >
-      <Button startIcon={<ArrowBackIosIcon />}>
+    <Container>
+      <Button
+        startIcon={<ArrowBackIosIcon />}
+        onClick={() => {
+          history.goBack();
+        }}
+      >
         <FormattedMessage id="BLOGS.EDIT.BLOGS" />
       </Button>
       <div className={`${classes.rowHeader}`}>
@@ -219,8 +226,8 @@ const BlogEdit = ({ blogData, categories, getCategoriesSuccess }) => {
           {id !== BLOG.QUERY_NEW ? (
             <FormattedMessage id="BLOGS.EDIT.EDIT" />
           ) : (
-              <FormattedMessage id="BLOGS.EDIT.NEW" />
-            )}
+            <FormattedMessage id="BLOGS.EDIT.NEW" />
+          )}
         </Typography>
         <Button
           variant="contained"
@@ -235,7 +242,7 @@ const BlogEdit = ({ blogData, categories, getCategoriesSuccess }) => {
       <Grid container spacing={3}>
         {blog && (
           <>
-            <Grid item xs={9} >
+            <Grid item xs={9}>
               <Card>
                 <CardContent>
                   <Typography className={classes.cardTitle}>
@@ -270,25 +277,28 @@ const BlogEdit = ({ blogData, categories, getCategoriesSuccess }) => {
                   </div>
                   {blog.contents.map((content, index) => (
                     <CKEditor
-                      editor={ClassicEditor}
+                      key={index}
                       data={content.content}
                       config={{
                         language: "vi",
+                        height: 400,
+                        filebrowserUploadUrl:
+                          "http://api-internal-uat.nimbus.com.vn/image-service/v1/upload",
+                        uploadUrl:
+                          "http://api-internal-uat.nimbus.com.vn/image-service/v1/upload",
                       }}
-                      onInit={(editor) => {
-                        // You can store the "editor" and use when it is needed.
-                        editor.plugins.get(
-                          "FileRepository"
-                        ).createUploadAdapter = (loader) => {
-                          return new MyUploadAdapter(loader);
-                        };
+                      onFileUploadRequest={(event) => {
+                        handleFileUploadRequest(event);
                       }}
-                      onChange={(event, editor) => {
-                        const data = editor.getData();
+                      onFileUploadResponse={(evt) => {
+                        handleFileUploadResponse(evt);
+                      }}
+                      onChange={(event) => {
+                        const data = event.editor.getData();
                         onContentChange(index, content, data);
                       }}
-                      onBlur={(event, editor) => { }}
-                      onFocus={(event, editor) => { }}
+                      onBlur={(event, editor) => {}}
+                      onFocus={(event, editor) => {}}
                     />
                   ))}
                 </CardContent>
@@ -408,8 +418,8 @@ const BlogEdit = ({ blogData, categories, getCategoriesSuccess }) => {
             <FormattedMessage id="BLOGS.EDIT.DELETE" />
           </Button>
         ) : (
-            <div></div>
-          )}
+          <div></div>
+        )}
         <div>
           <Button
             variant="contained"

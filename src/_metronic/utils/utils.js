@@ -7,13 +7,13 @@ export function addCSSClass(ele, cls) {
   ele.classList.add(cls);
 }
 
-export const toAbsoluteUrl = pathname => process.env.PUBLIC_URL + pathname;
+export const toAbsoluteUrl = (pathname) => process.env.PUBLIC_URL + pathname;
 
 export function setupAxios(axios, store) {
   axios.interceptors.request.use(
-    config => {
+    (config) => {
       const {
-        auth: { authToken }
+        auth: { authToken },
       } = store.getState();
 
       if (authToken) {
@@ -22,7 +22,7 @@ export function setupAxios(axios, store) {
 
       return config;
     },
-    err => Promise.reject(err)
+    (err) => Promise.reject(err)
   );
 }
 
@@ -116,3 +116,34 @@ export function setStorage(key, value, expires) {
 export function getKeyOfName(name) {
   return name.charAt(0);
 }
+
+export const handleFileUploadRequest = (event) => {
+  var fileLoader = event.data.fileLoader,
+    formData = new FormData(),
+    xhr = fileLoader.xhr;
+  if (fileLoader.total < 2048000) {
+    xhr.open("POST", fileLoader.uploadUrl, true);
+    formData.append("file", fileLoader.file, fileLoader.fileName);
+    fileLoader.xhr.send(formData);
+    // Prevented the default behavior.
+    event.stop();
+  } else {
+    alert("Kích thước ảnh quá lớn, ảnh sẽ được lưu vào bộ nhớ tạm"); // Prevented the default behavior.
+    event.stop();
+  }
+};
+
+export const handleFileUploadResponse = (evt) => {
+  evt.stop();
+  // Get XHR and response.
+  var data = evt.data,
+    xhr = data.fileLoader.xhr,
+    response = xhr.responseText.split("|");
+  if (response[1]) {
+    // An error occurred during upload.
+    data.message = response[1];
+    evt.cancel();
+  } else {
+    data.url = JSON.parse(response[0]).data.url;
+  }
+};
