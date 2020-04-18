@@ -32,6 +32,8 @@ import ConfirmDelete from "../../../components/ConfirmDelete/ConfirmDelete";
 import * as category from "../../../store/category";
 import SearchIcon from "@material-ui/icons/Search";
 import { getAllCategories } from "../../../crud/category.crud";
+import { find } from "lodash";
+import EmptyList from "../../../components/EmptyList/EmptyList";
 
 const BlogsList = ({
   getBlogsSuccess,
@@ -49,6 +51,7 @@ const BlogsList = ({
   const [categorySearch, setCategorySearch] = useState("");
   const [titleSearch, setTitleSearch] = useState("");
   const [openSelectSearch, setOpenSelectSearch] = useState(false);
+  const [stringEmpty, setStringEmpty] = useState("");
 
   useEffect(() => {
     const loadBlogs = () => {
@@ -124,8 +127,31 @@ const BlogsList = ({
 
   const onSearch = () => {
     getAllBlogs(0, titleSearch, categorySearch).then((res) => {
-      getBlogsSuccess({ data: res.data.data, meta: res.data.meta });
+      const resBlogs = res.data.data;
+      const meta = res.data.meta;
+      getBlogsSuccess({ data: resBlogs, meta });
+      if (resBlogs.length === 0) {
+        setStringEmpty(getStringEmpty(titleSearch, categorySearch));
+      }
     });
+  };
+
+  const getStringEmpty = (titleString, categoryString) => {
+    let resultString = `Không tìm thấy blogs`;
+    if (titleString !== "") {
+      resultString = resultString + ` có từ khóa ${titleSearch}`;
+    }
+    if (categoryString !== null && categoryString !== "") {
+      resultString =
+        resultString +
+        ` trong danh mục ${
+          find(
+            categories,
+            (category) => category.id === parseInt(categoryString)
+          ).title
+        }`;
+    }
+    return resultString;
   };
 
   return (
@@ -263,6 +289,7 @@ const BlogsList = ({
                     ))}
                 </TableBody>
               </Table>
+              {blogs.length === 0 && <EmptyList title={stringEmpty} />}
               <TablePagination
                 rowsPerPageOptions={[ROWS_PER_PAGE]}
                 component="div"
