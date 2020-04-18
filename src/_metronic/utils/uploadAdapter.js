@@ -100,3 +100,57 @@ export default class MyUploadAdapter {
     this.xhr.send(data);
   }
 }
+
+export const uploadImageBasic = (file, resolve, reject) => {
+  const xhr = new XMLHttpRequest();
+
+  // Note that your request may look different. It is up to you and your editor
+  // integration to choose the right communication channel. This example uses
+  // a POST request with JSON as a data structure but your configuration
+  // could be different.
+  xhr.open(
+    "POST",
+    "http://api-internal-uat.nimbus.com.vn/image-service/v1/upload",
+    true
+  );
+  xhr.responseType = "json";
+  const data = new FormData();
+
+  data.append("file", file, file.name);
+
+  // Important note: This is the right place to implement security mechanisms
+  // like authentication and CSRF protection. For instance, you can use
+  // XMLHttpRequest.setRequestHeader() to set the request headers containing
+  // the CSRF token generated earlier by your application.
+
+  // Send the request.
+  xhr.send(data);
+  xhr.addEventListener("error", () =>
+    reject(`Couldn't upload file: ${file.name}.`)
+  );
+  xhr.addEventListener("load", () => {
+    const response = xhr.response;
+
+    // This example assumes the XHR server's "response" object will come with
+    // an "error" which has its own "message" that can be passed to reject()
+    // in the upload promise.
+    //
+    // Your integration may handle upload errors in a different way so make sure
+    // it is done properly. The reject() function must be called when the upload fails.
+    if (!response || response.error) {
+      return reject(
+        response && response.error
+          ? response.error.message
+          : `Couldn't upload file: ${file.name}.`
+      );
+    }
+
+    // If the upload is successful, resolve the upload promise with an object containing
+    // at least the "default" URL, pointing to the image on the server.
+    // This URL will be used to display the image in the content. Learn more in the
+    // UploadAdapter#upload documentation.
+    resolve({
+      url: response.data.url,
+    });
+  });
+};

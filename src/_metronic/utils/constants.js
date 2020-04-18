@@ -9,3 +9,7 @@ export const LOGIN_CLIENT_ID = {
 };
 
 export const ROWS_PER_PAGE = 10;
+
+export const MESSAGES = {
+  FILE_UPLOAD_SUCCESS: "Tải ảnh thành công",
+};
