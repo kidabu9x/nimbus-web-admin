@@ -36,7 +36,6 @@ import {
   BLOG_STATUS,
   BLOG_EXTRA_DATA,
 } from "../../../../_metronic/utils/types";
-import MyUploadAdapter from "../../../../_metronic/utils/uploadAdapter";
 import { useSnackbar } from "notistack";
 import { ERR_CODE } from "../../../../_metronic/utils/errCode";
 import ConfirmDelete from "../../../components/ConfirmDelete/ConfirmDelete";
@@ -89,7 +88,6 @@ const BlogEdit = ({ blogData, categories, getCategoriesSuccess }) => {
     } else {
       setBlog(initDefaultBlog);
     }
-
     loadCategories();
   }, [getCategoriesSuccess, id]);
 
@@ -99,7 +97,7 @@ const BlogEdit = ({ blogData, categories, getCategoriesSuccess }) => {
     setBlog({ ...blog, tags: newTags });
   };
 
-  const handleDeleteChip = (chip, indexs) => {
+  const handleDeleteChip = (chip) => {
     let newTags = blog.tags;
     newTags = remove(newTags, (tag) => tag !== chip);
     setBlog({ ...blog, tags: newTags });

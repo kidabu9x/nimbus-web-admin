@@ -69,6 +69,7 @@
   "ECOMMERCE.CUSTOMERS.EDIT.UPDATE_MESSAGE": "Customer has been updated",
   "ECOMMERCE.CUSTOMERS.EDIT.ADD_MESSAGE": "Customer has been created",
   "BLOGS.LIST.ADD_NEW": "Thêm mới blog",
+  "BLOGS.LIST.SEARCH": "Tìm kiếm",
   "BLOGS.LIST.TABLE.ID": "ID",
   "BLOGS.LIST.TABLE.CREATE_AT": "Ngày tạo",
   "BLOGS.LIST.TABLE.TITLE": "Tiêu đề",
