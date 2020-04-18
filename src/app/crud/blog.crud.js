@@ -14,7 +14,7 @@ const queryPagination = (page) => {
 
 export function getAllBlogs(page = 0, title = null, category_id = null) {
   let queryParams = queryPagination(page);
-  if (title !== null) {
+  if (title !== null || title !== "") {
     queryParams.title = title;
   }
   if (category_id !== null) {
