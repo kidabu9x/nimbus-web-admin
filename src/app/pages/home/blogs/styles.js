@@ -153,7 +153,10 @@ const useStyles = makeStyles((theme) => ({
   selectField: {
     marginTop: 0,
     marginBottom: 0
-  }
+  },
+  thumbnail: {
+    width: "100%",
+  },
 }));
 
 export default useStyles;
