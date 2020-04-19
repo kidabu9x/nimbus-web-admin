@@ -59,7 +59,7 @@ const useStyles = makeStyles((theme) => ({
     marginLeft: 0,
   },
   inputFullWidth: {
-    width: "100%"
+    width: "100%",
   },
 
   btnRemoveCKE: {
@@ -88,6 +88,9 @@ const useStyles = makeStyles((theme) => ({
   },
   listDeleteBtn: {
     color: "#D1E2E8",
+  },
+  thumbnail: {
+    width: "100%",
   },
 }));
 

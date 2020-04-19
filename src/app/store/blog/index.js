@@ -7,6 +7,7 @@ export const actionBlogTypes = {
   GetBlog: "[GetBlog] Action",
   GetBlogsSuccess: "[GetBlogsSuccess] Action",
   GetPageBlog: "[GetPageBlog] Action",
+  GetBlogSuccess: "[GetBlogSuccess] Action",
 };
 
 const initialBlogState = {
@@ -28,8 +29,11 @@ export const reducer = persistReducer(
         return state;
       }
 
-      case actionBlogTypes.GetBlog: {
-        return state;
+      case actionBlogTypes.GetBlogSuccess: {
+        return {
+          ...state,
+          blogData: { ...state.blogData, [action.payload.id]: action.payload },
+        };
       }
 
       case actionBlogTypes.GetPageBlog: {
@@ -79,6 +83,10 @@ export const actions = {
   }),
   getBlogsSuccess: (data) => ({
     type: actionBlogTypes.GetBlogsSuccess,
+    payload: data,
+  }),
+  getBlogSuccess: (data) => ({
+    type: actionBlogTypes.GetBlogSuccess,
     payload: data,
   }),
   getPageBlog: (page) => ({

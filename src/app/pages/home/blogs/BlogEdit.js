@@ -24,7 +24,7 @@ import ArrowBackIosIcon from "@material-ui/icons/ArrowBackIos";
 import useStyles from "./styles";
 import CKEditor from "ckeditor4-react";
 import ChipInput from "material-ui-chip-input";
-import { BLOG } from "../../../../_metronic/utils/constants";
+import { BLOG, MESSAGES } from "../../../../_metronic/utils/constants";
 import { remove } from "lodash";
 import { ROUTES } from "../../../../_metronic/utils/routerList";
 import { injectIntl, FormattedMessage } from "react-intl";
@@ -36,15 +36,16 @@ import {
   BLOG_STATUS,
   BLOG_EXTRA_DATA,
 } from "../../../../_metronic/utils/types";
-import MyUploadAdapter from "../../../../_metronic/utils/uploadAdapter";
 import { useSnackbar } from "notistack";
 import { ERR_CODE } from "../../../../_metronic/utils/errCode";
+import { uploadImageBasic } from "../../../../_metronic/utils/uploadAdapter";
 import ConfirmDelete from "../../../components/ConfirmDelete/ConfirmDelete";
 import { Grid, Container } from "@material-ui/core";
 import {
   handleFileUploadRequest,
   handleFileUploadResponse,
 } from "../../../../_metronic/utils/utils";
+import * as blog from "../../../store/blog";
 
 const initDefaultBlog = {
   title: "",
@@ -61,18 +62,27 @@ const initDefaultBlog = {
   updated_at: new Date().toDateString(),
   authors: [],
   categories: [],
+  thumbnail: "",
   extra_data: {
     [BLOG_EXTRA_DATA.FB_PIXEL_ID]: "",
     [BLOG_EXTRA_DATA.GOOGLE_ANALYTICS_ID]: "",
   },
 };
 
-const BlogEdit = ({ blogData, categories, getCategoriesSuccess }) => {
+const BlogEdit = ({
+  blogData,
+  categories,
+  getCategoriesSuccess,
+  getBlogSuccess,
+}) => {
   const { id } = useParams();
   const history = useHistory();
   const classes = useStyles();
   const { enqueueSnackbar } = useSnackbar();
   const [blog, setBlog] = useState(blogData[id]);
+  const [thumbUrl, setThumbUrl] = useState(
+    blogData[id] && blogData[id].thumbnail ? blogData[id].thumbnail : null
+  );
   const [openModalDelete, setOpenModalDelete] = useState(false);
 
   useEffect(() => {
@@ -84,14 +94,23 @@ const BlogEdit = ({ blogData, categories, getCategoriesSuccess }) => {
 
     if (id !== BLOG.QUERY_NEW) {
       getBlog(id).then((res) => {
-        setBlog(res.data.data);
+        const blogRes = {
+          ...res.data.data,
+        };
+        setBlog({
+          ...blogRes,
+        });
+        if (blogRes.thumbnail) setThumbUrl(blogRes.thumbnail);
+        getBlogSuccess({
+          ...blogRes,
+        });
       });
     } else {
       setBlog(initDefaultBlog);
     }
 
     loadCategories();
-  }, [getCategoriesSuccess, id]);
+  }, [getCategoriesSuccess, id, getBlogSuccess]);
 
   const handleAddChip = (chip) => {
     let newTags = blog.tags;
@@ -209,6 +228,23 @@ const BlogEdit = ({ blogData, categories, getCategoriesSuccess }) => {
 
   const onOpenDeleteBlog = () => {
     setOpenModalDelete(true);
+  };
+
+  const handleChangeImage = (event) => {
+    if (event.target.value.length !== 0) {
+      setThumbUrl(URL.createObjectURL(event.target.files[0]));
+      uploadImageBasic(
+        event.target.files[0],
+        ({ url }) => {
+          enqueueSnackbar(MESSAGES.FILE_UPLOAD_SUCCESS, { variant: "success" });
+          setThumbUrl(url);
+          setBlog({ ...blog, thumbnail: url });
+        },
+        (errMsg) => {
+          enqueueSnackbar(errMsg, { variant: "error" });
+        }
+      );
+    }
   };
 
   return (
@@ -384,6 +420,29 @@ const BlogEdit = ({ blogData, categories, getCategoriesSuccess }) => {
               </Card>
               <Card>
                 <CardContent>
+                  <Typography className={classes.cardTitle}>
+                    <FormattedMessage id="BLOGS.EDIT.THUMB" />
+                  </Typography>
+                  <Button variant="contained" component="label">
+                    <FormattedMessage id="BLOGS.EDIT.THUMB_UPLOAD" />
+                    <input
+                      type="file"
+                      style={{ display: "none" }}
+                      onChange={handleChangeImage}
+                    />
+                  </Button>
+                  <div className="kt-space-20" />
+                  {thumbUrl !== null && (
+                    <img
+                      className={classes.thumbnail}
+                      src={thumbUrl}
+                      alt="thumb"
+                    />
+                  )}
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent>
                   <TextField
                     className={classes.inputFullWidth}
                     label={<FormattedMessage id="BLOGS.EDIT.EXTRA_DATA.FB" />}
@@ -468,6 +527,7 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = {
   getCategoriesSuccess: category.actions.getCategoriesSuccess,
+  getBlogSuccess: blog.actions.getBlogSuccess,
 };
 
 export default injectIntl(
