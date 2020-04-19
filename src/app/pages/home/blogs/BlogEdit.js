@@ -153,10 +153,6 @@ const BlogEdit = ({
     }
   };
 
-  const onClear = () => {
-    history.push(`${ROUTES.blogs}`);
-  };
-
   const onDelete = () => {
     deleteBlog(blog.id).then((data) => {
       setOpenModalDelete(false);
@@ -261,8 +257,8 @@ const BlogEdit = ({
           {id !== BLOG.QUERY_NEW ? (
             <FormattedMessage id="BLOGS.EDIT.EDIT" />
           ) : (
-            <FormattedMessage id="BLOGS.EDIT.NEW" />
-          )}
+              <FormattedMessage id="BLOGS.EDIT.NEW" />
+            )}
         </Typography>
         <Button
           variant="contained"
@@ -316,7 +312,7 @@ const BlogEdit = ({
                       data={content.content}
                       config={{
                         language: "vi",
-                        height: 400,
+                        height: '40em',
                         filebrowserUploadUrl:
                           "http://api-internal-uat.nimbus.com.vn/image-service/v1/upload",
                         uploadUrl:
@@ -332,8 +328,8 @@ const BlogEdit = ({
                         const data = event.editor.getData();
                         onContentChange(index, content, data);
                       }}
-                      onBlur={(event, editor) => {}}
-                      onFocus={(event, editor) => {}}
+                      onBlur={(event, editor) => { }}
+                      onFocus={(event, editor) => { }}
                     />
                   ))}
                 </CardContent>
@@ -476,8 +472,8 @@ const BlogEdit = ({
             <FormattedMessage id="BLOGS.EDIT.DELETE" />
           </Button>
         ) : (
-          <div></div>
-        )}
+            <div></div>
+          )}
         <div>
           <Button
             variant="contained"
@@ -487,14 +483,6 @@ const BlogEdit = ({
             onClick={onSubmit}
           >
             <FormattedMessage id="BLOGS.EDIT.SUBMIT" />
-          </Button>
-          <Button
-            variant="contained"
-            color="inherit"
-            className={classes.btnHeader}
-            onClick={onClear}
-          >
-            <FormattedMessage id="BLOGS.EDIT.CANCEL" />
           </Button>
         </div>
       </div>
