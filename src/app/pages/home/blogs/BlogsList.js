@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { connect } from "react-redux";
 import * as blog from "../../../store/blog";
 import { getAllBlogs, deleteBlog } from "../../../crud/blog.crud";
@@ -114,7 +114,7 @@ const BlogsList = ({
     setTitleSearch(event.target.value);
   };
 
-  const onSearch = useCallback(() => {
+  const onSearch = () => {
     getAllBlogs(0, titleSearch, categorySearch).then((res) => {
       const resBlogs = res.data.data;
       const meta = res.data.meta;
@@ -123,11 +123,11 @@ const BlogsList = ({
         setStringEmpty(getStringEmpty(titleSearch, categorySearch));
       }
     });
-  });
+  };
 
   useEffect(() => {
     onSearch();
-  }, [categorySearch, onSearch]);
+  }, [categorySearch]);
 
   const getStringEmpty = (titleString, categoryString) => {
     let resultString = `Không tìm thấy blogs`;
