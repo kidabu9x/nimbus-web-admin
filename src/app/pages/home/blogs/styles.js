@@ -1,5 +1,4 @@
 import { makeStyles } from "@material-ui/styles";
-import { fade } from "@material-ui/core";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -95,20 +94,6 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     justifyContent: "space-between",
   },
-  search: {
-    position: "relative",
-    borderRadius: theme.shape.borderRadius,
-    backgroundColor: fade(theme.palette.common.white, 0.15),
-    "&:hover": {
-      backgroundColor: fade(theme.palette.common.white, 0.25),
-    },
-    marginLeft: 0,
-    width: "100%",
-    [theme.breakpoints.up("sm")]: {
-      marginLeft: theme.spacing(1),
-      width: "auto",
-    },
-  },
   searchIcon: {
     padding: theme.spacing(0, 2),
     height: "100%",
@@ -150,13 +135,41 @@ const useStyles = makeStyles((theme) => ({
   titleSearch: {
     paddingLeft: 15,
   },
-  selectField: {
-    marginTop: 0,
-    marginBottom: 0
-  },
   thumbnail: {
     width: "100%",
   },
+  search: {
+    padding: '2px 4px',
+    display: 'flex',
+    alignItems: 'center',
+    minWidth: 320,
+    maxWidth: 600,
+    width: 500
+  },
+  searchFormControl: {
+    display: "flex",
+    flex: 1,
+    flexDirection: "inherit"
+  },
+  searchButton: {
+    marginLeft: theme.spacing(1),
+  },
+  searchInput: {
+    flex: 1,
+    marginLeft: theme.spacing(1)
+  },
+  divider: {
+    height: 28,
+    margin: 4,
+  },
+  selectFormControl: {
+    padding: 10
+  },
+  selectCategory: {
+    "&::before": {
+      display: "none"
+    }
+  }
 }));
 
 export default useStyles;

@@ -46,6 +46,9 @@ import {
   handleFileUploadResponse,
 } from "../../../../_metronic/utils/utils";
 import * as blog from "../../../store/blog";
+import UiCard from "../../../components/Ui/Card/Card";
+import UiCardHeader from "../../../components/Ui/Card/CardHeader";
+import UiCardContent from "../../../components/Ui/Card/CardContent";
 
 const initDefaultBlog = {
   title: "",
@@ -153,10 +156,6 @@ const BlogEdit = ({
     }
   };
 
-  const onClear = () => {
-    history.push(`${ROUTES.blogs}`);
-  };
-
   const onDelete = () => {
     deleteBlog(blog.id).then((data) => {
       setOpenModalDelete(false);
@@ -261,8 +260,8 @@ const BlogEdit = ({
           {id !== BLOG.QUERY_NEW ? (
             <FormattedMessage id="BLOGS.EDIT.EDIT" />
           ) : (
-            <FormattedMessage id="BLOGS.EDIT.NEW" />
-          )}
+              <FormattedMessage id="BLOGS.EDIT.NEW" />
+            )}
         </Typography>
         <Button
           variant="contained"
@@ -316,7 +315,7 @@ const BlogEdit = ({
                       data={content.content}
                       config={{
                         language: "vi",
-                        height: 400,
+                        height: '40em',
                         filebrowserUploadUrl:
                           "http://api-internal-uat.nimbus.com.vn/image-service/v1/upload",
                         uploadUrl:
@@ -332,16 +331,17 @@ const BlogEdit = ({
                         const data = event.editor.getData();
                         onContentChange(index, content, data);
                       }}
-                      onBlur={(event, editor) => {}}
-                      onFocus={(event, editor) => {}}
+                      onBlur={(event, editor) => { }}
+                      onFocus={(event, editor) => { }}
                     />
                   ))}
                 </CardContent>
               </Card>
             </Grid>
             <Grid item xs={3}>
-              <Card>
-                <CardContent className={`row ${classes.statusContainer}`}>
+              <UiCard>
+                <UiCardHeader title="Tổ chức"></UiCardHeader>
+                <UiCardContent className={`row ${classes.statusContainer}`}>
                   <Typography className={classes.cardTitle}>
                     <FormattedMessage id="BLOGS.EDIT.STATUS" />
                   </Typography>
@@ -357,8 +357,8 @@ const BlogEdit = ({
                       );
                     }}
                   />
-                </CardContent>
-                <CardContent>
+                </UiCardContent>
+                <UiCardContent>
                   <Typography className={classes.cardTitle}>
                     <FormattedMessage id="BLOGS.EDIT.CATEGORIES" />
                   </Typography>
@@ -385,24 +385,22 @@ const BlogEdit = ({
                     )}
                   />
                   {blog.categories.map((category, index) => (
-                    <div key={index}>
-                      <div className={classes.categoryTag}>
-                        <Typography>{category.title}</Typography>
-                        <Button
-                          color="primary"
-                          size="small"
-                          className={classes.categoryTagBtn}
-                          onClick={() => {
-                            onDeleteCategory(category, index);
-                          }}
-                        >
-                          <ClearIcon />
-                        </Button>
-                      </div>
+                    <div key={index} className={classes.categoryTag}>
+                      <Typography>{category.title}</Typography>
+                      <Button
+                        color="primary"
+                        size="small"
+                        className={classes.categoryTagBtn}
+                        onClick={() => {
+                          onDeleteCategory(category, index);
+                        }}
+                      >
+                        <ClearIcon />
+                      </Button>
                     </div>
                   ))}
-                </CardContent>
-                <CardContent>
+                </UiCardContent>
+                <UiCardContent>
                   <Typography className={classes.cardTitle}>
                     <FormattedMessage id="BLOGS.EDIT.TAGS" />
                   </Typography>
@@ -415,22 +413,20 @@ const BlogEdit = ({
                     }}
                     onDelete={(chip, index) => handleDeleteChip(chip, index)}
                   />
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent>
-                  <Typography className={classes.cardTitle}>
-                    <FormattedMessage id="BLOGS.EDIT.THUMB" />
-                  </Typography>
-                  <Button variant="contained" component="label">
+                </UiCardContent>
+              </UiCard>
+              <UiCard>
+                <UiCardHeader title="Thumbnail" actionComponent="label" action={
+                  <>
                     <FormattedMessage id="BLOGS.EDIT.THUMB_UPLOAD" />
                     <input
                       type="file"
                       style={{ display: "none" }}
                       onChange={handleChangeImage}
                     />
-                  </Button>
-                  <div className="kt-space-20" />
+                  </>
+                }></UiCardHeader>
+                <UiCardContent>
                   {thumbUrl !== null && (
                     <img
                       className={classes.thumbnail}
@@ -438,10 +434,11 @@ const BlogEdit = ({
                       alt="thumb"
                     />
                   )}
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent>
+                </UiCardContent>
+              </UiCard>
+              <UiCard>
+                <UiCardHeader title="Thông tin khác"></UiCardHeader>
+                <UiCardContent>
                   <TextField
                     className={classes.inputFullWidth}
                     label={<FormattedMessage id="BLOGS.EDIT.EXTRA_DATA.FB" />}
@@ -449,8 +446,8 @@ const BlogEdit = ({
                     value={blog.extra_data[BLOG_EXTRA_DATA.FB_PIXEL_ID]}
                     onChange={onFBPixelIdChange}
                   />
-                </CardContent>
-                <CardContent>
+                </UiCardContent>
+                <UiCardContent>
                   <TextField
                     className={classes.inputFullWidth}
                     label={<FormattedMessage id="BLOGS.EDIT.EXTRA_DATA.GG" />}
@@ -458,8 +455,8 @@ const BlogEdit = ({
                     onChange={onGAIdChange}
                     value={blog.extra_data[BLOG_EXTRA_DATA.GOOGLE_ANALYTICS_ID]}
                   />
-                </CardContent>
-              </Card>
+                </UiCardContent>
+              </UiCard>
             </Grid>
           </>
         )}
@@ -476,8 +473,8 @@ const BlogEdit = ({
             <FormattedMessage id="BLOGS.EDIT.DELETE" />
           </Button>
         ) : (
-          <div></div>
-        )}
+            <div></div>
+          )}
         <div>
           <Button
             variant="contained"
@@ -487,14 +484,6 @@ const BlogEdit = ({
             onClick={onSubmit}
           >
             <FormattedMessage id="BLOGS.EDIT.SUBMIT" />
-          </Button>
-          <Button
-            variant="contained"
-            color="inherit"
-            className={classes.btnHeader}
-            onClick={onClear}
-          >
-            <FormattedMessage id="BLOGS.EDIT.CANCEL" />
           </Button>
         </div>
       </div>

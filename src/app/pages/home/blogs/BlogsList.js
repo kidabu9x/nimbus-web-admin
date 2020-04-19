@@ -16,14 +16,12 @@ import {
   InputBase,
   FormControl,
   Select,
-  MenuItem,
-  Typography,
+  Divider,
 } from "@material-ui/core";
 import DeleteIcon from "@material-ui/icons/Delete";
 import EditIcon from "@material-ui/icons/Edit";
 import { useHistory } from "react-router-dom";
 import dayjs from "dayjs";
-import AddIcon from "@material-ui/icons/Add";
 import useStyles from "./styles";
 import { FormattedMessage, injectIntl } from "react-intl";
 import { ROUTES } from "../../../../_metronic/utils/routerList";
@@ -50,7 +48,6 @@ const BlogsList = ({
   const [blogEdit, setBlogEdit] = useState(null);
   const [categorySearch, setCategorySearch] = useState("");
   const [titleSearch, setTitleSearch] = useState("");
-  const [openSelectSearch, setOpenSelectSearch] = useState(false);
   const [stringEmpty, setStringEmpty] = useState("");
 
   useEffect(() => {
@@ -75,7 +72,7 @@ const BlogsList = ({
   const onDeleteBlog = () => {
     deleteBlog(blogEdit.id).then((data) => {
       setOpenModalDelete(false);
-      // loadBlogs();
+      onSearch();
     });
   };
 
@@ -109,23 +106,15 @@ const BlogsList = ({
     return "Bản nháp";
   };
 
-  const handleChangeSelect = (event) => {
+  const handleCategoryChange = (event) => {
     setCategorySearch(event.target.value);
-  };
-
-  const handleCloseSelect = () => {
-    setOpenSelectSearch(false);
-  };
-
-  const handleOpenSelect = () => {
-    setOpenSelectSearch(true);
   };
 
   const onChangeSearchInput = (event) => {
     setTitleSearch(event.target.value);
   };
 
-  const onSearch = () => {
+  const onSearch = useCallback(() => {
     getAllBlogs(0, titleSearch, categorySearch).then((res) => {
       const resBlogs = res.data.data;
       const meta = res.data.meta;
@@ -134,7 +123,11 @@ const BlogsList = ({
         setStringEmpty(getStringEmpty(titleSearch, categorySearch));
       }
     });
-  };
+  });
+
+  useEffect(() => {
+    onSearch();
+  }, [categorySearch, onSearch]);
 
   const getStringEmpty = (titleString, categoryString) => {
     let resultString = `Không tìm thấy blogs`;
@@ -145,10 +138,10 @@ const BlogsList = ({
       resultString =
         resultString +
         ` trong danh mục ${
-          find(
-            categories,
-            (category) => category.id === parseInt(categoryString)
-          ).title
+        find(
+          categories,
+          (category) => category.id === parseInt(categoryString)
+        ).title
         }`;
     }
     return resultString;
@@ -156,159 +149,150 @@ const BlogsList = ({
 
   return (
     <>
-      <div className="row">
-        <div className="col-xl-12">
-          <div className={classes.container}>
-            <div className={classes.header}>
-              <div className={classes.search}>
-                <div className={classes.searchField}>
-                  <div className={classes.searchIcon}>
-                    <SearchIcon />
-                  </div>
-                  <InputBase
-                    placeholder="Search…"
-                    classes={{
-                      root: classes.inputRoot,
-                      input: classes.inputInput,
-                    }}
-                    inputProps={{ "aria-label": "search" }}
-                    onChange={onChangeSearchInput}
-                  />
-                  <Typography>
-                    <FormattedMessage id="BLOGS.EDIT.CATEGORIES"></FormattedMessage>
-                    :
-                  </Typography>
-                  <FormControl className={classes.formSearchControl}>
-                    <Select
-                      variant="outlined"
-                      id="controlled-open-select"
-                      open={openSelectSearch}
-                      onClose={handleCloseSelect}
-                      onOpen={handleOpenSelect}
-                      value={categorySearch}
-                      onChange={handleChangeSelect}
-                      className={classes.selectField}
-                    >
-                      <MenuItem value={null}>&ensp;</MenuItem>
-                      {categories.map((category) => (
-                        <MenuItem value={category.id} key={category.id}>
-                          {category.title}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    className={classes.btnSearch}
-                    startIcon={<SearchIcon />}
-                    onClick={() => {
-                      onSearch();
-                    }}
-                  >
-                    <FormattedMessage id="BLOGS.LIST.SEARCH" />
-                  </Button>
-                </div>
-              </div>
-              <Button
-                variant="contained"
-                color="primary"
-                className={classes.button}
-                startIcon={<AddIcon />}
-                onClick={onAddNew}
-              >
-                <FormattedMessage id="BLOGS.LIST.ADD_NEW" />
-              </Button>
-            </div>
-            <div className="kt-space-20" />
-            <Paper className={classes.root}>
-              <Table className={`${classes.table}`} aria-label="simple table">
-                <TableHead>
-                  <TableRow>
-                    <TableCell>ID</TableCell>
-                    <TableCell align="right">
-                      <FormattedMessage id="BLOGS.LIST.TABLE.CREATE_AT" />
-                    </TableCell>
-                    <TableCell align="left">
-                      <FormattedMessage id="BLOGS.LIST.TABLE.TITLE" />
-                    </TableCell>
-                    <TableCell align="left">
-                      <FormattedMessage id="BLOGS.LIST.TABLE.DESCRIPTION" />
-                    </TableCell>
-                    <TableCell align="right">
-                      <FormattedMessage id="BLOGS.LIST.TABLE.STATUS" />
-                    </TableCell>
-                    <TableCell align="right">
-                      <FormattedMessage id="BLOGS.LIST.TABLE.ACTIONS" />
-                    </TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {blogs
-                    .slice(
-                      pagination.page * ROWS_PER_PAGE,
-                      pagination.page * ROWS_PER_PAGE + ROWS_PER_PAGE
-                    )
-                    .map((blog) => (
-                      <TableRow key={blog.id}>
-                        <TableCell align="right">{blog.id}</TableCell>
-                        <TableCell align="right">
-                          {dayjs(blog.created_at).format("DD/MM/YY")}
-                        </TableCell>
-                        <TableCell component="th" scope="blog" align="left">
-                          {blog.title}
-                        </TableCell>
-                        <TableCell align="left">{blog.description}</TableCell>
-                        <TableCell align="right">
-                          {blogStatusExchange(blog.status)}
-                        </TableCell>
-                        <TableCell align="right">
-                          <div className={classes.actions}>
-                            <IconButton
-                              aria-label="edit"
-                              color="primary"
-                              onClick={() => {
-                                onEditBlog(blog);
-                              }}
-                            >
-                              <EditIcon />
-                            </IconButton>
-                            <IconButton
-                              aria-label="delete"
-                              color="primary"
-                              onClick={() => {
-                                onOpenDeleteBlog(blog);
-                              }}
-                              className={classes.listDeleteBtn}
-                            >
-                              <DeleteIcon />
-                            </IconButton>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                </TableBody>
-              </Table>
-              {blogs.length === 0 && <EmptyList title={stringEmpty} />}
-              <TablePagination
-                rowsPerPageOptions={[ROWS_PER_PAGE]}
-                component="div"
-                count={totalBlog}
-                rowsPerPage={ROWS_PER_PAGE}
-                page={pagination.page}
-                backIconButtonProps={{
-                  "aria-label": "Previous Page",
-                }}
-                nextIconButtonProps={{
-                  "aria-label": "Next Page",
-                }}
-                onChangePage={handleChangePage}
-                onChangeRowsPerPage={handleChangeRowsPerPage}
-              />
-            </Paper>
-          </div>
+      <div className={classes.header}>
+        <Paper
+          component="form"
+          className={classes.search}
+          onSubmit={(e) => {
+            e.preventDefault();
+          }}
+        >
+          <FormControl className={classes.searchFormControl}>
+            <InputBase
+              className={classes.searchInput}
+              onChange={onChangeSearchInput}
+              placeholder="Search..."
+              inputProps={{ "aria-label": "search" }}
+            />
+            <IconButton
+              type="submit"
+              className={classes.searchButton}
+              aria-label="search"
+              onClick={() => {
+                onSearch();
+              }}
+            >
+              <SearchIcon />
+            </IconButton>
+          </FormControl>
+          <Divider className={classes.divider} orientation="vertical" />
+          <FormControl className={classes.selectFormControl}>
+            <Select
+              native
+              id="controlled-open-select"
+              value={categorySearch}
+              onChange={(evt) => {
+                handleCategoryChange(evt);
+              }}
+              inputProps={{
+                id: "controlled-open-select",
+              }}
+              className={classes.selectCategory}
+            >
+              <option value="" disabled>
+                Danh mục
+              </option>
+              <option aria-label="None" value={null} />
+              {categories.map((category) => (
+                <option value={category.id} key={category.id}>
+                  {category.title}
+                </option>
+              ))}
+            </Select>
+          </FormControl>
+        </Paper>
+        <div>
+          <Button variant="contained" color="primary" onClick={onAddNew}>
+            <FormattedMessage id="BLOGS.LIST.ADD_NEW" />
+          </Button>
         </div>
       </div>
+      <div className="kt-space-20" />
+      <Paper className={classes.root}>
+        <Table className={`${classes.table}`} aria-label="simple table">
+          <TableHead>
+            <TableRow>
+              <TableCell>ID</TableCell>
+              <TableCell align="right">
+                <FormattedMessage id="BLOGS.LIST.TABLE.CREATE_AT" />
+              </TableCell>
+              <TableCell align="left">
+                <FormattedMessage id="BLOGS.LIST.TABLE.TITLE" />
+              </TableCell>
+              <TableCell align="left">
+                <FormattedMessage id="BLOGS.LIST.TABLE.DESCRIPTION" />
+              </TableCell>
+              <TableCell align="right">
+                <FormattedMessage id="BLOGS.LIST.TABLE.STATUS" />
+              </TableCell>
+              <TableCell align="right">
+                <FormattedMessage id="BLOGS.LIST.TABLE.ACTIONS" />
+              </TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {blogs
+              .slice(
+                pagination.page * ROWS_PER_PAGE,
+                pagination.page * ROWS_PER_PAGE + ROWS_PER_PAGE
+              )
+              .map((blog) => (
+                <TableRow key={blog.id}>
+                  <TableCell align="right">{blog.id}</TableCell>
+                  <TableCell align="right">
+                    {dayjs(blog.created_at).format("DD/MM/YY")}
+                  </TableCell>
+                  <TableCell component="th" scope="blog" align="left">
+                    {blog.title}
+                  </TableCell>
+                  <TableCell align="left">{blog.description}</TableCell>
+                  <TableCell align="right">
+                    {blogStatusExchange(blog.status)}
+                  </TableCell>
+                  <TableCell align="right">
+                    <div className={classes.actions}>
+                      <IconButton
+                        aria-label="edit"
+                        color="primary"
+                        onClick={() => {
+                          onEditBlog(blog);
+                        }}
+                      >
+                        <EditIcon />
+                      </IconButton>
+                      <IconButton
+                        aria-label="delete"
+                        color="primary"
+                        onClick={() => {
+                          onOpenDeleteBlog(blog);
+                        }}
+                        className={classes.listDeleteBtn}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+          </TableBody>
+        </Table>
+        {blogs.length === 0 && <EmptyList title={stringEmpty} />}
+        <TablePagination
+          rowsPerPageOptions={[ROWS_PER_PAGE]}
+          component="div"
+          count={totalBlog}
+          rowsPerPage={ROWS_PER_PAGE}
+          page={pagination.page}
+          backIconButtonProps={{
+            "aria-label": "Previous Page",
+          }}
+          nextIconButtonProps={{
+            "aria-label": "Next Page",
+          }}
+          onChangePage={handleChangePage}
+          onChangeRowsPerPage={handleChangeRowsPerPage}
+        />
+      </Paper>
       <ConfirmDelete
         message={<FormattedMessage id="BLOGS.LIST.MODAL_DELETE.DESCRIPTION" />}
         title={<FormattedMessage id="BLOGS.LIST.MODAL_DELETE.TITLE" />}
