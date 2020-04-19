@@ -114,9 +114,7 @@ const BlogsList = ({
     setTitleSearch(event.target.value);
   };
 
-  const onSearch = () => {
-    console.log(titleSearch);
-    console.log(categorySearch);
+  const onSearch = useCallback(() => {
     getAllBlogs(0, titleSearch, categorySearch).then((res) => {
       const resBlogs = res.data.data;
       const meta = res.data.meta;
@@ -125,11 +123,11 @@ const BlogsList = ({
         setStringEmpty(getStringEmpty(titleSearch, categorySearch));
       }
     });
-  };
+  });
 
   useEffect(() => {
     onSearch();
-  }, [categorySearch]);
+  }, [categorySearch, onSearch]);
 
   const getStringEmpty = (titleString, categoryString) => {
     let resultString = `Không tìm thấy blogs`;
@@ -140,10 +138,10 @@ const BlogsList = ({
       resultString =
         resultString +
         ` trong danh mục ${
-          find(
-            categories,
-            (category) => category.id === parseInt(categoryString)
-          ).title
+        find(
+          categories,
+          (category) => category.id === parseInt(categoryString)
+        ).title
         }`;
     }
     return resultString;
