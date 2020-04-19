@@ -1,5 +1,12 @@
 import React from "react";
+import { Card } from "@material-ui/core";
+import useStyles from "./styles";
 
-export default function UiCard(props) {
-    return <h1>try to make a generic card</h1>
+function UiCard(props) {
+    const classes = useStyles();
+    return <Card className={classes.root}>
+        {props.children}
+    </Card>
 }
+
+export default UiCard;

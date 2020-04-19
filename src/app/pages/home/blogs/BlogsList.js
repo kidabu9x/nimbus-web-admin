@@ -116,6 +116,8 @@ const BlogsList = ({
   };
 
   const onSearch = () => {
+    console.log(titleSearch);
+    console.log(categorySearch);
     getAllBlogs(0, titleSearch, categorySearch).then((res) => {
       const resBlogs = res.data.data;
       const meta = res.data.meta;
