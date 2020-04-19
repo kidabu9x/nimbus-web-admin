@@ -108,7 +108,6 @@ const BlogEdit = ({
     } else {
       setBlog(initDefaultBlog);
     }
-
     loadCategories();
   }, [getCategoriesSuccess, id, getBlogSuccess]);
 
@@ -118,7 +117,7 @@ const BlogEdit = ({
     setBlog({ ...blog, tags: newTags });
   };
 
-  const handleDeleteChip = (chip, indexs) => {
+  const handleDeleteChip = (chip) => {
     let newTags = blog.tags;
     newTags = remove(newTags, (tag) => tag !== chip);
     setBlog({ ...blog, tags: newTags });

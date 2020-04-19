@@ -13,6 +13,11 @@ import {
   IconButton,
   Button,
   TablePagination,
+  InputBase,
+  FormControl,
+  Select,
+  MenuItem,
+  Typography,
 } from "@material-ui/core";
 import DeleteIcon from "@material-ui/icons/Delete";
 import EditIcon from "@material-ui/icons/Edit";
@@ -24,6 +29,11 @@ import { FormattedMessage, injectIntl } from "react-intl";
 import { ROUTES } from "../../../../_metronic/utils/routerList";
 import { ROWS_PER_PAGE } from "../../../../_metronic/utils/constants";
 import ConfirmDelete from "../../../components/ConfirmDelete/ConfirmDelete";
+import * as category from "../../../store/category";
+import SearchIcon from "@material-ui/icons/Search";
+import { getAllCategories } from "../../../crud/category.crud";
+import { find } from "lodash";
+import EmptyList from "../../../components/EmptyList/EmptyList";
 
 const BlogsList = ({
   getBlogsSuccess,
@@ -31,11 +41,17 @@ const BlogsList = ({
   totalBlog,
   pagination,
   getPage,
+  getCategoriesSuccess,
+  categories,
 }) => {
   const classes = useStyles();
   const history = useHistory();
   const [openModalDelete, setOpenModalDelete] = useState(false);
   const [blogEdit, setBlogEdit] = useState(null);
+  const [categorySearch, setCategorySearch] = useState("");
+  const [titleSearch, setTitleSearch] = useState("");
+  const [openSelectSearch, setOpenSelectSearch] = useState(false);
+  const [stringEmpty, setStringEmpty] = useState("");
 
   useEffect(() => {
     const loadBlogs = () => {
@@ -43,10 +59,14 @@ const BlogsList = ({
         getBlogsSuccess({ data: res.data.data, meta: res.data.meta });
       });
     };
-
+    const loadCategories = () => {
+      getAllCategories().then((res) => {
+        getCategoriesSuccess(res.data.data);
+      });
+    };
+    loadCategories();
     loadBlogs();
-  }, [getBlogsSuccess]);
-
+  }, [getBlogsSuccess, getCategoriesSuccess]);
 
   const onEditBlog = (blog) => {
     history.push(`${ROUTES.blogs}/${blog.id}`);
@@ -87,22 +107,119 @@ const BlogsList = ({
       return "Đã xuất bản";
     }
     return "Bản nháp";
-  }
+  };
+
+  const handleChangeSelect = (event) => {
+    setCategorySearch(event.target.value);
+  };
+
+  const handleCloseSelect = () => {
+    setOpenSelectSearch(false);
+  };
+
+  const handleOpenSelect = () => {
+    setOpenSelectSearch(true);
+  };
+
+  const onChangeSearchInput = (event) => {
+    setTitleSearch(event.target.value);
+  };
+
+  const onSearch = () => {
+    getAllBlogs(0, titleSearch, categorySearch).then((res) => {
+      const resBlogs = res.data.data;
+      const meta = res.data.meta;
+      getBlogsSuccess({ data: resBlogs, meta });
+      if (resBlogs.length === 0) {
+        setStringEmpty(getStringEmpty(titleSearch, categorySearch));
+      }
+    });
+  };
+
+  const getStringEmpty = (titleString, categoryString) => {
+    let resultString = `Không tìm thấy blogs`;
+    if (titleString !== "") {
+      resultString = resultString + ` có từ khóa ${titleSearch}`;
+    }
+    if (categoryString !== null && categoryString !== "") {
+      resultString =
+        resultString +
+        ` trong danh mục ${
+          find(
+            categories,
+            (category) => category.id === parseInt(categoryString)
+          ).title
+        }`;
+    }
+    return resultString;
+  };
 
   return (
     <>
       <div className="row">
         <div className="col-xl-12">
-          <div className="row row-full-height">
-            <Button
-              variant="contained"
-              color="primary"
-              className={classes.button}
-              startIcon={<AddIcon />}
-              onClick={onAddNew}
-            >
-              <FormattedMessage id="BLOGS.LIST.ADD_NEW" />
-            </Button>
+          <div className={classes.container}>
+            <div className={classes.header}>
+              <div className={classes.search}>
+                <div className={classes.searchField}>
+                  <div className={classes.searchIcon}>
+                    <SearchIcon />
+                  </div>
+                  <InputBase
+                    placeholder="Search…"
+                    classes={{
+                      root: classes.inputRoot,
+                      input: classes.inputInput,
+                    }}
+                    inputProps={{ "aria-label": "search" }}
+                    onChange={onChangeSearchInput}
+                  />
+                  <Typography>
+                    <FormattedMessage id="BLOGS.EDIT.CATEGORIES"></FormattedMessage>
+                    :
+                  </Typography>
+                  <FormControl className={classes.formSearchControl}>
+                    <Select
+                      variant="outlined"
+                      id="controlled-open-select"
+                      open={openSelectSearch}
+                      onClose={handleCloseSelect}
+                      onOpen={handleOpenSelect}
+                      value={categorySearch}
+                      onChange={handleChangeSelect}
+                      className={classes.selectField}
+                    >
+                      <MenuItem value={null}>&ensp;</MenuItem>
+                      {categories.map((category) => (
+                        <MenuItem value={category.id} key={category.id}>
+                          {category.title}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    className={classes.btnSearch}
+                    startIcon={<SearchIcon />}
+                    onClick={() => {
+                      onSearch();
+                    }}
+                  >
+                    <FormattedMessage id="BLOGS.LIST.SEARCH" />
+                  </Button>
+                </div>
+              </div>
+              <Button
+                variant="contained"
+                color="primary"
+                className={classes.button}
+                startIcon={<AddIcon />}
+                onClick={onAddNew}
+              >
+                <FormattedMessage id="BLOGS.LIST.ADD_NEW" />
+              </Button>
+            </div>
             <div className="kt-space-20" />
             <Paper className={classes.root}>
               <Table className={`${classes.table}`} aria-label="simple table">
@@ -142,7 +259,9 @@ const BlogsList = ({
                           {blog.title}
                         </TableCell>
                         <TableCell align="left">{blog.description}</TableCell>
-                        <TableCell align="right">{blogStatusExchange(blog.status)}</TableCell>
+                        <TableCell align="right">
+                          {blogStatusExchange(blog.status)}
+                        </TableCell>
                         <TableCell align="right">
                           <div className={classes.actions}>
                             <IconButton
@@ -170,6 +289,7 @@ const BlogsList = ({
                     ))}
                 </TableBody>
               </Table>
+              {blogs.length === 0 && <EmptyList title={stringEmpty} />}
               <TablePagination
                 rowsPerPageOptions={[ROWS_PER_PAGE]}
                 component="div"
@@ -222,11 +342,13 @@ const mapStateToProps = (state) => ({
   blogs: state.blog.blogsList,
   totalBlog: state.blog.total,
   pagination: state.blog.pagination,
+  categories: state.category.categoriesList,
 });
 
 const mapDispatchToProps = {
   getBlogsSuccess: blog.actions.getBlogsSuccess,
   getPage: blog.actions.getPageBlog,
+  getCategoriesSuccess: category.actions.getCategoriesSuccess,
 };
 
 export default injectIntl(

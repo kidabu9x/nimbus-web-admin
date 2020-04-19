@@ -1,4 +1,5 @@
 import { makeStyles } from "@material-ui/styles";
+import { fade } from "@material-ui/core";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -8,6 +9,7 @@ const useStyles = makeStyles((theme) => ({
   },
   container: {
     display: "flex",
+    flexDirection: "column",
   },
   table: {
     minWidth: 650,
@@ -88,6 +90,69 @@ const useStyles = makeStyles((theme) => ({
   },
   listDeleteBtn: {
     color: "#D1E2E8",
+  },
+  header: {
+    display: "flex",
+    justifyContent: "space-between",
+  },
+  search: {
+    position: "relative",
+    borderRadius: theme.shape.borderRadius,
+    backgroundColor: fade(theme.palette.common.white, 0.15),
+    "&:hover": {
+      backgroundColor: fade(theme.palette.common.white, 0.25),
+    },
+    marginLeft: 0,
+    width: "100%",
+    [theme.breakpoints.up("sm")]: {
+      marginLeft: theme.spacing(1),
+      width: "auto",
+    },
+  },
+  searchIcon: {
+    padding: theme.spacing(0, 2),
+    height: "100%",
+    position: "absolute",
+    pointerEvents: "none",
+    display: "flex",
+    alignItems: "center",
+  },
+  inputRoot: {
+    color: "inherit",
+  },
+  inputInput: {
+    padding: theme.spacing(1, 1, 1, 0),
+    // vertical padding + font size from searchIcon
+    paddingLeft: `calc(1em + ${theme.spacing(4)}px)`,
+    transition: theme.transitions.create("width"),
+    width: "100%",
+    [theme.breakpoints.up("sm")]: {
+      width: "30ch",
+      "&:focus": {
+        width: "30ch",
+      },
+    },
+  },
+  formSearchControl: {
+    minWidth: 120,
+    marginTop: 0,
+    marginBottom: 0,
+    marginLeft: 20,
+  },
+  searchField: {
+    display: "flex",
+    alignItems: "center",
+  },
+  btnSearch: {
+    marginLeft: 20,
+    paddingLeft: 20,
+  },
+  titleSearch: {
+    paddingLeft: 15,
+  },
+  selectField: {
+    marginTop: 0,
+    marginBottom: 0
   },
   thumbnail: {
     width: "100%",
