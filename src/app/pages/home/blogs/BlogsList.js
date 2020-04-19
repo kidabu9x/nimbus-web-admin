@@ -16,7 +16,7 @@ import {
   InputBase,
   FormControl,
   Select,
-  Divider
+  Divider,
 } from "@material-ui/core";
 import DeleteIcon from "@material-ui/icons/Delete";
 import EditIcon from "@material-ui/icons/Edit";
@@ -106,9 +106,8 @@ const BlogsList = ({
     return "Bản nháp";
   };
 
-  const handleCategoryChange = async (event) => {
+  const handleCategoryChange = (event) => {
     setCategorySearch(event.target.value);
-    onSearch();
   };
 
   const onChangeSearchInput = (event) => {
@@ -128,6 +127,10 @@ const BlogsList = ({
     });
   };
 
+  useEffect(() => {
+    onSearch();
+  }, [categorySearch]);
+
   const getStringEmpty = (titleString, categoryString) => {
     let resultString = `Không tìm thấy blogs`;
     if (titleString !== "") {
@@ -137,10 +140,10 @@ const BlogsList = ({
       resultString =
         resultString +
         ` trong danh mục ${
-        find(
-          categories,
-          (category) => category.id === parseInt(categoryString)
-        ).title
+          find(
+            categories,
+            (category) => category.id === parseInt(categoryString)
+          ).title
         }`;
     }
     return resultString;
@@ -149,29 +152,42 @@ const BlogsList = ({
   return (
     <>
       <div className={classes.header}>
-        <Paper component="form" className={classes.search} onSubmit={(e) => { e.preventDefault() }} >
+        <Paper
+          component="form"
+          className={classes.search}
+          onSubmit={(e) => {
+            e.preventDefault();
+          }}
+        >
           <FormControl className={classes.searchFormControl}>
             <InputBase
               className={classes.searchInput}
               onChange={onChangeSearchInput}
               placeholder="Search..."
-              inputProps={{ 'aria-label': 'search' }}
+              inputProps={{ "aria-label": "search" }}
             />
-            <IconButton type="submit" className={classes.searchButton} aria-label="search" onClick={() => {
-              onSearch();
-            }}>
+            <IconButton
+              type="submit"
+              className={classes.searchButton}
+              aria-label="search"
+              onClick={() => {
+                onSearch();
+              }}
+            >
               <SearchIcon />
             </IconButton>
-          </FormControl >
+          </FormControl>
           <Divider className={classes.divider} orientation="vertical" />
           <FormControl className={classes.selectFormControl}>
             <Select
               native
               id="controlled-open-select"
               value={categorySearch}
-              onChange={handleCategoryChange}
+              onChange={(evt) => {
+                handleCategoryChange(evt);
+              }}
               inputProps={{
-                id: 'controlled-open-select',
+                id: "controlled-open-select",
               }}
               className={classes.selectCategory}
             >
@@ -188,11 +204,7 @@ const BlogsList = ({
           </FormControl>
         </Paper>
         <div>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={onAddNew}
-          >
+          <Button variant="contained" color="primary" onClick={onAddNew}>
             <FormattedMessage id="BLOGS.LIST.ADD_NEW" />
           </Button>
         </div>
