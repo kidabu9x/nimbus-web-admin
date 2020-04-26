@@ -260,8 +260,8 @@ const BlogEdit = ({
           {id !== BLOG.QUERY_NEW ? (
             <FormattedMessage id="BLOGS.EDIT.EDIT" />
           ) : (
-              <FormattedMessage id="BLOGS.EDIT.NEW" />
-            )}
+            <FormattedMessage id="BLOGS.EDIT.NEW" />
+          )}
         </Typography>
         <Button
           variant="contained"
@@ -315,7 +315,7 @@ const BlogEdit = ({
                       data={content.content}
                       config={{
                         language: "vi",
-                        height: '40em',
+                        height: "40em",
                         filebrowserUploadUrl:
                           "http://api-internal-uat.nimbus.com.vn/image-service/v1/upload",
                         uploadUrl:
@@ -325,14 +325,15 @@ const BlogEdit = ({
                         handleFileUploadRequest(event);
                       }}
                       onFileUploadResponse={(evt) => {
-                        handleFileUploadResponse(evt);
+                        const url = handleFileUploadResponse(evt);
+                        thumbUrl === null && setThumbUrl(url);
                       }}
                       onChange={(event) => {
                         const data = event.editor.getData();
                         onContentChange(index, content, data);
                       }}
-                      onBlur={(event, editor) => { }}
-                      onFocus={(event, editor) => { }}
+                      onBlur={(event, editor) => {}}
+                      onFocus={(event, editor) => {}}
                     />
                   ))}
                 </CardContent>
@@ -416,16 +417,20 @@ const BlogEdit = ({
                 </UiCardContent>
               </UiCard>
               <UiCard>
-                <UiCardHeader title="Thumbnail" actionComponent="label" action={
-                  <>
-                    <FormattedMessage id="BLOGS.EDIT.THUMB_UPLOAD" />
-                    <input
-                      type="file"
-                      style={{ display: "none" }}
-                      onChange={handleChangeImage}
-                    />
-                  </>
-                }></UiCardHeader>
+                <UiCardHeader
+                  title="Thumbnail"
+                  actionComponent="label"
+                  action={
+                    <>
+                      <FormattedMessage id="BLOGS.EDIT.THUMB_UPLOAD" />
+                      <input
+                        type="file"
+                        style={{ display: "none" }}
+                        onChange={handleChangeImage}
+                      />
+                    </>
+                  }
+                ></UiCardHeader>
                 <UiCardContent>
                   {thumbUrl !== null && (
                     <img
@@ -473,8 +478,8 @@ const BlogEdit = ({
             <FormattedMessage id="BLOGS.EDIT.DELETE" />
           </Button>
         ) : (
-            <div></div>
-          )}
+          <div></div>
+        )}
         <div>
           <Button
             variant="contained"
