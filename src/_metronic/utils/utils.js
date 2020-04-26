@@ -144,6 +144,6 @@ export const handleFileUploadResponse = (evt) => {
     data.message = response[1];
     evt.cancel();
   } else {
-    data.url = JSON.parse(response[0]).data.url;
+    return (data.url = JSON.parse(response[0]).data.url);
   }
 };
