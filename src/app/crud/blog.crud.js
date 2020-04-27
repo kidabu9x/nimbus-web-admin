@@ -1,7 +1,7 @@
 import axios from "axios";
 
-// export const BASE_URL = "https://5e81d2b4c130270016a37701.mockapi.io/api/v1/";
-export const BASE_URL = "http://api-internal-uat.nimbus.com.vn/v1/";
+// export const REACT_APP_BASE_URL = "https://5e81d2b4c130270016a37701.mockapi.io/api/v1/";
+// export const BASE_URL = process.env.BASE_URL;
 // export const BASE_URL = "http://localhost:48080/v1/";
 
 const queryPagination = (page) => {
@@ -20,23 +20,23 @@ export function getAllBlogs(page = 0, title = null, category_id = null) {
   if (category_id !== null) {
     queryParams.category_id = category_id;
   }
-  return axios.get(`${BASE_URL}blogs`, {
+  return axios.get(`${process.env.REACT_APP_BASE_URL}blogs`, {
     params: queryParams,
   });
 }
 
 export function getBlog(blogId) {
-  return axios.get(`${BASE_URL}blogs/${blogId}`);
+  return axios.get(`${process.env.REACT_APP_BASE_URL}blogs/${blogId}`);
 }
 
 export function updateBlog(blogId, blog) {
-  return axios.put(`${BASE_URL}blogs/${blogId}`, blog);
+  return axios.put(`${process.env.REACT_APP_BASE_URL}blogs/${blogId}`, blog);
 }
 
 export function createBlog(blog) {
-  return axios.post(`${BASE_URL}blogs`, blog);
+  return axios.post(`${process.env.REACT_APP_BASE_URL}blogs`, blog);
 }
 
 export function deleteBlog(blogId) {
-  return axios.delete(`${BASE_URL}blogs/${blogId}`);
+  return axios.delete(`${process.env.REACT_APP_BASE_URL}blogs/${blogId}`);
 }

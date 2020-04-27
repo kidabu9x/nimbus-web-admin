@@ -1,13 +1,14 @@
 import axios from "axios";
 
-export const LOGIN_URL = "http://auth-uat.nimbus.com.vn/v1/";
+// export const LOGIN_URL = "http://auth-uat.nimbus.com.vn/v1/";
+export const LOGIN_URL = process.env.LOGIN_URL;
 export const REGISTER_URL = "api/auth/register";
 export const REQUEST_PASSWORD_URL = "api/auth/forgot-password";
 
 export const ME_URL = LOGIN_URL + "profile";
 
 export function login(email, password) {
-  return axios.post(LOGIN_URL, { email, password });
+  return axios.post(process.env.REACT_APP_API_LOGIN_URL, { email, password });
 }
 
 export function loginWithGoogle(profObj) {
@@ -16,9 +17,9 @@ export function loginWithGoogle(profObj) {
     first_name: profObj.givenName,
     last_name: profObj.familyName,
     email: profObj.email,
-    avatar: profObj.imageUrl
+    avatar: profObj.imageUrl,
   };
-  return axios.post(`${LOGIN_URL}oauth2`, profConv);
+  return axios.post(`${process.env.REACT_APP_API_LOGIN_URL}oauth2`, profConv);
 }
 
 export function register(email, fullname, username, password) {

@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "serve": "cp-cli build _site/metronic/preview/react && serve",
-    "start": "react-scripts start",
+    "start": "env-cmd -f .env.development react-scripts start",
+    "start-production": "env-cmd -f .env.production react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
@@ -47,6 +48,7 @@
     "clsx": "^1.0.4",
     "date-fns": "^2.8.1",
     "dayjs": "^1.8.24",
+    "env-cmd": "^10.1.0",
     "fg-loadcss": "^2.1.0",
     "formik": "^2.0.6",
     "json2mq": "^0.2.0",
