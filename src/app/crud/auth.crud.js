@@ -1,10 +1,11 @@
 import axios from "axios";
+import config from "../config/index";
 
-export const LOGIN_URL = "http://auth-uat.nimbus.com.vn/v1/";
+export const LOGIN_URL = config.domain.authService + "/v1";
 export const REGISTER_URL = "api/auth/register";
 export const REQUEST_PASSWORD_URL = "api/auth/forgot-password";
 
-export const ME_URL = LOGIN_URL + "profile";
+export const ME_URL = LOGIN_URL + "/profile";
 
 export function login(email, password) {
   return axios.post(LOGIN_URL, { email, password });
@@ -18,7 +19,7 @@ export function loginWithGoogle(profObj) {
     email: profObj.email,
     avatar: profObj.imageUrl
   };
-  return axios.post(`${LOGIN_URL}oauth2`, profConv);
+  return axios.post(`${LOGIN_URL}/oauth2`, profConv);
 }
 
 export function register(email, fullname, username, password) {
