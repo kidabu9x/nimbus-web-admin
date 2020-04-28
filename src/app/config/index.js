@@ -1,5 +1,4 @@
-console.log(process.env.ENV);
-const env = process.env.ENV || 'development';
+const env = process.env.NODE_ENV || 'development';
 
 const configs = {
     development: {
@@ -17,7 +16,7 @@ const configs = {
     production: {
         domain: {
             blogService: 'https://api-internal.nimbus.com.vn/blog-service',
-            authService: 'https://api.nimbus.com.vn/auth-service',
+            authService: 'https://api-internal.nimbus.com.vn/auth-service',
         }
     },
 }[env];
