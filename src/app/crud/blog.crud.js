@@ -1,6 +1,5 @@
 import axios from "axios";
 import config from "../config/index";
-console.log(config);
 
 export const BASE_URL = config.domain.blogService + "/v1";
 
@@ -38,5 +37,5 @@ export function createBlog(blog) {
 }
 
 export function deleteBlog(blogId) {
-  return axios.delete(`${BASE_URL}blogs/${blogId}`);
+  return axios.delete(`${BASE_URL}/blogs/${blogId}`);
 }

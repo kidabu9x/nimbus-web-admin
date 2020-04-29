@@ -1,3 +1,4 @@
+import config from "../../app/config/index";
 export default class MyUploadAdapter {
   constructor(loader) {
     // The file loader instance to use during the upload.
@@ -31,9 +32,10 @@ export default class MyUploadAdapter {
     // integration to choose the right communication channel. This example uses
     // a POST request with JSON as a data structure but your configuration
     // could be different.
+    const endpoint = config.domain.imageService + "/v1/upload";
     xhr.open(
       "POST",
-      "http://api-internal-uat.nimbus.com.vn/image-service/v1/upload",
+      endpoint,
       true
     );
     xhr.responseType = "json";
