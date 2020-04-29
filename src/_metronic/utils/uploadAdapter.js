@@ -110,9 +110,10 @@ export const uploadImageBasic = (file, resolve, reject) => {
   // integration to choose the right communication channel. This example uses
   // a POST request with JSON as a data structure but your configuration
   // could be different.
+  const endpoint = config.domain.imageService + "/v1/upload";
   xhr.open(
     "POST",
-    "http://api-internal-uat.nimbus.com.vn/image-service/v1/upload",
+    endpoint,
     true
   );
   xhr.responseType = "json";
