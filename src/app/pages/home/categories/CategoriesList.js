@@ -6,7 +6,7 @@ import {
   deleteCategory,
   createCategory,
   updateCategory,
-} from "../../../crud/category.crud";
+} from "../../../api/category.api";
 import PropTypes from "prop-types";
 import {
   Table,

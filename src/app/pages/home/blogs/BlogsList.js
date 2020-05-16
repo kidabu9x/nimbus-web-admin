@@ -1,7 +1,7 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import * as blog from "../../../store/blog";
-import { getAllBlogs, deleteBlog } from "../../../crud/blog.crud";
+import { getAllBlogs, deleteBlog } from "../../../api/blog.api";
 import PropTypes from "prop-types";
 import {
   Table,
@@ -29,7 +29,7 @@ import { ROWS_PER_PAGE } from "../../../../_metronic/utils/constants";
 import ConfirmDelete from "../../../components/ConfirmDelete/ConfirmDelete";
 import * as category from "../../../store/category";
 import SearchIcon from "@material-ui/icons/Search";
-import { getAllCategories } from "../../../crud/category.crud";
+import { getAllCategories } from "../../../api/category.api";
 import { find } from "lodash";
 import EmptyList from "../../../components/EmptyList/EmptyList";
 

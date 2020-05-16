@@ -1,10 +1,3 @@
-/**
- * High level router.
- *
- * Note: It's recommended to compose related routes in internal router
- * components (e.g: `src/pages/auth/AuthPage`, `src/pages/home/HomePage`).
- */
-
 import React from "react";
 import { Redirect, Route, Switch, withRouter } from "react-router-dom";
 import { shallowEqual, useSelector } from "react-redux";
@@ -42,24 +35,21 @@ export const Routes = withRouter(({ history }) => {
       >
         <Switch>
           {!isAuthorized ? (
-            /* Render auth page when user at `/auth` and not authorized. */
             <AuthPage />
           ) : (
-            /* Otherwise redirect to root page (`/`) */
-            <Redirect from="/auth" to={userLastLocation} />
-          )}
+              <Redirect from="/auth" to={userLastLocation} />
+            )}
 
           <Route path="/error" component={ErrorsPage} />
           <Route path="/logout" component={LogoutPage} />
 
           {!isAuthorized ? (
-            /* Redirect to `/auth` when user is not authorized */
             <Redirect to="/auth/login" />
           ) : (
-            <Layout>
-              <HomePage userLastLocation={userLastLocation} />
-            </Layout>
-          )}
+              <Layout>
+                <HomePage userLastLocation={userLastLocation} />
+              </Layout>
+            )}
         </Switch>
       </SnackbarProvider>
     </LayoutContextProvider>

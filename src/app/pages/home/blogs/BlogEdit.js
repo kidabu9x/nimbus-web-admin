@@ -6,7 +6,7 @@ import {
   updateBlog,
   createBlog,
   deleteBlog,
-} from "../../../crud/blog.crud";
+} from "../../../api/blog.api";
 import { useParams, useHistory } from "react-router-dom";
 import {
   Card,
@@ -29,7 +29,7 @@ import { remove } from "lodash";
 import { ROUTES } from "../../../../_metronic/utils/routerList";
 import { injectIntl, FormattedMessage } from "react-intl";
 import * as category from "../../../store/category";
-import { getAllCategories } from "../../../crud/category.crud";
+import { getAllCategories } from "../../../api/category.api";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 import { keyBy, filter } from "lodash";
 import {
@@ -260,8 +260,8 @@ const BlogEdit = ({
           {id !== BLOG.QUERY_NEW ? (
             <FormattedMessage id="BLOGS.EDIT.EDIT" />
           ) : (
-            <FormattedMessage id="BLOGS.EDIT.NEW" />
-          )}
+              <FormattedMessage id="BLOGS.EDIT.NEW" />
+            )}
         </Typography>
         <Button
           variant="contained"
@@ -332,8 +332,8 @@ const BlogEdit = ({
                         const data = event.editor.getData();
                         onContentChange(index, content, data);
                       }}
-                      onBlur={(event, editor) => {}}
-                      onFocus={(event, editor) => {}}
+                      onBlur={(event, editor) => { }}
+                      onFocus={(event, editor) => { }}
                     />
                   ))}
                 </CardContent>
@@ -478,8 +478,8 @@ const BlogEdit = ({
             <FormattedMessage id="BLOGS.EDIT.DELETE" />
           </Button>
         ) : (
-          <div></div>
-        )}
+            <div></div>
+          )}
         <div>
           <Button
             variant="contained"
