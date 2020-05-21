@@ -5,7 +5,7 @@ import { injectIntl } from "react-intl";
 import * as auth from "../../store/auth";
 import { loginWithGoogle } from "../../api/auth.api";
 import GoogleLogin from "react-google-login";
-import { LOGIN_CLIENT_ID } from "../../config/constants";
+import { LOGIN_CLIENT_ID } from "../../constants";
 
 import {
   Avatar,

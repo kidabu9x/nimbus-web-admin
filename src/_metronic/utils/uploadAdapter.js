@@ -1,4 +1,4 @@
-import config from "../../app/config/index";
+import config from "../../app/config/apiConfig";
 export default class MyUploadAdapter {
   constructor(loader) {
     // The file loader instance to use during the upload.

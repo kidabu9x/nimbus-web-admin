@@ -7,35 +7,26 @@ import "react-app-polyfill/stable";
 import React from "react";
 import ReactDOM from "react-dom";
 import axios from "axios";
-import { setupAxios } from "./_metronic";
 import store, { persistor } from "./app/store/store";
 import App from "./App";
-import "./index.scss";
-import "socicon/css/socicon.css";
-import "@fortawesome/fontawesome-free/css/all.min.css";
-import "./_metronic/_assets/plugins/line-awesome/css/line-awesome.css";
-import "./_metronic/_assets/plugins/flaticon/flaticon.css";
-import "./_metronic/_assets/plugins/flaticon2/flaticon.css";
-/**
- * Base URL of the website.
- *
- * @see https://facebook.github.io/create-react-app/docs/using-the-public-folder
- */
 const { BASE_URL } = process.env;
 
-/**
- * Creates `axios-mock-adapter` instance for provided `axios` instance, add
- * basic Metronic mocks and returns it.
- *
- * @see https://github.com/ctimmerm/axios-mock-adapter
- */
-// /* const mock = */ mockAxios(axios);
+function setupAxios(axios, store) {
+  axios.interceptors.request.use(
+    (config) => {
+      const {
+        auth: { authToken },
+      } = store.getState();
 
-/**
- * Inject metronic interceptors for axios.
- *
- * @see https://github.com/axios/axios#interceptors
- */
+      if (authToken) {
+        config.headers.Authorization = `Bearer ${authToken}`;
+      }
+
+      return config;
+    },
+    (err) => Promise.reject(err)
+  );
+}
 setupAxios(axios, store);
 
 ReactDOM.render(
