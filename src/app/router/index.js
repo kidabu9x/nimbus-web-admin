@@ -33,7 +33,7 @@ export default withRouter(() => {
                     <Layout>
                         <Switch>
                             <Route path={ROUTES.blogs} component={BlogPage} />
-                            <Route path={ROUTES.categories} component={CategoryPage} />
+                            <Route path={ROUTES.blogCategories} component={CategoryPage} />
                             <Route path={ROUTES.dashboard} component={Dashboard} />
                             <Redirect to={`${ROUTES.error}/error-v1`} />
                         </Switch>

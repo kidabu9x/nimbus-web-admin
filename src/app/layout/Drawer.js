@@ -2,20 +2,24 @@ import React from 'react';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 import { MemoryRouter } from 'react-router';
 import { Link as RouterLink } from 'react-router-dom';
+import { NAV_ITEMS } from "../router/Routes";
 import {
+    Drawer,
     List,
     Divider,
     IconButton,
     ListItem,
     ListItemIcon,
     ListItemText,
-    Collapse
+    Collapse,
+
 } from '@material-ui/core';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import QuestionAnswerIcon from '@material-ui/icons/QuestionAnswer';
+import HomeIcon from '@material-ui/icons/Home';
 import {
-    rootStyles
+    drawerStyles
 } from "./styles";
 
 const customItemStyles = makeStyles(theme => ({
@@ -38,6 +42,17 @@ const ListItemLink = ({ icon, primary, to }) => {
     );
 }
 
+const Icon = ({ link }) => {
+    switch (link) {
+        case "/":
+            return <HomeIcon />
+        case "/blogs":
+            return <QuestionAnswerIcon />
+        default:
+            return null;
+    }
+}
+
 const CustomItem = ({
     title,
     link,
@@ -55,12 +70,12 @@ const CustomItem = ({
         <>
             <ListItem button onClick={toggleOpen}>
                 <ListItemIcon>
-                    <QuestionAnswerIcon />
+                    <Icon link={link} />
                 </ListItemIcon>
                 <ListItemText primary={title} />
             </ListItem>
             {
-                hasChild && (
+                children && hasChild && (
                     <Collapse in={open} timeout="auto" unmountOnExit>
                         <List disablePadding>
                             {
@@ -74,7 +89,6 @@ const CustomItem = ({
                                 ))
                             }
                         </List>
-
                     </Collapse>
                 )
             }
@@ -82,30 +96,8 @@ const CustomItem = ({
     )
 }
 
-const navItems = [
-    {
-        title: "Trang chủ",
-        link: "/",
-        children: []
-    },
-    {
-        title: "Blogs",
-        link: "/blogs",
-        children: [
-            {
-                title: "Danh sách blogs",
-                link: "/blogs"
-            },
-            {
-                title: "Danh mục",
-                link: "/blogs/danh-muc"
-            }
-        ]
-    }
-];
-
-export default function Drawer({ open, toggleDrawer }) {
-    const classes = rootStyles();
+export default function DrawerLeft({ open, toggleDrawer }) {
+    const classes = drawerStyles();
     const theme = useTheme();
 
     return (
@@ -124,9 +116,9 @@ export default function Drawer({ open, toggleDrawer }) {
                 </IconButton>
             </div>
             <Divider />
-            <MemoryRouter initialEntries={[navItems[0].link]} initialIndex={0}>
+            <MemoryRouter initialEntries={[NAV_ITEMS[0].link]} initialIndex={0}>
                 <List>
-                    {navItems.map(item => (
+                    {NAV_ITEMS.map(item => (
                         <CustomItem
                             key={item.link}
                             title={item.title}

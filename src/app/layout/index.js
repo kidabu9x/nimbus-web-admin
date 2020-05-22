@@ -50,12 +50,8 @@ export default function PersistentDrawerLeft({ children }) {
                 </Toolbar>
             </AppBar>
             <Drawer
-                className={classes.drawer}
                 open={open}
                 toggleDrawer={toggleDrawer}
-                classes={{
-                    paper: classes.drawerPaper,
-                }}
             />
             <main
                 className={clsx(classes.content, {
@@ -63,7 +59,7 @@ export default function PersistentDrawerLeft({ children }) {
                 })}
             >
                 <div className={classes.drawerHeader} />
-                {children}
+                {/* {children} */}
             </main>
         </Box>
     );
