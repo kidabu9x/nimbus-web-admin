@@ -24,27 +24,15 @@ import ArrowBackIosIcon from "@material-ui/icons/ArrowBackIos";
 import useStyles from "./styles";
 import CKEditor from "ckeditor4-react";
 import ChipInput from "material-ui-chip-input";
-import { BLOG, MESSAGES } from "../../../../_metronic/utils/constants";
 import { remove } from "lodash";
-import { ROUTES } from "../../../../_metronic/utils/routerList";
-import { injectIntl, FormattedMessage } from "react-intl";
+import { ROUTES } from "../../../router/Routes";
 import * as category from "../../../store/category";
 import { getAllCategories } from "../../../api/category.api";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 import { keyBy, filter } from "lodash";
-import {
-  BLOG_STATUS,
-  BLOG_EXTRA_DATA,
-} from "../../../../_metronic/utils/types";
 import { useSnackbar } from "notistack";
-import { ERR_CODE } from "../../../../_metronic/utils/errCode";
-import { uploadImageBasic } from "../../../../_metronic/utils/uploadAdapter";
 import ConfirmDelete from "../../../components/ConfirmDelete/ConfirmDelete";
 import { Grid, Container } from "@material-ui/core";
-import {
-  handleFileUploadRequest,
-  handleFileUploadResponse,
-} from "../../../../_metronic/utils/utils";
 import * as blog from "../../../store/blog";
 import UiCard from "../../../components/Ui/Card/Card";
 import UiCardHeader from "../../../components/Ui/Card/CardHeader";
@@ -253,15 +241,11 @@ const BlogEdit = ({
           history.goBack();
         }}
       >
-        <FormattedMessage id="BLOGS.EDIT.BLOGS" />
+        Blogs
       </Button>
       <div className={`${classes.rowHeader}`}>
         <Typography variant="h4">
-          {id !== BLOG.QUERY_NEW ? (
-            <FormattedMessage id="BLOGS.EDIT.EDIT" />
-          ) : (
-              <FormattedMessage id="BLOGS.EDIT.NEW" />
-            )}
+          {id !== BLOG.QUERY_NEW ? "Chỉnh sửa" : "Tạo mới"}
         </Typography>
         <Button
           variant="contained"
@@ -270,7 +254,7 @@ const BlogEdit = ({
           startIcon={<SaveIcon />}
           onClick={onSubmit}
         >
-          <FormattedMessage id="BLOGS.EDIT.SUBMIT" />
+          Lưu
         </Button>
       </div>
       <Grid container spacing={3}>
@@ -280,7 +264,7 @@ const BlogEdit = ({
               <Card>
                 <CardContent>
                   <Typography className={classes.cardTitle}>
-                    <FormattedMessage id="BLOGS.EDIT.TITLE" />
+                    Tiêu đề
                   </Typography>
                   <Input
                     className={classes.inputFullWidth}
@@ -291,7 +275,7 @@ const BlogEdit = ({
                 </CardContent>
                 <CardContent>
                   <Typography className={classes.cardTitle}>
-                    <FormattedMessage id="BLOGS.EDIT.DESCRIPTION" />
+                    Mô tả
                   </Typography>
                   <Input
                     className={classes.inputFullWidth}
@@ -306,7 +290,7 @@ const BlogEdit = ({
                 <CardContent>
                   <div className={`${classes.rowBody}`}>
                     <Typography className={classes.cardTitle}>
-                      <FormattedMessage id="BLOGS.EDIT.BODY" />
+                      Nội dung
                     </Typography>
                   </div>
                   {blog.contents.map((content, index) => (
@@ -344,7 +328,7 @@ const BlogEdit = ({
                 <UiCardHeader title="Tổ chức"></UiCardHeader>
                 <UiCardContent className={`row ${classes.statusContainer}`}>
                   <Typography className={classes.cardTitle}>
-                    <FormattedMessage id="BLOGS.EDIT.STATUS" />
+                    Trạng thái
                   </Typography>
                   <Switch
                     checked={blog.status !== BLOG_STATUS.DISABLED}
@@ -361,7 +345,7 @@ const BlogEdit = ({
                 </UiCardContent>
                 <UiCardContent>
                   <Typography className={classes.cardTitle}>
-                    <FormattedMessage id="BLOGS.EDIT.CATEGORIES" />
+                    Danh mục
                   </Typography>
                   <Autocomplete
                     id="combo-box-demo"
@@ -377,9 +361,7 @@ const BlogEdit = ({
                     renderInput={(params) => (
                       <TextField
                         {...params}
-                        label={
-                          <FormattedMessage id="BLOGS.EDIT.CHOOSE_CATEGORY" />
-                        }
+                        label="Chọn danh mục"
                         className={classes.categoriesContainer}
                         variant="outlined"
                       />
@@ -403,7 +385,7 @@ const BlogEdit = ({
                 </UiCardContent>
                 <UiCardContent>
                   <Typography className={classes.cardTitle}>
-                    <FormattedMessage id="BLOGS.EDIT.TAGS" />
+                    Gắn thẻ
                   </Typography>
                   <ChipInput
                     className={classes.inputFullWidth}
@@ -422,7 +404,7 @@ const BlogEdit = ({
                   actionComponent="label"
                   action={
                     <>
-                      <FormattedMessage id="BLOGS.EDIT.THUMB_UPLOAD" />
+                      Tải ảnh lên
                       <input
                         type="file"
                         style={{ display: "none" }}
@@ -446,7 +428,7 @@ const BlogEdit = ({
                 <UiCardContent>
                   <TextField
                     className={classes.inputFullWidth}
-                    label={<FormattedMessage id="BLOGS.EDIT.EXTRA_DATA.FB" />}
+                    label="Facebook Pixel ID"
                     variant="outlined"
                     value={blog.extra_data[BLOG_EXTRA_DATA.FB_PIXEL_ID]}
                     onChange={onFBPixelIdChange}
@@ -455,7 +437,7 @@ const BlogEdit = ({
                 <UiCardContent>
                   <TextField
                     className={classes.inputFullWidth}
-                    label={<FormattedMessage id="BLOGS.EDIT.EXTRA_DATA.GG" />}
+                    label="Google Analytics ID"
                     variant="outlined"
                     onChange={onGAIdChange}
                     value={blog.extra_data[BLOG_EXTRA_DATA.GOOGLE_ANALYTICS_ID]}
@@ -475,7 +457,7 @@ const BlogEdit = ({
             startIcon={<DeleteIcon />}
             onClick={onOpenDeleteBlog}
           >
-            <FormattedMessage id="BLOGS.EDIT.DELETE" />
+            Xóa
           </Button>
         ) : (
             <div></div>
@@ -488,13 +470,13 @@ const BlogEdit = ({
             startIcon={<SaveIcon />}
             onClick={onSubmit}
           >
-            <FormattedMessage id="BLOGS.EDIT.SUBMIT" />
+            Lưu
           </Button>
         </div>
       </div>
       <ConfirmDelete
-        message={<FormattedMessage id="BLOGS.LIST.MODAL_DELETE.DESCRIPTION" />}
-        title={<FormattedMessage id="BLOGS.LIST.MODAL_DELETE.TITLE" />}
+        message="Bạn có chắc chắn muốn xóa blog này?"
+        title="Xác nhận xóa"
         open={openModalDelete}
         onSubmit={onDelete}
         setOpen={(value) => {
@@ -523,6 +505,4 @@ const mapDispatchToProps = {
   getBlogSuccess: blog.actions.getBlogSuccess,
 };
 
-export default injectIntl(
-  connect(mapStateToProps, mapDispatchToProps)(BlogEdit)
-);
+export default connect(mapStateToProps, mapDispatchToProps)(BlogEdit);

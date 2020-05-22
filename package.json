@@ -31,11 +31,11 @@
     ]
   },
   "dependencies": {
-    "@material-ui/core": "^4.9.10",
-    "@material-ui/icons": "^4.5.1",
-    "@material-ui/lab": "^4.0.0-alpha.49",
+    "@material-ui/core": "^4.9.14",
+    "@material-ui/icons": "^4.9.1",
+    "@material-ui/lab": "^4.0.0-alpha.53",
     "@material-ui/pickers": "^3.2.8",
-    "@material-ui/styles": "^4.6.0",
+    "@material-ui/styles": "^4.9.14",
     "@tanem/svg-injector": "^8.0.35",
     "axios": "^0.19.0",
     "ckeditor4-react": "^1.1.0",

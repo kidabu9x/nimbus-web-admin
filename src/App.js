@@ -2,7 +2,7 @@ import React from "react";
 import { Provider } from "react-redux";
 import { BrowserRouter } from "react-router-dom";
 import { PersistGate } from "redux-persist/integration/react";
-import { Routes } from "./app/router/Routes";
+import Routes from "./app/router";
 import ThemeProvider from "./app/theme/ThemeProvider";
 
 export default function App({ store, persistor, basename }) {

@@ -1,6 +1,6 @@
 import React from "react";
 import { Route, Switch } from "react-router-dom";
-import { ROUTES } from "../../../../_metronic/utils/routerList";
+import { ROUTES } from "../../../router/Routes";
 import CategoriesList from "./CategoriesList";
 
 export default function CategoryPage() {
