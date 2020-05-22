@@ -12,10 +12,6 @@ const store = createStore(
     composeEnhancers(applyMiddleware(sagaMiddleware))
 );
 
-/**
- * @see https://github.com/rt2zz/redux-persist#persiststorestore-config-callback
- * @see https://github.com/rt2zz/redux-persist#persistor-object
- */
 export const persistor = persistStore(store);
 
 sagaMiddleware.run(rootSaga);

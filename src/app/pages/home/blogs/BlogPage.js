@@ -2,7 +2,7 @@ import React from "react";
 import { Route, Switch } from "react-router-dom";
 import BlogsList from "./BlogsList";
 import BlogEdit from "./BlogEdit";
-import { ROUTES } from "../../../../_metronic/utils/routerList";
+import { ROUTES } from "../../../router/Routes";
 
 export default function BlogPage() {
   return (

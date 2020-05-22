@@ -1,7 +1,7 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import * as blog from "../../../store/blog";
-import { getAllBlogs, deleteBlog } from "../../../crud/blog.crud";
+import { getAllBlogs, deleteBlog } from "../../../api/blog.api";
 import PropTypes from "prop-types";
 import {
   Table,
@@ -23,15 +23,16 @@ import EditIcon from "@material-ui/icons/Edit";
 import { useHistory } from "react-router-dom";
 import dayjs from "dayjs";
 import useStyles from "./styles";
-import { FormattedMessage, injectIntl } from "react-intl";
-import { ROUTES } from "../../../../_metronic/utils/routerList";
-import { ROWS_PER_PAGE } from "../../../../_metronic/utils/constants";
+import { ROUTES } from "../../../router/Routes";
 import ConfirmDelete from "../../../components/ConfirmDelete/ConfirmDelete";
 import * as category from "../../../store/category";
 import SearchIcon from "@material-ui/icons/Search";
-import { getAllCategories } from "../../../crud/category.crud";
+import { getAllCategories } from "../../../api/category.api";
 import { find } from "lodash";
 import EmptyList from "../../../components/EmptyList/EmptyList";
+import {
+  ROWS_PER_PAGE
+} from "../../../constants";
 
 const BlogsList = ({
   getBlogsSuccess,
@@ -203,7 +204,7 @@ const BlogsList = ({
         </Paper>
         <div>
           <Button variant="contained" color="primary" onClick={onAddNew}>
-            <FormattedMessage id="BLOGS.LIST.ADD_NEW" />
+            Thêm mới blog
           </Button>
         </div>
       </div>
@@ -214,19 +215,19 @@ const BlogsList = ({
             <TableRow>
               <TableCell>ID</TableCell>
               <TableCell align="right">
-                <FormattedMessage id="BLOGS.LIST.TABLE.CREATE_AT" />
+                Ngày tạo
               </TableCell>
               <TableCell align="left">
-                <FormattedMessage id="BLOGS.LIST.TABLE.TITLE" />
+                Tiêu đề
               </TableCell>
               <TableCell align="left">
-                <FormattedMessage id="BLOGS.LIST.TABLE.DESCRIPTION" />
+                Mô tả
               </TableCell>
               <TableCell align="right">
-                <FormattedMessage id="BLOGS.LIST.TABLE.STATUS" />
+                Trạng thái
               </TableCell>
               <TableCell align="right">
-                <FormattedMessage id="BLOGS.LIST.TABLE.ACTIONS" />
+                Tác động
               </TableCell>
             </TableRow>
           </TableHead>
@@ -294,8 +295,8 @@ const BlogsList = ({
         />
       </Paper>
       <ConfirmDelete
-        message={<FormattedMessage id="BLOGS.LIST.MODAL_DELETE.DESCRIPTION" />}
-        title={<FormattedMessage id="BLOGS.LIST.MODAL_DELETE.TITLE" />}
+        message="Bạn có chắc chắn muốn xóa blog này?"
+        title="Xác nhận xóa"
         open={openModalDelete}
         onSubmit={onDeleteBlog}
         setOpen={(value) => {
@@ -335,6 +336,4 @@ const mapDispatchToProps = {
   getCategoriesSuccess: category.actions.getCategoriesSuccess,
 };
 
-export default injectIntl(
-  connect(mapStateToProps, mapDispatchToProps)(BlogsList)
-);
+export default connect(mapStateToProps, mapDispatchToProps)(BlogsList);

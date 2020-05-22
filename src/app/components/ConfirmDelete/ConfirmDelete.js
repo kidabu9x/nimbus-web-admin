@@ -10,7 +10,6 @@ import {
 } from "@material-ui/core";
 import useStyles from "./styles";
 import PropTypes from "prop-types";
-import { FormattedMessage } from "react-intl";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -45,10 +44,10 @@ const ConfirmDelete = ({ open, setOpen, onSubmit, message, title }) => {
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose} color="primary">
-            <FormattedMessage id="BLOGS.LIST.MODAL_DELETE.NO" />
+            HỦY
           </Button>
           <Button onClick={handleSubmit} color="default">
-            <FormattedMessage id="BLOGS.LIST.MODAL_DELETE.YES" />
+            XÓA
           </Button>
         </DialogActions>
       </Dialog>
@@ -63,8 +62,8 @@ ConfirmDelete.propTypes = {
 
 ConfirmDelete.defaultProps = {
   open: false,
-  setOpen: () => {},
-  onSubmit: () => {},
+  setOpen: () => { },
+  onSubmit: () => { },
   message: "",
   title: "",
 };

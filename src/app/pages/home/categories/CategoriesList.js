@@ -6,7 +6,7 @@ import {
   deleteCategory,
   createCategory,
   updateCategory,
-} from "../../../crud/category.crud";
+} from "../../../api/category.api";
 import PropTypes from "prop-types";
 import {
   Table,
@@ -23,10 +23,9 @@ import EditIcon from "@material-ui/icons/Edit";
 import AddIcon from "@material-ui/icons/Add";
 import useStyles from "./styles";
 import CategoryEdit from "./CategoryEdit";
-import { FormattedMessage } from "react-intl";
 import { useSnackbar } from "notistack";
-import { ERR_CODE } from "../../../../_metronic/utils/errCode";
 import ConfirmDelete from "../../../components/ConfirmDelete/ConfirmDelete";
+import ERR_CODE from "../../../constants/errorCode";
 
 const CategoriesList = ({ getCategoriesSuccess, categories }) => {
   const classes = useStyles();
@@ -98,7 +97,7 @@ const CategoriesList = ({ getCategoriesSuccess, categories }) => {
               startIcon={<AddIcon />}
               onClick={onAddNew}
             >
-              <FormattedMessage id="CATEGORIES.LIST.ADD_NEW" />
+              Thêm mới danh mục
             </Button>
             <div className="kt-space-20" />
             <Paper className={classes.root}>
@@ -109,13 +108,13 @@ const CategoriesList = ({ getCategoriesSuccess, categories }) => {
                 <TableHead>
                   <TableRow>
                     <TableCell>
-                      <FormattedMessage id="CATEGORIES.LIST.TABLE.ID" />
+                      ID
                     </TableCell>
                     <TableCell align="left">
-                      <FormattedMessage id="CATEGORIES.LIST.TABLE.TITLE" />
+                      Tiêu đề
                     </TableCell>
                     <TableCell align="right">
-                      <FormattedMessage id="CATEGORIES.LIST.TABLE.ACTIONS" />
+                      Tác động
                     </TableCell>
                   </TableRow>
                 </TableHead>
@@ -168,7 +167,7 @@ const CategoriesList = ({ getCategoriesSuccess, categories }) => {
       <ConfirmDelete
         message={`Bạn có chắc chắn muốn xóa danh mục "${categoryEdit !== null &&
           categoryEdit.title}"`}
-        title={<FormattedMessage id="CATEGORIES.LIST.MODAL_DELETE.TITLE" />}
+        title="Xác nhận xóa"
         open={openModalDelete}
         onSubmit={onDeleteCategory}
         setOpen={(value) => {

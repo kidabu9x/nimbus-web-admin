@@ -9,7 +9,6 @@ import {
   TextField,
 } from "@material-ui/core";
 import useStyles from "./styles";
-import { FormattedMessage } from "react-intl";
 
 const initCategory = {
   title: "",
@@ -55,11 +54,7 @@ const CategoryEdit = ({ open, setOpen, category, onSubmit }) => {
         className={classes.modal}
       >
         <DialogTitle id="customized-dialog-title" onClose={handleClose}>
-          {category !== null ? (
-            <FormattedMessage id="CATEGORIES.EDIT.TITLE_EDIT" />
-          ) : (
-            <FormattedMessage id="CATEGORIES.EDIT.TITLE_ADD" />
-          )}
+          {category !== null ? "Sửa danh mục" : "Thêm danh mục"}
         </DialogTitle>
         <DialogContent dividers className={classes.modalContent}>
           <TextField
@@ -79,7 +74,7 @@ const CategoryEdit = ({ open, setOpen, category, onSubmit }) => {
             disabled={!value.length}
             color="primary"
           >
-            <FormattedMessage id="CATEGORIES.EDIT.SAVE"></FormattedMessage>
+            LƯU
           </Button>
         </DialogActions>
       </Dialog>
@@ -96,9 +91,9 @@ CategoryEdit.propTypes = {
 
 CategoryEdit.defaultProps = {
   open: false,
-  setOpen: () => {},
+  setOpen: () => { },
   category: null,
-  onSubmit: () => {},
+  onSubmit: () => { },
 };
 
 export default CategoryEdit;

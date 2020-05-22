@@ -1,8 +1,7 @@
 import { persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 import { put, takeLatest } from "redux-saga/effects";
-import { getUserByToken } from "../../crud/auth.crud";
-import * as routerHelpers from "../../router/RouterHelpers";
+import { getUserByToken } from "../../api/auth.api";
 
 export const actionTypes = {
   Login: "[Login] Action",
@@ -34,8 +33,7 @@ export const reducer = persistReducer(
       }
 
       case actionTypes.Logout: {
-        routerHelpers.forgotLastLocation();
-        
+
         return initialAuthState;
       }
 
