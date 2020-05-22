@@ -1,6 +1,4 @@
-export const BLOG = {
-    QUERY_NEW: "new",
-};
+
 
 export const LOGIN_CLIENT_ID = {
     FACEBOOK: "will be replace",

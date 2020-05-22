@@ -25,6 +25,7 @@ import useStyles from "./styles";
 import CategoryEdit from "./CategoryEdit";
 import { useSnackbar } from "notistack";
 import ConfirmDelete from "../../../components/ConfirmDelete/ConfirmDelete";
+import ERR_CODE from "../../../constants/errorCode";
 
 const CategoriesList = ({ getCategoriesSuccess, categories }) => {
   const classes = useStyles();

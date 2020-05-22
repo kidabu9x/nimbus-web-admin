@@ -1,7 +1,6 @@
 import React from "react";
 import { Redirect, Route, Switch, withRouter } from "react-router-dom";
 import { shallowEqual, useSelector } from "react-redux";
-import ErrorsPage from "../pages/errors/ErrorsPage";
 import LogoutPage from "../pages/auth/Logout";
 import Layout from "../layout";
 import AuthPage from "../pages/auth/AuthPage";
@@ -26,7 +25,6 @@ export default withRouter(({ history }) => {
                     <Redirect from="/auth" to="/" />
                 )}
 
-            <Route path="/error" component={ErrorsPage} />
             <Route path="/logout" component={LogoutPage} />
 
             {!isAuthorized ? (

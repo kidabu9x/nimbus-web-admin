@@ -7,6 +7,9 @@ import {
   createBlog,
   deleteBlog,
 } from "../../../api/blog.api";
+import { getAllCategories } from "../../../api/category.api";
+import { uploadImageBasic } from "../../../api/image.api";
+
 import { useParams, useHistory } from "react-router-dom";
 import {
   Card,
@@ -16,7 +19,11 @@ import {
   Button,
   Switch,
   TextField,
+  Grid,
+  Container
 } from "@material-ui/core";
+
+import Autocomplete from "@material-ui/lab/Autocomplete";
 import SaveIcon from "@material-ui/icons/Save";
 import ClearIcon from "@material-ui/icons/Clear";
 import DeleteIcon from "@material-ui/icons/Delete";
@@ -27,16 +34,23 @@ import ChipInput from "material-ui-chip-input";
 import { remove } from "lodash";
 import { ROUTES } from "../../../router/Routes";
 import * as category from "../../../store/category";
-import { getAllCategories } from "../../../api/category.api";
-import Autocomplete from "@material-ui/lab/Autocomplete";
 import { keyBy, filter } from "lodash";
 import { useSnackbar } from "notistack";
 import ConfirmDelete from "../../../components/ConfirmDelete/ConfirmDelete";
-import { Grid, Container } from "@material-ui/core";
 import * as blog from "../../../store/blog";
 import UiCard from "../../../components/Ui/Card/Card";
 import UiCardHeader from "../../../components/Ui/Card/CardHeader";
 import UiCardContent from "../../../components/Ui/Card/CardContent";
+import {
+  BLOG_EXTRA_DATA,
+  BLOG_STATUS,
+  BLOG
+} from "../../../constants/blog";
+import ERR_CODE from "../../../constants/errorCode";
+import {
+  handleFileUploadRequest,
+  handleFileUploadResponse,
+} from "../../../utils/imageUtils";
 
 const initDefaultBlog = {
   title: "",
@@ -222,7 +236,7 @@ const BlogEdit = ({
       uploadImageBasic(
         event.target.files[0],
         ({ url }) => {
-          enqueueSnackbar(MESSAGES.FILE_UPLOAD_SUCCESS, { variant: "success" });
+          enqueueSnackbar("Tải ảnh thành công", { variant: "success" });
           setThumbUrl(url);
           setBlog({ ...blog, thumbnail: url });
         },

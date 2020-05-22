@@ -30,6 +30,9 @@ import SearchIcon from "@material-ui/icons/Search";
 import { getAllCategories } from "../../../api/category.api";
 import { find } from "lodash";
 import EmptyList from "../../../components/EmptyList/EmptyList";
+import {
+  ROWS_PER_PAGE
+} from "../../../constants";
 
 const BlogsList = ({
   getBlogsSuccess,
