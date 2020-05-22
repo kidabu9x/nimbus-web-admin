@@ -9,7 +9,7 @@ import BlogPage from "../pages/home/blogs/BlogPage";
 import CategoryPage from "../pages/home/categories/CategoryPage";
 import { ROUTES } from "./Routes";
 
-export default withRouter(({ history }) => {
+export default withRouter(() => {
     const { isAuthorized } = useSelector(
         ({ auth }) => ({
             isAuthorized: auth.user != null
