@@ -5,23 +5,6 @@ export const rootStyles = makeStyles((theme) => ({
     root: {
         display: 'flex',
     },
-    appBar: {
-        transition: theme.transitions.create(['margin', 'width'], {
-            easing: theme.transitions.easing.sharp,
-            duration: theme.transitions.duration.leavingScreen,
-        }),
-    },
-    appBarShift: {
-        width: `calc(100% - ${drawerWidth}px)`,
-        marginLeft: drawerWidth,
-        transition: theme.transitions.create(['margin', 'width'], {
-            easing: theme.transitions.easing.easeOut,
-            duration: theme.transitions.duration.enteringScreen,
-        }),
-    },
-    menuButton: {
-        marginRight: theme.spacing(2),
-    },
     hide: {
         display: 'none',
     },
@@ -33,14 +16,7 @@ export const rootStyles = makeStyles((theme) => ({
             duration: theme.transitions.duration.leavingScreen,
         }),
         marginLeft: -drawerWidth,
-    },
-    contentShift: {
-        transition: theme.transitions.create('margin', {
-            easing: theme.transitions.easing.easeOut,
-            duration: theme.transitions.duration.enteringScreen,
-        }),
-        marginLeft: 0,
-    },
+    }
 }));
 
 export const drawerStyles = makeStyles((theme) => ({
@@ -58,5 +34,16 @@ export const drawerStyles = makeStyles((theme) => ({
         // necessary for content to be below app bar
         ...theme.mixins.toolbar,
         justifyContent: 'flex-end',
+    }
+}));
+
+export const appBarStyle = makeStyles((theme) => ({
+    appBar: {
+        zIndex: theme.zIndex.drawer + 1,
+        backgroundColor: "rgb(28, 34, 96)",
+        color: "#fff"
+    },
+    title: {
+        flexGrow: 1
     }
 }));

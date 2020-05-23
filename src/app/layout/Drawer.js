@@ -1,21 +1,17 @@
 import React from 'react';
-import { makeStyles, useTheme } from '@material-ui/core/styles';
-import { MemoryRouter } from 'react-router';
+import PropTypes from "prop-types";
+import { makeStyles } from '@material-ui/core/styles';
 import { Link as RouterLink } from 'react-router-dom';
 import { NAV_ITEMS } from "../router/Routes";
 import {
     Drawer,
     List,
-    Divider,
-    IconButton,
     ListItem,
     ListItemIcon,
     ListItemText,
     Collapse,
-
+    Toolbar
 } from '@material-ui/core';
-import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
-import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import QuestionAnswerIcon from '@material-ui/icons/QuestionAnswer';
 import HomeIcon from '@material-ui/icons/Home';
 import {
@@ -28,7 +24,8 @@ const customItemStyles = makeStyles(theme => ({
     }
 }))
 
-const ListItemLink = ({ icon, primary, to }) => {
+const ListItemLink = (props) => {
+    const { icon, primary, to } = props;
     const renderLink = React.useMemo(
         () => React.forwardRef((itemProps, ref) => <RouterLink to={to} ref={ref} {...itemProps} />),
         [to],
@@ -41,6 +38,12 @@ const ListItemLink = ({ icon, primary, to }) => {
         </ListItem>
     );
 }
+
+ListItemLink.propTypes = {
+    icon: PropTypes.element,
+    primary: PropTypes.string.isRequired,
+    to: PropTypes.string.isRequired,
+};
 
 const Icon = ({ link }) => {
     switch (link) {
@@ -76,8 +79,8 @@ const CustomItem = ({
             </ListItem>
             {
                 children && hasChild && (
-                    <Collapse in={open} timeout="auto" unmountOnExit>
-                        <List disablePadding>
+                    <List disablePadding>
+                        <Collapse in={open} timeout="auto" unmountOnExit>
                             {
                                 children.map(item => (
                                     <ListItemLink
@@ -88,46 +91,36 @@ const CustomItem = ({
                                     />
                                 ))
                             }
-                        </List>
-                    </Collapse>
+                        </Collapse>
+                    </List>
                 )
             }
         </>
     )
 }
 
-export default function DrawerLeft({ open, toggleDrawer }) {
+export default function DrawerLeft() {
     const classes = drawerStyles();
-    const theme = useTheme();
 
     return (
         <Drawer
             className={classes.drawer}
-            variant="persistent"
-            anchor="left"
-            open={open}
+            variant="permanent"
             classes={{
                 paper: classes.drawerPaper,
             }}
         >
-            <div className={classes.drawerHeader}>
-                <IconButton onClick={toggleDrawer}>
-                    {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
-                </IconButton>
-            </div>
-            <Divider />
-            <MemoryRouter initialEntries={[NAV_ITEMS[0].link]} initialIndex={0}>
-                <List>
-                    {NAV_ITEMS.map(item => (
-                        <CustomItem
-                            key={item.link}
-                            title={item.title}
-                            link={item.link}
-                            children={item.children}
-                        />
-                    ))}
-                </List>
-            </MemoryRouter>
+            <Toolbar />
+            <List>
+                {NAV_ITEMS.map(item => (
+                    <CustomItem
+                        key={item.link}
+                        title={item.title}
+                        link={item.link}
+                        children={item.children}
+                    />
+                ))}
+            </List>
         </Drawer>
     );
 }
