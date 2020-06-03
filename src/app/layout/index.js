@@ -23,7 +23,7 @@ export default function PersistentDrawerLeft({ children }) {
                 className={classes.content}
             >
                 <div className={classes.drawerHeader} />
-                {/* {children} */}
+                {children}
             </main>
         </Box>
     );
