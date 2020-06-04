@@ -12,14 +12,13 @@ export default function App({ store, persistor, basename }) {
     <Provider store={store} loading={null}>
       {/* Asynchronously persist redux stores and show `SplashScreen` while it's loading. */}
       <PersistGate persistor={persistor}>
-        <InitLoading />
-        {/* <React.Suspense fallback={null}>
+        <React.Suspense fallback={<InitLoading />}>
           <BrowserRouter basename={basename}>
             <ThemeProvider>
               <Routes />
             </ThemeProvider>
           </BrowserRouter>
-        </React.Suspense> */}
+        </React.Suspense>
       </PersistGate>
     </Provider>
   );

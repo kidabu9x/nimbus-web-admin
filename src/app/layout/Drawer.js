@@ -12,8 +12,7 @@ import {
     Collapse,
     Toolbar
 } from '@material-ui/core';
-import QuestionAnswerIcon from '@material-ui/icons/QuestionAnswer';
-import HomeIcon from '@material-ui/icons/Home';
+import RouterIcon from "../router/RouterIcon";
 import {
     drawerStyles
 } from "./styles";
@@ -45,17 +44,6 @@ ListItemLink.propTypes = {
     to: PropTypes.string.isRequired,
 };
 
-const Icon = ({ link }) => {
-    switch (link) {
-        case "/":
-            return <HomeIcon />
-        case "/blogs":
-            return <QuestionAnswerIcon />
-        default:
-            return null;
-    }
-}
-
 const CustomItem = ({
     title,
     link,
@@ -73,7 +61,7 @@ const CustomItem = ({
         <>
             <ListItem button onClick={toggleOpen}>
                 <ListItemIcon>
-                    <Icon link={link} />
+                    <RouterIcon link={link} />
                 </ListItemIcon>
                 <ListItemText primary={title} />
             </ListItem>
@@ -112,7 +100,9 @@ export default function DrawerLeft() {
         >
             <Toolbar />
             <List>
-                {NAV_ITEMS.map(item => (
+                {NAV_ITEMS.filter(item => {
+                    return !item.disable;
+                }).map(item => (
                     <CustomItem
                         key={item.link}
                         title={item.title}

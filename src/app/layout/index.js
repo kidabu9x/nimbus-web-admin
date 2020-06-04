@@ -2,6 +2,7 @@ import React from 'react';
 import {
     CssBaseline,
     Box,
+    Toolbar
 } from '@material-ui/core';
 
 import Drawer from "./Drawer";
@@ -22,6 +23,7 @@ export default function PersistentDrawerLeft({ children }) {
             <main
                 className={classes.content}
             >
+                <Toolbar />
                 <div className={classes.drawerHeader} />
                 {children}
             </main>

@@ -9,6 +9,7 @@ import ReactDOM from "react-dom";
 import axios from "axios";
 import store, { persistor } from "./app/store/store";
 import App from "./App";
+import "./index.scss";
 const { BASE_URL } = process.env;
 
 function setupAxios(axios, store) {
