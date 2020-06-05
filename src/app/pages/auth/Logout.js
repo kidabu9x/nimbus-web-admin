@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import * as auth from "../../store/auth";
+import { logout } from "../../store/auth/actions";
 import { connect } from "react-redux";
 import { Redirect } from "react-router-dom";
 
@@ -17,5 +17,5 @@ class Logout extends Component {
 
 export default connect(
   ({ auth }) => ({ hasAuthToken: Boolean(auth.authToken) }),
-  auth.actions
+  logout
 )(Logout);

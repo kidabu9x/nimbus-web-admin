@@ -1,23 +1,34 @@
 import React from "react";
 import { Redirect, Route, Switch, withRouter } from "react-router-dom";
-import { shallowEqual, useSelector } from "react-redux";
+import { shallowEqual, useSelector, useDispatch } from "react-redux";
 import LogoutPage from "../pages/auth/Logout";
 import Layout from "../layout";
 import AuthPage from "../pages/auth/AuthPage";
 import Dashboard from "../pages/home/Dashboard";
 import BlogPage from "../pages/home/blogs/BlogPage";
 import CategoryPage from "../pages/home/categories/CategoryPage";
+import InitLoading from "../components/Ui/Loading/InitLoading";
 import { ROUTES } from "./Routes";
 
 export default withRouter(() => {
-    const { isAuthorized } = useSelector(
+    const {
+        requesting,
+        isAuthorized
+    } = useSelector(
         ({ auth }) => ({
             isAuthorized: auth.user != null
         }),
         shallowEqual
     );
 
+    const dispatch = useDispatch();
+
+    if (requesting) {
+        return <InitLoading />
+    }
+
     return (
+
         <Switch>
             {!isAuthorized ? (
                 <AuthPage />

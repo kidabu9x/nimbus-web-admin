@@ -6,6 +6,10 @@ import {
     Box,
     Typography
 } from "@material-ui/core";
+import {
+    BrowserRouter as Router,
+    Link
+} from "react-router-dom";
 import RouterIcon from "../../../router/RouterIcon";
 
 const styles = makeStyles(theme => ({
@@ -16,6 +20,12 @@ const styles = makeStyles(theme => ({
 
 const itemStyles = makeStyles(theme => ({
     root: {
+        display: "flex",
+        padding: theme.spacing(1.6),
+        borderRadius: 3,
+        textDecoration: "none"
+    },
+    active: {
         cursor: "pointer",
         "&:hover": {
             backgroundColor: "#f9fafb",
@@ -29,6 +39,7 @@ const itemStyles = makeStyles(theme => ({
     },
     disable: {
         cursor: "not-allowed",
+        pointerEvents: "none",
         opacity: 0.5
     },
     iconContainer: {
@@ -46,11 +57,10 @@ const itemStyles = makeStyles(theme => ({
 const NavItem = ({ navItem }) => {
     const classes = itemStyles();
     return (
-        <Box
-            className={`${navItem.disable ? classes.disable : classes.root}`}
-            display="flex"
-            padding={1.6}
-            borderRadius={3}
+
+        <Link
+            className={`${classes.root} ${navItem.disable ? classes.disable : classes.active}`}
+            to={navItem.link}
         >
             <Box
                 mr={2}
@@ -71,7 +81,7 @@ const NavItem = ({ navItem }) => {
                     {navItem.description}
                 </Typography>
             </Box>
-        </Box>
+        </Link>
     )
 
 }
@@ -83,14 +93,16 @@ export default function NavPanel({ navItems }) {
         sm: 4
     }
     return (
-        <Paper className={classes.root}>
-            <Grid container>
-                {navItems.map(navItem => (
-                    <Grid key={navItem.link} item xs={responsive.xs}>
-                        <NavItem navItem={navItem} />
-                    </Grid>
-                ))}
-            </Grid>
-        </Paper>
+        <Router>
+            <Paper className={classes.root}>
+                <Grid container>
+                    {navItems.map(navItem => (
+                        <Grid key={navItem.link} item xs={responsive.xs}>
+                            <NavItem navItem={navItem} />
+                        </Grid>
+                    ))}
+                </Grid>
+            </Paper>
+        </Router>
     );
 }

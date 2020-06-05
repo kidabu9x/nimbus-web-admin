@@ -30,7 +30,7 @@ export function requestPassword(email) {
   return axios.post(REQUEST_PASSWORD_URL, { email });
 }
 
-export function getUserByToken() {
+export function getUserProfile() {
   // Authorization head should be fulfilled in interceptor.
   return axios.get(ME_URL);
 }

@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { connect } from "react-redux";
 import { injectIntl } from "react-intl";
-import * as auth from "../../store/auth";
+import { login } from "../../store/auth/actions";
 import { loginWithGoogle } from "../../api/auth.api";
 import GoogleLogin from "react-google-login";
 import { LOGIN_CLIENT_ID } from "../../constants";
@@ -124,4 +124,4 @@ function Login(props) {
   )
 }
 
-export default injectIntl(connect(null, auth.actions)(Login));
+export default injectIntl(connect(null, login)(Login));
