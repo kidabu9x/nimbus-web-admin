@@ -22,7 +22,7 @@ const useStyles = makeStyles((theme) => ({
         backgroundColor: '#207347',
     },
     barColorPrimary: {
-        backgroundColor: '#6FBF94',
+        backgroundColor: '#508A6B',
     }
 }));
 

@@ -1,4 +1,4 @@
-import { takeLatest } from "redux-saga/effects";
+import { takeLatest, put, call } from "redux-saga/effects";
 import {
     getUserProfile
 } from "../../api/auth.api";
@@ -8,11 +8,14 @@ import {
     GET_PROFILE_ERROR
 } from "./constants";
 
-function* flow(action) {
+function* flow() {
     try {
-
+        const response = yield call(getUserProfile);
+        console.log(response);
+        yield put({ type: GET_PROFILE_SUCCESS });
     } catch (error) {
-
+        console.log(error);
+        yield put({ type: GET_PROFILE_ERROR });
     }
 }
 

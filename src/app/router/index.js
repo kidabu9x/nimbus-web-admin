@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Redirect, Route, Switch, withRouter } from "react-router-dom";
 import { shallowEqual, useSelector, useDispatch } from "react-redux";
 import LogoutPage from "../pages/auth/Logout";
@@ -9,6 +9,7 @@ import BlogPage from "../pages/home/blogs/BlogPage";
 import CategoryPage from "../pages/home/categories/CategoryPage";
 import InitLoading from "../components/Ui/Loading/InitLoading";
 import { ROUTES } from "./Routes";
+import { getUserProfile } from "../store/auth/actions";
 
 export default withRouter(() => {
     const {
@@ -16,30 +17,34 @@ export default withRouter(() => {
         isAuthorized
     } = useSelector(
         ({ auth }) => ({
-            isAuthorized: auth.user != null
+            isAuthorized: auth.user != null,
+            requesting: auth.requesting
         }),
         shallowEqual
     );
 
     const dispatch = useDispatch();
 
+    useEffect(() => {
+        dispatch(getUserProfile());
+    }, [dispatch]);
+
     if (requesting) {
         return <InitLoading />
     }
 
     return (
-
         <Switch>
-            {!isAuthorized ? (
+            {!isAuthorized ?
                 <AuthPage />
-            ) : (
-                    <Redirect from="/auth" to="/" />
-                )}
+                :
+                <Redirect from="/dang-nhap" to="/" />
+            }
 
             <Route path="/logout" component={LogoutPage} />
 
             {!isAuthorized ? (
-                <Redirect to="/auth/login" />
+                <Redirect to="/dang-nhap" />
             ) : (
                     <Layout>
                         <Switch>

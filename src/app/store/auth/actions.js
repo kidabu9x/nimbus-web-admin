@@ -3,7 +3,8 @@ import {
     REGISTER,
     LOGOUT,
     USER_REQUESTED,
-    USER_LOADED
+    USER_LOADED,
+    GET_PROFILE_REQUESTING
 } from "./constants";
 
 export const login = (authToken) => ({
@@ -30,6 +31,10 @@ export const requestUser = (user) => ({
         user
     }
 });
+
+export const getUserProfile = () => ({
+    type: GET_PROFILE_REQUESTING
+})
 
 export const fulfillUser = (user) => ({
     type: USER_LOADED,

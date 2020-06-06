@@ -13,7 +13,7 @@ import {
 const intialState = {
     user: undefined,
     authToken: undefined,
-    requesting: false,
+    requesting: true,
     successful: false
 };
 
