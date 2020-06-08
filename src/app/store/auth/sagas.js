@@ -14,19 +14,35 @@ import {
 
 function* getProfileFlow() {
     try {
-        yield call(getUserProfile);
-        yield put({ type: GET_PROFILE_SUCCESS });
+        const response = yield call(getUserProfile);
+        const user = response.data.data;
+        yield put({
+            type: GET_PROFILE_SUCCESS,
+            payload: {
+                user
+            }
+        });
     } catch (error) {
         yield put({ type: GET_PROFILE_ERROR });
     }
 }
 
-function* loginFlow(data) {
+function* loginFlow(action) {
     try {
+        const { data } = action.payload;
         const response = yield call(loginWithGoogle, data);
-        console.log(response);
+        const metaData = response.data.data;
+        const accessToken = metaData != null ? metaData.access_token : null;
+        yield put({
+            type: LOGIN_SUCCESS,
+            payload: {
+                token: accessToken
+            }
+        });
     } catch (error) {
-        console.log(error);
+        yield put({
+            type: LOGIN_ERROR
+        });
     }
 }
 

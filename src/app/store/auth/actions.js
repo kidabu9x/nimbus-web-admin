@@ -1,6 +1,4 @@
 import {
-    LOGIN,
-    REGISTER,
     LOGOUT,
     USER_REQUESTED,
     USER_LOADED,
@@ -8,24 +6,10 @@ import {
     LOGIN_REQUESTING
 } from "./constants";
 
-export const login = (authToken) => ({
-    type: LOGIN,
-    payload: {
-        authToken
-    }
-});
-
-export const loginWithGoogle = (data) => ({
+export const login = (data) => ({
     type: LOGIN_REQUESTING,
     payload: {
         data
-    }
-})
-
-export const register = (authToken) => ({
-    type: REGISTER,
-    payload: {
-        authToken
     }
 });
 

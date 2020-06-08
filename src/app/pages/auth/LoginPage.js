@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "@material-ui/core";
 import { connect } from "react-redux";
 import { login } from "../../store/auth/actions";
-import { loginWithGoogle } from "../../api/auth.api";
+// import { loginWithGoogle } from "../../api/auth.api";
 import GoogleLogin from "react-google-login";
 import { LOGIN_CLIENT_ID } from "../../constants";
 
@@ -40,7 +40,7 @@ const useStyles = makeStyles((theme) => ({
   },
   avatar: {
     margin: theme.spacing(1),
-    backgroundColor: theme.palette.secondary.main,
+    backgroundColor: theme.palette.primary.main,
   },
   form: {
     width: '100%', // Fix IE 11 issue.
@@ -59,9 +59,7 @@ function Login(props) {
   const classes = useStyles();
 
   const responseGoogle = response => {
-    loginWithGoogle(response.profileObj).then(res => {
-      props.login(res.data.data.access_token);
-    });
+    props.login(response.profileObj);
   };
 
   return (
@@ -83,7 +81,6 @@ function Login(props) {
             id="email"
             label="Email"
             name="email"
-            autoComplete="email"
             autoFocus
           />
           <TextField
@@ -95,7 +92,6 @@ function Login(props) {
             label="Password"
             type="password"
             id="password"
-            autoComplete="current-password"
           />
           <Button
             type="submit"

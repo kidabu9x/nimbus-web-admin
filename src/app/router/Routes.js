@@ -5,8 +5,7 @@ export const ROUTES = {
   onlineCourses: "/khoa-hoc/online",
   offlineCourses: "/khoa-hoc/offline",
   settings: "/cai-dat",
-  auth: "/auth",
-  error: "/error",
+  auth: "/dang-nhap",
   logout: "/logout"
 };
 

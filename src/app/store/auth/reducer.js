@@ -1,37 +1,52 @@
 import { persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 import {
-    LOGIN,
-    REGISTER,
     LOGOUT,
     USER_LOADED,
     GET_PROFILE_REQUESTING,
     GET_PROFILE_SUCCESS,
-    GET_PROFILE_ERROR
+    GET_PROFILE_ERROR,
+    LOGIN_REQUESTING,
+    LOGIN_SUCCESS,
+    LOGIN_ERROR
 } from "./constants";
 
 const intialState = {
-    user: undefined,
-    authToken: undefined,
-    requesting: true,
-    successful: false
+    user: null,
+    token: null,
+
+    requesting: false,
+    successful: false,
+
+    loginRequesting: false
 };
 
 const reducer = persistReducer(
-    { storage, key: "nimbus-auth", whitelist: ["user", "authToken"] },
+    { storage, key: "nimbus-auth", whitelist: ["token"] },
     (state = intialState, action) => {
         switch (action.type) {
 
-            case LOGIN: {
-                const { authToken } = action.payload;
-
-                return { authToken, user: undefined };
+            case LOGIN_REQUESTING: {
+                return {
+                    loginRequesting: true,
+                    user: null
+                };
             }
 
-            case REGISTER: {
-                const { authToken } = action.payload;
+            case LOGIN_SUCCESS: {
+                console.log(action);
+                const { token } = action.payload;
+                return {
+                    loginRequesting: false,
+                    token
+                };
+            }
 
-                return { authToken, user: undefined };
+            case LOGIN_ERROR: {
+                return {
+                    loginRequesting: false,
+                    token: null
+                }
             }
 
             case LOGOUT: {
@@ -50,6 +65,7 @@ const reducer = persistReducer(
                     requesting: true
                 }
             }
+
             case GET_PROFILE_SUCCESS: {
                 const { user } = action.payload;
                 return {
@@ -59,6 +75,7 @@ const reducer = persistReducer(
                     user
                 }
             }
+
             case GET_PROFILE_ERROR: {
                 return {
                     ...state,

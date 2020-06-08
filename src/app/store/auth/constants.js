@@ -1,6 +1,4 @@
-export const LOGIN = "[Login] Action";
 export const LOGOUT = "[Logout] Action";
-export const REGISTER = "[Register] Action";
 export const USER_REQUESTED = "[Request User] Action";
 export const USER_LOADED = "[Load User] Auth API";
 

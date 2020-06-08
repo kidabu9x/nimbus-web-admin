@@ -1,9 +1,9 @@
 import React, { useEffect } from "react";
 import { Redirect, Route, Switch, withRouter } from "react-router-dom";
 import { shallowEqual, useSelector, useDispatch } from "react-redux";
-import LogoutPage from "../pages/auth/Logout";
+import LogoutPage from "../pages/auth/LogoutPage";
 import Layout from "../layout";
-import Login from "../pages/auth/Login";
+import Login from "../pages/auth/LoginPage";
 import Dashboard from "../pages/home/Dashboard";
 import BlogPage from "../pages/home/blogs/BlogPage";
 import CategoryPage from "../pages/home/categories/CategoryPage";
@@ -13,10 +13,12 @@ import { getUserProfile } from "../store/auth/actions";
 
 export default withRouter(() => {
     const {
+        isLoggedIn,
         requesting,
         isAuthorized
     } = useSelector(
         ({ auth }) => ({
+            isLoggedIn: auth.token != null,
             isAuthorized: auth.user != null,
             requesting: auth.requesting
         }),
@@ -26,8 +28,10 @@ export default withRouter(() => {
     const dispatch = useDispatch();
 
     useEffect(() => {
-        dispatch(getUserProfile());
-    }, [dispatch]);
+        if (isLoggedIn) {
+            dispatch(getUserProfile());
+        }
+    }, [isLoggedIn, dispatch]);
 
     if (requesting) {
         return <InitLoading />
@@ -35,11 +39,14 @@ export default withRouter(() => {
 
     return (
         <Switch>
-            <Route path="/logout" component={LogoutPage} />
-            <Route path="/dang-nhap" component={Login} />
+            {!isAuthorized ?
+                <Route path={ROUTES.auth} component={Login} />
+                :
+                <Redirect from={ROUTES.auth} to={ROUTES.dashboard} />
+            }
 
             {!isAuthorized ?
-                <Redirect to="/dang-nhap" />
+                <Redirect to={ROUTES.auth} />
                 : (
                     <Layout>
                         <Switch>
@@ -48,7 +55,9 @@ export default withRouter(() => {
                             <Route path={ROUTES.dashboard} component={Dashboard} />
                         </Switch>
                     </Layout>
-                )}
+                )
+            }
+            <Route path={ROUTES.logout} component={LogoutPage} />
         </Switch>
     );
 });

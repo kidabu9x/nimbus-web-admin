@@ -24,6 +24,7 @@ const customItemStyles = makeStyles(theme => ({
 }))
 
 const ListItemLink = (props) => {
+    console.log(props);
     const { icon, primary, to } = props;
     const renderLink = React.useMemo(
         () => React.forwardRef((itemProps, ref) => <RouterLink to={to} ref={ref} {...itemProps} />),
@@ -54,37 +55,42 @@ const CustomItem = ({
     const toggleOpen = () => {
         setOpen(!open);
     }
-    const hasChild = () => {
-        return children && Array.isArray(children) && children.length > 0;
+
+    if (Array.isArray(children) && children.length > 0) {
+        return (
+            <>
+                <ListItem button onClick={toggleOpen}>
+                    <ListItemIcon>
+                        <RouterIcon link={link} />
+                    </ListItemIcon>
+                    <ListItemText primary={title} />
+                </ListItem>
+
+                <List disablePadding>
+                    <Collapse in={open} timeout="auto" unmountOnExit>
+                        {
+                            children.map(item => (
+                                <ListItemLink
+                                    className={classes.childItem}
+                                    key={item.link}
+                                    to={item.link}
+                                    primary={item.title}
+                                />
+                            ))
+                        }
+                    </Collapse>
+                </List>
+            </>
+        )
+    } else {
+        return (
+            <ListItemLink
+                to={link}
+                primary={title}
+                icon={<RouterIcon link={link} />}
+            />
+        );
     }
-    return (
-        <>
-            <ListItem button onClick={toggleOpen}>
-                <ListItemIcon>
-                    <RouterIcon link={link} />
-                </ListItemIcon>
-                <ListItemText primary={title} />
-            </ListItem>
-            {
-                children && hasChild && (
-                    <List disablePadding>
-                        <Collapse in={open} timeout="auto" unmountOnExit>
-                            {
-                                children.map(item => (
-                                    <ListItemLink
-                                        className={classes.childItem}
-                                        key={item.link}
-                                        to={item.link}
-                                        primary={item.title}
-                                    />
-                                ))
-                            }
-                        </Collapse>
-                    </List>
-                )
-            }
-        </>
-    )
 }
 
 export default function DrawerLeft() {
