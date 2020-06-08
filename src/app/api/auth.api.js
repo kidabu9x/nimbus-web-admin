@@ -11,13 +11,13 @@ export function login(email, password) {
   return axios.post(LOGIN_URL, { email, password });
 }
 
-export function loginWithGoogle(profObj) {
+export function loginWithGoogle(data) {
   const profConv = {
     type: "GOOGLE",
-    first_name: profObj.givenName,
-    last_name: profObj.familyName,
-    email: profObj.email,
-    avatar: profObj.imageUrl
+    first_name: data.givenName,
+    last_name: data.familyName,
+    email: data.email,
+    avatar: data.imageUrl
   };
   return axios.post(`${LOGIN_URL}/oauth2`, profConv);
 }

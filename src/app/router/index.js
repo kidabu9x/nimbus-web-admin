@@ -3,7 +3,7 @@ import { Redirect, Route, Switch, withRouter } from "react-router-dom";
 import { shallowEqual, useSelector, useDispatch } from "react-redux";
 import LogoutPage from "../pages/auth/Logout";
 import Layout from "../layout";
-import AuthPage from "../pages/auth/AuthPage";
+import Login from "../pages/auth/Login";
 import Dashboard from "../pages/home/Dashboard";
 import BlogPage from "../pages/home/blogs/BlogPage";
 import CategoryPage from "../pages/home/categories/CategoryPage";
@@ -35,23 +35,17 @@ export default withRouter(() => {
 
     return (
         <Switch>
-            {!isAuthorized ?
-                <AuthPage />
-                :
-                <Redirect from="/dang-nhap" to="/" />
-            }
-
             <Route path="/logout" component={LogoutPage} />
+            <Route path="/dang-nhap" component={Login} />
 
-            {!isAuthorized ? (
+            {!isAuthorized ?
                 <Redirect to="/dang-nhap" />
-            ) : (
+                : (
                     <Layout>
                         <Switch>
                             <Route path={ROUTES.blogs} component={BlogPage} />
                             <Route path={ROUTES.blogCategories} component={CategoryPage} />
                             <Route path={ROUTES.dashboard} component={Dashboard} />
-                            <Redirect to={`${ROUTES.error}/error-v1`} />
                         </Switch>
                     </Layout>
                 )}

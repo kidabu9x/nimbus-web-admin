@@ -1,7 +1,6 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link } from "@material-ui/core";
 import { connect } from "react-redux";
-import { injectIntl } from "react-intl";
 import { login } from "../../store/auth/actions";
 import { loginWithGoogle } from "../../api/auth.api";
 import GoogleLogin from "react-google-login";
@@ -82,7 +81,7 @@ function Login(props) {
             required
             fullWidth
             id="email"
-            label="Email Address"
+            label="Email"
             name="email"
             autoComplete="email"
             autoFocus
@@ -124,4 +123,6 @@ function Login(props) {
   )
 }
 
-export default injectIntl(connect(null, login)(Login));
+export default connect(null, {
+  login
+})(Login);
