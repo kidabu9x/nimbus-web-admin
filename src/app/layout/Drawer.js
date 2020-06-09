@@ -24,7 +24,6 @@ const customItemStyles = makeStyles(theme => ({
 }))
 
 const ListItemLink = (props) => {
-    console.log(props);
     const { icon, primary, to } = props;
     const renderLink = React.useMemo(
         () => React.forwardRef((itemProps, ref) => <RouterLink to={to} ref={ref} {...itemProps} />),

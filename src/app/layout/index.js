@@ -25,7 +25,7 @@ export default function PersistentDrawerLeft({ children }) {
             >
                 <Toolbar />
                 <div className={classes.drawerHeader} />
-                {/* {children} */}
+                {children}
             </main>
         </Box>
     );

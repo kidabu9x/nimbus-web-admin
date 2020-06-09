@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { connect } from "react-redux";
-import * as blog from "../../../store/blog";
-import { getAllBlogs, deleteBlog } from "../../../api/blog.api";
+import { useDispatch, useSelector, shallowEqual } from "react-redux";
+import { getBlogs } from "../../../store/blogs/actions";
 import PropTypes from "prop-types";
 import {
   Table,
@@ -25,56 +24,52 @@ import dayjs from "dayjs";
 import useStyles from "./styles";
 import { ROUTES } from "../../../router/Routes";
 import ConfirmDelete from "../../../components/ConfirmDelete/ConfirmDelete";
-import * as category from "../../../store/category";
 import SearchIcon from "@material-ui/icons/Search";
-import { getAllCategories } from "../../../api/category.api";
 import { find } from "lodash";
 import EmptyList from "../../../components/EmptyList/EmptyList";
 import {
   ROWS_PER_PAGE
 } from "../../../constants";
 
-const BlogsList = ({
-  getBlogsSuccess,
-  blogs,
-  totalBlog,
-  pagination,
-  getPage,
-  getCategoriesSuccess,
-  categories,
-}) => {
+const BlogsList = () => {
+  const categories = [];
+  const {
+    blogs,
+    pagination
+  } = useSelector((
+    { blogs }) => ({
+      blogs: blogs.blogs,
+      pagination: blogs.pagination
+    }),
+    shallowEqual
+  );
+  const dispatch = useDispatch();
+
   const classes = useStyles();
   const history = useHistory();
   const [openModalDelete, setOpenModalDelete] = useState(false);
   const [blogEdit, setBlogEdit] = useState(null);
-  const [categorySearch, setCategorySearch] = useState("");
-  const [titleSearch, setTitleSearch] = useState("");
+  const [categoryId, setCategoryId] = useState(null);
+  const [titleSearch, setTitleSearch] = useState(null);
   const [stringEmpty, setStringEmpty] = useState("");
 
   useEffect(() => {
-    const loadBlogs = () => {
-      getAllBlogs().then((res) => {
-        getBlogsSuccess({ data: res.data.data, meta: res.data.meta });
-      });
-    };
-    const loadCategories = () => {
-      getAllCategories().then((res) => {
-        getCategoriesSuccess(res.data.data);
-      });
-    };
-    loadCategories();
-    loadBlogs();
-  }, [getBlogsSuccess, getCategoriesSuccess]);
+    dispatch(getBlogs({
+      searchTerm: titleSearch,
+      categoryId: categoryId,
+      page: pagination.page
+    }));
+  }, []);
 
   const onEditBlog = (blog) => {
     history.push(`${ROUTES.blogs}/${blog.id}`);
   };
 
   const onDeleteBlog = () => {
-    deleteBlog(blogEdit.id).then((data) => {
-      setOpenModalDelete(false);
-      onSearch();
-    });
+    // deleteBlog(blogEdit.id).then((data) => {
+    //   setOpenModalDelete(false);
+    //   onSearch();
+    // });
   };
 
   const onAddNew = () => {
@@ -82,22 +77,18 @@ const BlogsList = ({
   };
 
   const handleChangePage = (event, newPage) => {
-    if (newPage > pagination.page && totalBlog > blogs.length) {
-      getAllBlogs(newPage).then((res) => {
-        getBlogsSuccess({ data: res.data.data, meta: res.data.meta });
-      });
-    } else {
-      getPage(newPage);
-    }
+    // if (newPage > pagination.page && totalBlog > blogs.length) {
+    //   getAllBlogs(newPage).then((res) => {
+    //     getBlogsSuccess({ data: res.data.data, meta: res.data.meta });
+    //   });
+    // } else {
+    //   getPage(newPage);
+    // }
   };
 
   const onOpenDeleteBlog = (blog) => {
     setBlogEdit(blog);
     setOpenModalDelete(true);
-  };
-
-  const handleChangeRowsPerPage = (event) => {
-    console.log("handleChangeRowsPerPage");
   };
 
   const blogStatusExchange = (status) => {
@@ -108,7 +99,7 @@ const BlogsList = ({
   };
 
   const handleCategoryChange = (event) => {
-    setCategorySearch(event.target.value);
+    setCategoryId(event.target.value);
   };
 
   const onChangeSearchInput = (event) => {
@@ -116,19 +107,15 @@ const BlogsList = ({
   };
 
   const onSearch = () => {
-    getAllBlogs(0, titleSearch, categorySearch).then((res) => {
-      const resBlogs = res.data.data;
-      const meta = res.data.meta;
-      getBlogsSuccess({ data: resBlogs, meta });
-      if (resBlogs.length === 0) {
-        setStringEmpty(getStringEmpty(titleSearch, categorySearch));
-      }
-    });
+    // getAllBlogs(0, titleSearch, categorySearch).then((res) => {
+    //   const resBlogs = res.data.data;
+    //   const meta = res.data.meta;
+    //   getBlogsSuccess({ data: resBlogs, meta });
+    //   if (resBlogs.length === 0) {
+    //     setStringEmpty(getStringEmpty(titleSearch, categorySearch));
+    //   }
+    // });
   };
-
-  useEffect(() => {
-    onSearch();
-  }, [categorySearch]);
 
   const getStringEmpty = (titleString, categoryString) => {
     let resultString = `Không tìm thấy blogs`;
@@ -181,7 +168,7 @@ const BlogsList = ({
             <Select
               native
               id="controlled-open-select"
-              value={categorySearch}
+              value={categoryId}
               onChange={(evt) => {
                 handleCategoryChange(evt);
               }}
@@ -217,11 +204,8 @@ const BlogsList = ({
               <TableCell align="right">
                 Ngày tạo
               </TableCell>
-              <TableCell align="left">
+              <TableCell align="right">
                 Tiêu đề
-              </TableCell>
-              <TableCell align="left">
-                Mô tả
               </TableCell>
               <TableCell align="right">
                 Trạng thái
@@ -246,7 +230,6 @@ const BlogsList = ({
                   <TableCell component="th" scope="blog" align="left">
                     {blog.title}
                   </TableCell>
-                  <TableCell align="left">{blog.description}</TableCell>
                   <TableCell align="right">
                     {blogStatusExchange(blog.status)}
                   </TableCell>
@@ -279,19 +262,12 @@ const BlogsList = ({
         </Table>
         {blogs.length === 0 && <EmptyList title={stringEmpty} />}
         <TablePagination
-          rowsPerPageOptions={[ROWS_PER_PAGE]}
+          rowsPerPageOptions={[pagination.limit]}
           component="div"
-          count={totalBlog}
-          rowsPerPage={ROWS_PER_PAGE}
-          page={pagination.page}
-          backIconButtonProps={{
-            "aria-label": "Previous Page",
-          }}
-          nextIconButtonProps={{
-            "aria-label": "Next Page",
-          }}
+          count={pagination.total}
+          rowsPerPage={pagination.limit}
+          page={pagination.offset}
           onChangePage={handleChangePage}
-          onChangeRowsPerPage={handleChangeRowsPerPage}
         />
       </Paper>
       <ConfirmDelete
@@ -307,33 +283,4 @@ const BlogsList = ({
   );
 };
 
-BlogsList.propTypes = {
-  getBlogsSuccess: PropTypes.func.isRequired,
-  getPage: PropTypes.func.isRequired,
-  totalBlog: PropTypes.number,
-  pagination: PropTypes.shape({}),
-};
-BlogsList.defaultProps = {
-  blog: [],
-  totalBlog: 0,
-  pagination: {
-    page: 0,
-    limit: ROWS_PER_PAGE,
-    offset: 0,
-  },
-};
-
-const mapStateToProps = (state) => ({
-  blogs: state.blog.blogsList,
-  totalBlog: state.blog.total,
-  pagination: state.blog.pagination,
-  categories: state.category.categoriesList,
-});
-
-const mapDispatchToProps = {
-  getBlogsSuccess: blog.actions.getBlogsSuccess,
-  getPage: blog.actions.getPageBlog,
-  getCategoriesSuccess: category.actions.getCategoriesSuccess,
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(BlogsList);
+export default BlogsList;

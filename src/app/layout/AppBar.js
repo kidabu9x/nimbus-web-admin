@@ -11,12 +11,17 @@ import AccountCircle from '@material-ui/icons/AccountCircle';
 import {
     appBarStyle
 } from "./styles";
+import {
+    logout
+} from "../store/auth/actions";
+import { useDispatch } from 'react-redux';
 
 
 export default function CustomAppBar() {
     const classes = appBarStyle();
     const [anchorEl, setAnchorEl] = React.useState(null);
     const open = Boolean(anchorEl);
+    const dispatch = useDispatch();
 
     const handleMenu = (event) => {
         setAnchorEl(event.currentTarget);
@@ -25,6 +30,10 @@ export default function CustomAppBar() {
     const handleClose = () => {
         setAnchorEl(null);
     };
+
+    const handleLogout = () => {
+        dispatch(logout());
+    }
 
     return (
         <AppBar
@@ -67,7 +76,7 @@ export default function CustomAppBar() {
                         open={open}
                         onClose={handleClose}
                     >
-                        <MenuItem onClick={handleClose}>My account</MenuItem>
+                        <MenuItem onClick={handleLogout}>Đăng xuất</MenuItem>
                     </Menu>
                 </div>
             </Toolbar>

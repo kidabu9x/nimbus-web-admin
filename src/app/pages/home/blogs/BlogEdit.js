@@ -37,7 +37,7 @@ import * as category from "../../../store/category";
 import { keyBy, filter } from "lodash";
 import { useSnackbar } from "notistack";
 import ConfirmDelete from "../../../components/ConfirmDelete/ConfirmDelete";
-import * as blog from "../../../store/blog";
+import * as blog from "../../../store/blogs";
 import UiCard from "../../../components/Ui/Card/Card";
 import UiCardHeader from "../../../components/Ui/Card/CardHeader";
 import UiCardContent from "../../../components/Ui/Card/CardContent";

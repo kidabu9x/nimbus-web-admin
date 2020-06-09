@@ -5,7 +5,6 @@ export const BASE_URL = config.domain.blogService + "/v1";
 
 const queryPagination = (page) => {
   return {
-    page,
     limit: 10,
     offset: page,
   };

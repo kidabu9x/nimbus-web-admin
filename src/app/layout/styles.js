@@ -36,7 +36,7 @@ export const appBarStyle = makeStyles((theme) => ({
     appBar: {
         zIndex: theme.zIndex.drawer + 1,
         backgroundColor: "rgb(28, 34, 96)",
-        color: "#fff"
+        color: "white"
     },
     title: {
         flexGrow: 1

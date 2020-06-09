@@ -2,19 +2,21 @@ import { all } from "redux-saga/effects";
 import { combineReducers } from "redux";
 
 import authReducer from "./auth/reducer";
-import * as blog from "./blog";
+import blogsReducer from "./blogs/reducer";
 import * as category from "./category";
 
 import authSagas from "./auth/sagas";
+import blogsSagas from "./blogs/sagas";
 
 export const rootReducer = combineReducers({
   auth: authReducer,
-  blog: blog.reducer,
+  blogs: blogsReducer,
   category: category.reducer
 });
 
 export function* rootSaga() {
   yield all([
-    authSagas()
+    authSagas(),
+    blogsSagas()
   ])
 }
