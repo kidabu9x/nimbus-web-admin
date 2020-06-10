@@ -15,7 +15,7 @@ const intialState = {
     user: null,
     token: null,
 
-    requesting: false,
+    requesting: true,
     successful: false,
 
     loginRequesting: false
@@ -34,7 +34,6 @@ const reducer = persistReducer(
             }
 
             case LOGIN_SUCCESS: {
-                console.log(action);
                 const { token } = action.payload;
                 return {
                     loginRequesting: false,
@@ -50,7 +49,10 @@ const reducer = persistReducer(
             }
 
             case LOGOUT: {
-                return intialState;
+                return {
+                    ...intialState,
+                    requesting: false
+                };
             }
 
             case USER_LOADED: {

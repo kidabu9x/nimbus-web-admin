@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector, shallowEqual } from "react-redux";
-import { getBlogs } from "../../../store/blogs/actions";
-import PropTypes from "prop-types";
+import { getBlogs, deleteBlog } from "../../../store/blogs/actions";
 import {
   Table,
   TableBody,
@@ -27,19 +26,19 @@ import ConfirmDelete from "../../../components/ConfirmDelete/ConfirmDelete";
 import SearchIcon from "@material-ui/icons/Search";
 import { find } from "lodash";
 import EmptyList from "../../../components/EmptyList/EmptyList";
-import {
-  ROWS_PER_PAGE
-} from "../../../constants";
 
 const BlogsList = () => {
   const categories = [];
   const {
     blogs,
-    pagination
+    pagination,
+    requesting
   } = useSelector((
     { blogs }) => ({
       blogs: blogs.blogs,
-      pagination: blogs.pagination
+      pagination: blogs.pagination,
+      filter: blogs.filter,
+      requesting: blogs.requesting
     }),
     shallowEqual
   );
@@ -49,27 +48,36 @@ const BlogsList = () => {
   const history = useHistory();
   const [openModalDelete, setOpenModalDelete] = useState(false);
   const [blogEdit, setBlogEdit] = useState(null);
-  const [categoryId, setCategoryId] = useState(null);
-  const [titleSearch, setTitleSearch] = useState(null);
+
+  const [searchInput, setSearchInput] = useState("");
+
+  const [reload, setReload] = useState(0);
+
+  const [categoryId, setCategoryId] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [page, setPage] = useState(0);
+  const [limit] = useState(10);
+
   const [stringEmpty, setStringEmpty] = useState("");
 
   useEffect(() => {
     dispatch(getBlogs({
-      searchTerm: titleSearch,
-      categoryId: categoryId,
-      page: pagination.page
+      searchTerm,
+      categoryId,
+      page,
+      limit
     }));
-  }, []);
+  }, [page, categoryId, limit, searchTerm, dispatch]);
 
   const onEditBlog = (blog) => {
     history.push(`${ROUTES.blogs}/${blog.id}`);
   };
 
-  const onDeleteBlog = () => {
-    // deleteBlog(blogEdit.id).then((data) => {
-    //   setOpenModalDelete(false);
-    //   onSearch();
-    // });
+  const onConfirmDelete = () => {
+    deleteBlog({
+      id: blogEdit.id
+    });
+    setOpenModalDelete(false);
   };
 
   const onAddNew = () => {
@@ -77,13 +85,7 @@ const BlogsList = () => {
   };
 
   const handleChangePage = (event, newPage) => {
-    // if (newPage > pagination.page && totalBlog > blogs.length) {
-    //   getAllBlogs(newPage).then((res) => {
-    //     getBlogsSuccess({ data: res.data.data, meta: res.data.meta });
-    //   });
-    // } else {
-    //   getPage(newPage);
-    // }
+    setPage(newPage);
   };
 
   const onOpenDeleteBlog = (blog) => {
@@ -103,37 +105,37 @@ const BlogsList = () => {
   };
 
   const onChangeSearchInput = (event) => {
-    setTitleSearch(event.target.value);
+    setSearchInput(event.target.value);
   };
 
   const onSearch = () => {
-    // getAllBlogs(0, titleSearch, categorySearch).then((res) => {
-    //   const resBlogs = res.data.data;
-    //   const meta = res.data.meta;
-    //   getBlogsSuccess({ data: resBlogs, meta });
-    //   if (resBlogs.length === 0) {
-    //     setStringEmpty(getStringEmpty(titleSearch, categorySearch));
-    //   }
-    // });
+    setSearchTerm(searchInput);
   };
 
-  const getStringEmpty = (titleString, categoryString) => {
-    let resultString = `Không tìm thấy blogs`;
-    if (titleString !== "") {
-      resultString = resultString + ` có từ khóa ${titleSearch}`;
+  useEffect(() => {
+    const getStringEmpty = (titleString, categoryString) => {
+      let resultString = `Không tìm thấy blogs`;
+      if (titleString !== "") {
+        resultString = resultString + ` có từ khóa ${searchTerm}`;
+      }
+      if (categoryString !== null && categoryString !== "") {
+        resultString =
+          resultString +
+          ` trong danh mục ${
+          find(
+            categories,
+            (category) => category.id === parseInt(categoryString)
+          ).title
+          }`;
+      }
+      return resultString;
+    };
+    if (blogs.length === 0) {
+      setStringEmpty(getStringEmpty(searchTerm, categoryId));
+    } else {
+      setStringEmpty("");
     }
-    if (categoryString !== null && categoryString !== "") {
-      resultString =
-        resultString +
-        ` trong danh mục ${
-        find(
-          categories,
-          (category) => category.id === parseInt(categoryString)
-        ).title
-        }`;
-    }
-    return resultString;
-  };
+  }, [blogs, searchTerm, categoryId, categories]);
 
   return (
     <>
@@ -148,8 +150,9 @@ const BlogsList = () => {
           <FormControl className={classes.searchFormControl}>
             <InputBase
               className={classes.searchInput}
+              defaultValue={searchInput}
               onChange={onChangeSearchInput}
-              placeholder="Search..."
+              placeholder="Tìm kiếm..."
               inputProps={{ "aria-label": "search" }}
             />
             <IconButton
@@ -159,6 +162,7 @@ const BlogsList = () => {
               onClick={() => {
                 onSearch();
               }}
+              disabled={requesting}
             >
               <SearchIcon />
             </IconButton>
@@ -190,7 +194,12 @@ const BlogsList = () => {
           </FormControl>
         </Paper>
         <div>
-          <Button variant="contained" color="primary" onClick={onAddNew}>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={onAddNew}
+            disabled={requesting}
+          >
             Thêm mới blog
           </Button>
         </div>
@@ -201,13 +210,13 @@ const BlogsList = () => {
           <TableHead>
             <TableRow>
               <TableCell>ID</TableCell>
-              <TableCell align="right">
+              <TableCell>
                 Ngày tạo
               </TableCell>
-              <TableCell align="right">
+              <TableCell>
                 Tiêu đề
               </TableCell>
-              <TableCell align="right">
+              <TableCell>
                 Trạng thái
               </TableCell>
               <TableCell align="right">
@@ -217,20 +226,16 @@ const BlogsList = () => {
           </TableHead>
           <TableBody>
             {blogs
-              .slice(
-                pagination.page * ROWS_PER_PAGE,
-                pagination.page * ROWS_PER_PAGE + ROWS_PER_PAGE
-              )
               .map((blog) => (
                 <TableRow key={blog.id}>
-                  <TableCell align="right">{blog.id}</TableCell>
-                  <TableCell align="right">
+                  <TableCell>{blog.id}</TableCell>
+                  <TableCell>
                     {dayjs(blog.created_at).format("DD/MM/YY")}
                   </TableCell>
-                  <TableCell component="th" scope="blog" align="left">
+                  <TableCell component="th" scope="blog">
                     {blog.title}
                   </TableCell>
-                  <TableCell align="right">
+                  <TableCell>
                     {blogStatusExchange(blog.status)}
                   </TableCell>
                   <TableCell align="right">
@@ -262,11 +267,11 @@ const BlogsList = () => {
         </Table>
         {blogs.length === 0 && <EmptyList title={stringEmpty} />}
         <TablePagination
-          rowsPerPageOptions={[pagination.limit]}
+          rowsPerPageOptions={[limit]}
           component="div"
           count={pagination.total}
-          rowsPerPage={pagination.limit}
-          page={pagination.offset}
+          rowsPerPage={limit}
+          page={page}
           onChangePage={handleChangePage}
         />
       </Paper>
@@ -274,7 +279,7 @@ const BlogsList = () => {
         message="Bạn có chắc chắn muốn xóa blog này?"
         title="Xác nhận xóa"
         open={openModalDelete}
-        onSubmit={onDeleteBlog}
+        onSubmit={onConfirmDelete}
         setOpen={(value) => {
           setOpenModalDelete(value);
         }}

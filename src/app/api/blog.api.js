@@ -3,21 +3,18 @@ import config from "../config/apiConfig";
 
 export const BASE_URL = config.domain.blogService + "/v1";
 
-const queryPagination = (page) => {
-  return {
-    limit: 10,
+export function getAllBlogs(page = 0, limit = 10, title = null, category_id = null) {
+  let queryParams = {
+    limit,
     offset: page,
   };
-};
-
-export function getAllBlogs(page = 0, title = null, category_id = null) {
-  let queryParams = queryPagination(page);
   if (title !== null || title !== "") {
     queryParams.title = title;
   }
   if (category_id !== null) {
     queryParams.category_id = category_id;
   }
+
   return axios.get(`${BASE_URL}/blogs`, {
     params: queryParams,
   });

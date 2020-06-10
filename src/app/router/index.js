@@ -9,7 +9,7 @@ import BlogPage from "../pages/home/blogs/BlogPage";
 import CategoryPage from "../pages/home/categories/CategoryPage";
 import InitLoading from "../components/Ui/Loading/InitLoading";
 import { ROUTES } from "./Routes";
-import { getUserProfile } from "../store/auth/actions";
+import { getUserProfile, logout } from "../store/auth/actions";
 
 export default withRouter(() => {
     const {
@@ -30,6 +30,10 @@ export default withRouter(() => {
     useEffect(() => {
         if (isLoggedIn) {
             dispatch(getUserProfile());
+        } else {
+            setTimeout(() => {
+                dispatch(logout());
+            }, 50);
         }
     }, [isLoggedIn, dispatch]);
 
