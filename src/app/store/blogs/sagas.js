@@ -12,7 +12,6 @@ import {
     DELETE_BLOG_ERROR
 } from "./constants";
 
-
 function* getBlogsFlow(action) {
     try {
         const { categoryId, page, limit, searchTerm } = action.payload;

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector, shallowEqual } from "react-redux";
 import { getBlogs, deleteBlog } from "../../../store/blogs/actions";
+import { getCategories } from "../../../store/categories/actions";
 import {
   Table,
   TableBody,
@@ -28,17 +29,20 @@ import { find } from "lodash";
 import EmptyList from "../../../components/EmptyList/EmptyList";
 
 const BlogsList = () => {
-  const categories = [];
   const {
     blogs,
     pagination,
-    requesting
+    requesting,
+    reload,
+    categories
   } = useSelector((
-    { blogs }) => ({
+    { blogs, categories }) => ({
       blogs: blogs.blogs,
       pagination: blogs.pagination,
       filter: blogs.filter,
-      requesting: blogs.requesting
+      requesting: blogs.requesting,
+      reload: blogs.reload,
+      categories: categories.categories
     }),
     shallowEqual
   );
@@ -50,8 +54,6 @@ const BlogsList = () => {
   const [blogEdit, setBlogEdit] = useState(null);
 
   const [searchInput, setSearchInput] = useState("");
-
-  const [reload, setReload] = useState(0);
 
   const [categoryId, setCategoryId] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
@@ -67,16 +69,20 @@ const BlogsList = () => {
       page,
       limit
     }));
-  }, [page, categoryId, limit, searchTerm, dispatch]);
+  }, [page, categoryId, limit, searchTerm, reload, dispatch]);
+
+  useEffect(() => {
+    dispatch(getCategories());
+  }, [dispatch]);
 
   const onEditBlog = (blog) => {
     history.push(`${ROUTES.blogs}/${blog.id}`);
   };
 
   const onConfirmDelete = () => {
-    deleteBlog({
+    dispatch(deleteBlog({
       id: blogEdit.id
-    });
+    }));
     setOpenModalDelete(false);
   };
 
@@ -154,6 +160,7 @@ const BlogsList = () => {
               onChange={onChangeSearchInput}
               placeholder="Tìm kiếm..."
               inputProps={{ "aria-label": "search" }}
+              disabled={requesting}
             />
             <IconButton
               type="submit"
@@ -180,6 +187,7 @@ const BlogsList = () => {
                 id: "controlled-open-select",
               }}
               className={classes.selectCategory}
+              disabled={requesting}
             >
               <option value="" disabled>
                 Danh mục
@@ -246,6 +254,7 @@ const BlogsList = () => {
                         onClick={() => {
                           onEditBlog(blog);
                         }}
+                        disabled={requesting}
                       >
                         <EditIcon />
                       </IconButton>
@@ -256,6 +265,7 @@ const BlogsList = () => {
                           onOpenDeleteBlog(blog);
                         }}
                         className={classes.listDeleteBtn}
+                        disabled={requesting}
                       >
                         <DeleteIcon />
                       </IconButton>

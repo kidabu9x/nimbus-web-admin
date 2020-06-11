@@ -18,6 +18,7 @@ const blogs = {
         searchTerm: null,
         categoryId: null
     },
+    reload: 0,
     requesting: false
 }
 
@@ -77,6 +78,7 @@ export default (state = blogs, action) => {
 
             return {
                 ...state,
+                reload: state.reload += 1,
                 requesting: false
             }
         }
