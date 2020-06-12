@@ -1,13 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { connect } from "react-redux";
-import * as category from "../../../store/category";
+import { useDispatch, useSelector, shallowEqual } from "react-redux";
 import {
-  getAllCategories,
-  deleteCategory,
+  getCategories,
   createCategory,
-  updateCategory,
-} from "../../../api/category.api";
-import PropTypes from "prop-types";
+  deleteCategory,
+  updateCategory
+} from "../../../store/categories/actions";
 import {
   Table,
   TableBody,
@@ -27,21 +25,39 @@ import { useSnackbar } from "notistack";
 import ConfirmDelete from "../../../components/ConfirmDelete/ConfirmDelete";
 import ERR_CODE from "../../../constants/errorCode";
 
-const CategoriesList = ({ getCategoriesSuccess, categories }) => {
-  const classes = useStyles();
+const CategoriesList = () => {
+  const {
+    requesting,
+    categories,
+    errorMessage
+  } = useSelector((
+    { categories }) => ({
+      requesting: categories.requesting,
+      categories: categories.categories,
+      errorMessage: categories.errorMessage
+    }),
+    shallowEqual
+  );
+  const dispatch = useDispatch();
   const { enqueueSnackbar } = useSnackbar();
+
+  const classes = useStyles();
+
   const [openModalEdit, setOpenModalEdit] = useState(false);
   const [openModalDelete, setOpenModalDelete] = useState(false);
   const [categoryEdit, setCategoryEdit] = useState(null);
-  useEffect(() => {
-    loadCategories();
-  }, []);
 
-  const loadCategories = () => {
-    getAllCategories().then((res) => {
-      getCategoriesSuccess(res.data.data);
-    });
-  };
+  useEffect(() => {
+    dispatch(getCategories());
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (errorMessage) {
+      enqueueSnackbar(errorMessage, {
+        variant: "error"
+      });
+    }
+  }, [enqueueSnackbar, errorMessage]);
 
   const onEditCategory = (category) => {
     setCategoryEdit(category);
@@ -49,10 +65,9 @@ const CategoriesList = ({ getCategoriesSuccess, categories }) => {
   };
 
   const onDeleteCategory = () => {
-    deleteCategory(categoryEdit.id).then((data) => {
-      setOpenModalDelete(false);
-      loadCategories();
-    });
+    dispatch(deleteCategory({
+      id: categoryEdit.id
+    }));
   };
 
   const onOpenDeleteCategory = (category) => {
@@ -67,22 +82,14 @@ const CategoriesList = ({ getCategoriesSuccess, categories }) => {
 
   const onSubmitCategory = (category) => {
     if (category.id) {
-      updateCategory(category.id, category).then((data) => {
-        setOpenModalEdit(false);
-        loadCategories();
-      });
+      dispatch(updateCategory({
+        id: category.id,
+        category: category
+      }));
     } else {
-      createCategory(category)
-        .then((data) => {
-          setOpenModalEdit(false);
-          setCategoryEdit(null);
-          loadCategories();
-        })
-        .catch(({ response }) => {
-          const data = response.data;
-          enqueueSnackbar(ERR_CODE[data.meta.code], { variant: "error" });
-        });
+      dispatch(createCategory(category));
     }
+    setOpenModalEdit(false);
   };
 
   return (
@@ -178,19 +185,4 @@ const CategoriesList = ({ getCategoriesSuccess, categories }) => {
   );
 };
 
-CategoriesList.propTypes = {
-  getCategoriesSuccess: PropTypes.func.isRequired,
-};
-CategoriesList.defaultProps = {
-  categories: [],
-};
-
-const mapStateToProps = (state) => ({
-  categories: state.category.categoriesList,
-});
-
-const mapDispatchToProps = {
-  getCategoriesSuccess: category.actions.getCategoriesSuccess,
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(CategoriesList);
+export default CategoriesList;

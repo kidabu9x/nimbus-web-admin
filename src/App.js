@@ -2,6 +2,7 @@ import React from "react";
 import { Provider } from "react-redux";
 import { BrowserRouter } from "react-router-dom";
 import { PersistGate } from "redux-persist/integration/react";
+import { SnackbarProvider } from 'notistack';
 import Routes from "./app/router";
 import ThemeProvider from "./app/theme/ThemeProvider";
 
@@ -11,16 +12,13 @@ export default function App({ store, persistor, basename }) {
     <Provider store={store} loading={null}>
       {/* Asynchronously persist redux stores and show `SplashScreen` while it's loading. */}
       <PersistGate persistor={persistor}>
-        {/* Add high level `Suspense` in case if was not handled inside the React tree. */}
-        <React.Suspense fallback={null}>
-          {/* Override `basename` (e.g: `homepage` in `package.json`) */}
-          <BrowserRouter basename={basename}>
-            {/*This library only returns the location that has been active before the recent location change in the current window lifetime.*/}
-            <ThemeProvider>
+        <BrowserRouter basename={basename}>
+          <ThemeProvider>
+            <SnackbarProvider maxSnack={3}>
               <Routes />
-            </ThemeProvider>
-          </BrowserRouter>
-        </React.Suspense>
+            </SnackbarProvider>
+          </ThemeProvider>
+        </BrowserRouter>
       </PersistGate>
     </Provider>
   );

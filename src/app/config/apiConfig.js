@@ -3,16 +3,16 @@ const env = process.env.NODE_ENV || 'development';
 const configs = {
     development: {
         domain: {
-            blogService: 'http://api-internal-uat.nimbus.com.vn',
+            blogService: 'https://api-internal-uat.nimbus.com.vn',
             authService: 'http://auth-uat.nimbus.com.vn',
-            imageService: 'http://api-internal-uat.nimbus.com.vn/image-service'
+            imageService: 'https://api-internal-uat.nimbus.com.vn/image-service'
         }
     },
     uat: {
         domain: {
-            blogService: 'http://api-internal-uat.nimbus.com.vn',
+            blogService: 'https://api-internal-uat.nimbus.com.vn',
             authService: 'http://auth-uat.nimbus.com.vn',
-            imageService: 'http://api-internal-uat.nimbus.com.vn/image-service'
+            imageService: 'https://api-internal-uat.nimbus.com.vn/image-service'
         }
     },
     production: {

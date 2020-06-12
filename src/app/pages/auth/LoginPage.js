@@ -1,9 +1,8 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link } from "@material-ui/core";
 import { connect } from "react-redux";
-import { injectIntl } from "react-intl";
-import * as auth from "../../store/auth";
-import { loginWithGoogle } from "../../api/auth.api";
+import { login } from "../../store/auth/actions";
+// import { loginWithGoogle } from "../../api/auth.api";
 import GoogleLogin from "react-google-login";
 import { LOGIN_CLIENT_ID } from "../../constants";
 
@@ -41,7 +40,7 @@ const useStyles = makeStyles((theme) => ({
   },
   avatar: {
     margin: theme.spacing(1),
-    backgroundColor: theme.palette.secondary.main,
+    backgroundColor: theme.palette.primary.main,
   },
   form: {
     width: '100%', // Fix IE 11 issue.
@@ -60,9 +59,7 @@ function Login(props) {
   const classes = useStyles();
 
   const responseGoogle = response => {
-    loginWithGoogle(response.profileObj).then(res => {
-      props.login(res.data.data.access_token);
-    });
+    props.login(response.profileObj);
   };
 
   return (
@@ -82,9 +79,8 @@ function Login(props) {
             required
             fullWidth
             id="email"
-            label="Email Address"
+            label="Email"
             name="email"
-            autoComplete="email"
             autoFocus
           />
           <TextField
@@ -96,7 +92,6 @@ function Login(props) {
             label="Password"
             type="password"
             id="password"
-            autoComplete="current-password"
           />
           <Button
             type="submit"
@@ -124,4 +119,6 @@ function Login(props) {
   )
 }
 
-export default injectIntl(connect(null, auth.actions)(Login));
+export default connect(null, {
+  login
+})(Login);

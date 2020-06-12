@@ -1,8 +1,11 @@
-// 3rd-party Plugins
-@import "~highlight.js/styles/googlecode.css";
-@import "~perfect-scrollbar/css/perfect-scrollbar.css";
-
+div {
+    box-sizing: border-box;
+}
 
 .MuiCard-root+.MuiCard-root {
     margin-top: 20px;
+}
+
+img {
+    max-width: 100%;
 }

@@ -9,20 +9,31 @@ import ReactDOM from "react-dom";
 import axios from "axios";
 import store, { persistor } from "./app/store/store";
 import App from "./App";
+import "./index.scss";
 const { BASE_URL } = process.env;
 
 function setupAxios(axios, store) {
   axios.interceptors.request.use(
     (config) => {
+      // document.body.classList.add('loading-indicator');
+
       const {
-        auth: { authToken },
+        auth: { token },
       } = store.getState();
 
-      if (authToken) {
-        config.headers.Authorization = `Bearer ${authToken}`;
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
       }
 
       return config;
+    },
+    (err) => Promise.reject(err)
+  );
+
+  axios.interceptors.response.use(
+    (response) => {
+      // document.body.classList.remove('loading-indicator');
+      return response;
     },
     (err) => Promise.reject(err)
   );
