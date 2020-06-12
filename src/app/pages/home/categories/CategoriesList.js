@@ -15,6 +15,9 @@ import {
   Paper,
   IconButton,
   Button,
+  Container,
+  Box,
+  Typography
 } from "@material-ui/core";
 import DeleteIcon from "@material-ui/icons/Delete";
 import EditIcon from "@material-ui/icons/Edit";
@@ -23,7 +26,6 @@ import useStyles from "./styles";
 import CategoryEdit from "./CategoryEdit";
 import { useSnackbar } from "notistack";
 import ConfirmDelete from "../../../components/ConfirmDelete/ConfirmDelete";
-import ERR_CODE from "../../../constants/errorCode";
 
 const CategoriesList = () => {
   const {
@@ -68,6 +70,7 @@ const CategoriesList = () => {
     dispatch(deleteCategory({
       id: categoryEdit.id
     }));
+    setOpenModalDelete(false);
   };
 
   const onOpenDeleteCategory = (category) => {
@@ -93,76 +96,81 @@ const CategoriesList = () => {
   };
 
   return (
-    <>
-      <div className="row">
-        <div className="col-xl-9">
-          <div className="row row-full-height">
-            <Button
-              variant="contained"
-              color="primary"
-              className={classes.button}
-              startIcon={<AddIcon />}
-              onClick={onAddNew}
-            >
-              Thêm mới danh mục
-            </Button>
-            <div className="kt-space-20" />
-            <Paper className={classes.root}>
-              <Table
-                className={`col-xl-12 ${classes.table}`}
-                aria-label="simple table"
-              >
-                <TableHead>
-                  <TableRow>
-                    <TableCell>
-                      ID
+    <Container>
+      <Box
+        display="flex"
+        justifyContent="space-between"
+      >
+        <Typography variant="h4">
+          Danh sách danh mục
+        </Typography>
+        <Button
+          variant="contained"
+          color="primary"
+          className={classes.button}
+          startIcon={<AddIcon />}
+          onClick={onAddNew}
+          disabled={requesting}
+        >
+          Thêm mới danh mục
+        </Button>
+      </Box>
+
+      <Paper className={classes.root}>
+        <Table
+          className={`col-xl-12 ${classes.table}`}
+          aria-label="simple table"
+        >
+          <TableHead>
+            <TableRow>
+              <TableCell>
+                ID
+              </TableCell>
+              <TableCell align="left">
+                Tiêu đề
                     </TableCell>
-                    <TableCell align="left">
-                      Tiêu đề
-                    </TableCell>
-                    <TableCell align="right">
-                      Tác động
-                    </TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {categories.map((category) => (
-                    <TableRow key={category.id}>
-                      <TableCell align="left">{category.id}</TableCell>
-                      <TableCell component="th" scope="category" align="left">
-                        {category.title}
-                      </TableCell>
-                      <TableCell align="right">
-                        <div className={classes.actions}>
-                          <IconButton
-                            aria-label="edit"
-                            color="primary"
-                            onClick={() => {
-                              onEditCategory(category);
-                            }}
-                          >
-                            <EditIcon />
-                          </IconButton>
-                          <IconButton
-                            aria-label="delete"
-                            color="primary"
-                            onClick={() => {
-                              onOpenDeleteCategory(category);
-                            }}
-                            className={classes.listDeleteBtn}
-                          >
-                            <DeleteIcon />
-                          </IconButton>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </Paper>
-          </div>
-        </div>
-      </div>
+              <TableCell align="right">
+                Tác động
+              </TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {categories.map((category) => (
+              <TableRow key={category.id}>
+                <TableCell align="left">{category.id}</TableCell>
+                <TableCell component="th" scope="category" align="left">
+                  {category.title}
+                </TableCell>
+                <TableCell align="right">
+                  <div className={classes.actions}>
+                    <IconButton
+                      aria-label="edit"
+                      color="primary"
+                      onClick={() => {
+                        onEditCategory(category);
+                      }}
+                      disabled={requesting}
+                    >
+                      <EditIcon />
+                    </IconButton>
+                    <IconButton
+                      aria-label="delete"
+                      color="primary"
+                      onClick={() => {
+                        onOpenDeleteCategory(category);
+                      }}
+                      className={classes.listDeleteBtn}
+                      disabled={requesting}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </Paper>
       <CategoryEdit
         open={openModalEdit}
         setOpen={(value) => {
@@ -181,7 +189,7 @@ const CategoriesList = () => {
           setOpenModalDelete(value);
         }}
       />
-    </>
+    </Container>
   );
 };
 

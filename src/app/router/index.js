@@ -54,8 +54,8 @@ export default withRouter(() => {
                 : (
                     <Layout>
                         <Switch>
-                            <Route path={ROUTES.blogs} component={BlogPage} />
                             <Route path={ROUTES.blogCategories} component={CategoryPage} />
+                            <Route path={ROUTES.blogs} component={BlogPage} />
                             <Route path={ROUTES.dashboard} component={Dashboard} />
                         </Switch>
                     </Layout>
