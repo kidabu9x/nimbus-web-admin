@@ -1,7 +1,12 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import PropTypes from "prop-types";
 import { makeStyles } from '@material-ui/core/styles';
 import { Link as RouterLink } from 'react-router-dom';
+import {
+    useDispatch,
+    useSelector,
+    shallowEqual
+} from 'react-redux';
 import { NAV_ITEMS } from "../router/Routes";
 import {
     Drawer,
@@ -16,6 +21,7 @@ import RouterIcon from "../router/RouterIcon";
 import {
     drawerStyles
 } from "./styles";
+import { filterOrgs } from "../store/cms/org/actions";
 
 const customItemStyles = makeStyles(theme => ({
     childItem: {
@@ -94,6 +100,15 @@ const CustomItem = ({
 
 export default function DrawerLeft() {
     const classes = drawerStyles();
+
+    const { orgs } = useSelector(({ cms }) => ({
+        orgs: cms.org.orgs
+    }));
+    const dispatch = useDispatch();
+
+    useEffect(() => {
+        dispatch(filterOrgs());
+    }, [dispatch]);
 
     return (
         <Drawer

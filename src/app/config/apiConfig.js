@@ -3,16 +3,10 @@ const env = process.env.NODE_ENV || 'development';
 const configs = {
     development: {
         domain: {
-            blogService: 'https://api-internal-uat.nimbus.com.vn',
-            authService: 'http://auth-uat.nimbus.com.vn',
-            imageService: 'https://api-internal-uat.nimbus.com.vn/image-service'
-        }
-    },
-    uat: {
-        domain: {
-            blogService: 'https://api-internal-uat.nimbus.com.vn',
-            authService: 'http://auth-uat.nimbus.com.vn',
-            imageService: 'https://api-internal-uat.nimbus.com.vn/image-service'
+            blogService: 'https://api-internal.nimbus.com.vn/blog-service',
+            authService: 'https://api-internal.nimbus.com.vn/auth-service',
+            imageService: 'https://api-internal.nimbus.com.vn/image-service',
+            courseService: 'https://api-internal.nimbus.com.vn/course-service',
         }
     },
     production: {
@@ -20,6 +14,7 @@ const configs = {
             blogService: 'https://api-internal.nimbus.com.vn/blog-service',
             authService: 'https://api-internal.nimbus.com.vn/auth-service',
             imageService: 'https://api-internal.nimbus.com.vn/image-service',
+            courseService: 'https://api-internal.nimbus.com.vn/course-service',
         }
     },
 }[env];

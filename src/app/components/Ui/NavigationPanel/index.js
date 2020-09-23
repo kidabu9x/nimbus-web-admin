@@ -7,7 +7,6 @@ import {
     Typography
 } from "@material-ui/core";
 import {
-    BrowserRouter as Router,
     Link
 } from "react-router-dom";
 import RouterIcon from "../../../router/RouterIcon";
@@ -93,16 +92,14 @@ export default function NavPanel({ navItems }) {
         sm: 4
     }
     return (
-        <Router>
-            <Paper className={classes.root}>
-                <Grid container>
-                    {navItems.map(navItem => (
-                        <Grid key={navItem.link} item xs={responsive.xs}>
-                            <NavItem navItem={navItem} />
-                        </Grid>
-                    ))}
-                </Grid>
-            </Paper>
-        </Router>
+        <Paper className={classes.root}>
+            <Grid container>
+                {navItems.map(navItem => (
+                    <Grid key={navItem.link} item xs={responsive.xs}>
+                        <NavItem navItem={navItem} />
+                    </Grid>
+                ))}
+            </Grid>
+        </Paper>
     );
 }
