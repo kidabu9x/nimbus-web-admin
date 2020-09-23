@@ -7,6 +7,10 @@ import Login from "../pages/auth/LoginPage";
 import Dashboard from "../pages/home/Dashboard";
 import BlogPage from "../pages/home/blogs/BlogPage";
 import CategoryPage from "../pages/home/categories/CategoryPage";
+
+// CMS
+import CmsCoursePage from "../pages/cms/course/CoursePage";
+
 import InitLoading from "../components/Ui/Loading/InitLoading";
 import { ROUTES } from "./Routes";
 import { getUserProfile, logout } from "../store/auth/actions";
@@ -54,6 +58,9 @@ export default withRouter(() => {
                 : (
                     <Layout>
                         <Switch>
+                            {/* CMS */}
+                            <Route path={ROUTES.cms.course()} component={CmsCoursePage} />
+
                             <Route path={ROUTES.blogCategories} component={CategoryPage} />
                             <Route path={ROUTES.blogs} component={BlogPage} />
                             <Route path={ROUTES.dashboard} component={Dashboard} />

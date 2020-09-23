@@ -1,13 +1,12 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from "prop-types";
 import { makeStyles } from '@material-ui/core/styles';
 import { Link as RouterLink } from 'react-router-dom';
 import {
     useDispatch,
-    useSelector,
-    shallowEqual
+    useSelector
 } from 'react-redux';
-import { NAV_ITEMS } from "../router/Routes";
+import { NAV_ITEMS, ROUTES } from "../router/Routes";
 import {
     Drawer,
     List,
@@ -99,8 +98,8 @@ const CustomItem = ({
 }
 
 export default function DrawerLeft() {
+    const [dynamicNavs, setDynamicNavs] = useState([]);
     const classes = drawerStyles();
-
     const { orgs } = useSelector(({ cms }) => ({
         orgs: cms.org.orgs
     }));
@@ -109,6 +108,28 @@ export default function DrawerLeft() {
     useEffect(() => {
         dispatch(filterOrgs());
     }, [dispatch]);
+
+
+    useEffect(() => {
+        if (orgs != null && Array.from(orgs).length > 0) {
+            var navs = Array.from(orgs).map(org => {
+                return {
+                    title: org.name,
+                    description: "",
+                    link: org.id,
+                    disable: false,
+                    ignoreInPanel: true,
+                    children: [
+                        {
+                          title: "Khóa học",
+                          link: ROUTES.cms.course(org.id)
+                        }
+                    ]
+                }
+            });
+            setDynamicNavs(navs);
+        }
+    }, [orgs])
 
     return (
         <Drawer
@@ -120,7 +141,7 @@ export default function DrawerLeft() {
         >
             <Toolbar />
             <List>
-                {NAV_ITEMS.filter(item => {
+                {NAV_ITEMS.concat(dynamicNavs).filter(item => {
                     return !item.disable;
                 }).map(item => (
                     <CustomItem

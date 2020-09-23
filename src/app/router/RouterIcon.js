@@ -4,6 +4,7 @@ import HomeIcon from '@material-ui/icons/Home';
 import SettingsIcon from '@material-ui/icons/Settings';
 import AirplayIcon from '@material-ui/icons/Airplay';
 import PeopleIcon from '@material-ui/icons/People';
+import RadioButtonUncheckedIcon from '@material-ui/icons/RadioButtonUnchecked';
 import { ROUTES } from "./Routes";
 
 export default function Icon({ link }) {
@@ -19,6 +20,6 @@ export default function Icon({ link }) {
         case ROUTES.offlineCourses:
             return <PeopleIcon />
         default:
-            return null;
+            return <RadioButtonUncheckedIcon />;
     }
 }

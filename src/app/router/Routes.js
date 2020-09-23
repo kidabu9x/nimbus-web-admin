@@ -1,3 +1,10 @@
+const buildCmsCourseLink = (orgId) => {
+  if (orgId == null) {
+    orgId = ":id";
+  }
+  return "/org/" + orgId + "/course";
+}
+
 export const ROUTES = {
   dashboard: "/",
   blogs: "/blogs",
@@ -6,7 +13,11 @@ export const ROUTES = {
   offlineCourses: "/khoa-hoc/offline",
   settings: "/cai-dat",
   auth: "/dang-nhap",
-  logout: "/logout"
+  logout: "/logout",
+  cms: {
+    org: "/org",
+    course: buildCmsCourseLink
+  }
 };
 
 export const NAV_ITEMS = [
