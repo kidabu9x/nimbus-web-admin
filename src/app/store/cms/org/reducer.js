@@ -1,15 +1,17 @@
 import {
     FILTER_ORGANIZATIONS_REQUESTING,
     FILTER_ORGANIZATIONS_ERROR,
-    FILTER_ORGANIZATIONS_SUCCESS
+    FILTER_ORGANIZATIONS_SUCCESS,
+    SET_CURRENT_ORGANIZATION
 } from "./constants";
 
-const blogs = {
+const initState = {
     orgs: [],
-    requesting: false
+    requesting: false,
+    org: null
 }
 
-export default (state = blogs, action) => {
+export default (state = initState, action) => {
     switch (action.type) {
         case FILTER_ORGANIZATIONS_REQUESTING: {
             return {
@@ -32,8 +34,19 @@ export default (state = blogs, action) => {
             return {
                 ...state,
                 requesting: false,
-                blogs: []
+                orgs: []
             };
+        }
+
+        case SET_CURRENT_ORGANIZATION: {
+            const id = action.payload;
+            const filtered = state.orgs.filter(o => {
+                return o.id === parseInt(id);
+            });
+            return {
+                ...state,
+                org: filtered[0]
+            }
         }
 
         default:

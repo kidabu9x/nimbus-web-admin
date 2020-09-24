@@ -5,10 +5,12 @@ import {
 import {
     FILTER_ORGANIZATIONS_REQUESTING,
     FILTER_ORGANIZATIONS_ERROR,
-    FILTER_ORGANIZATIONS_SUCCESS
+    FILTER_ORGANIZATIONS_SUCCESS,
+    SET_CURRENT_ORGANIZATION,
+    SET_CURRENT_ORGANIZATION_REQUEST
 } from "./constants";
 
-function* filterOrgsFollow() {
+function* filterOrgsFlow() {
     try {
         const response = yield call(filterOrgs);
         const orgs = response.data.data;
@@ -25,8 +27,17 @@ function* filterOrgsFollow() {
     }
 }
 
+function* setOrgFlow(action) {
+    const id = action.payload;
+    yield put({
+        type: SET_CURRENT_ORGANIZATION,
+        payload: id
+    });
+}
+
 function* watcher() {
-    yield takeLatest(FILTER_ORGANIZATIONS_REQUESTING, filterOrgsFollow);
+    yield takeLatest(FILTER_ORGANIZATIONS_REQUESTING, filterOrgsFlow);
+    yield takeLatest(SET_CURRENT_ORGANIZATION_REQUEST, setOrgFlow);
 }
 
 export default watcher;

@@ -15,8 +15,6 @@ const { BASE_URL } = process.env;
 function setupAxios(axios, store) {
   axios.interceptors.request.use(
     (config) => {
-      // document.body.classList.add('loading-indicator');
-
       const {
         auth: { token },
       } = store.getState();
@@ -32,7 +30,6 @@ function setupAxios(axios, store) {
 
   axios.interceptors.response.use(
     (response) => {
-      // document.body.classList.remove('loading-indicator');
       return response;
     },
     (err) => Promise.reject(err)

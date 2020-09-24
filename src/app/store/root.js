@@ -9,6 +9,8 @@ import categoriesReducer from "./categories/reducer";
 //cms
 import orgReducer from "./cms/org/reducer";
 import orgSaga from "./cms/org/sagas";
+import courseReducer from "./cms/course/reducer";
+import courseSaga from "./cms/course/sagas";
 
 import authSagas from "./auth/sagas";
 import blogsSagas from "./blogs/sagas";
@@ -17,7 +19,8 @@ import categoriesSagas from "./categories/sagas";
 
 
 const cms = combineReducers({
-  org: orgReducer
+  org: orgReducer,
+  course: courseReducer
 });
 
 export const rootReducer = combineReducers({
@@ -35,6 +38,7 @@ export function* rootSaga() {
     categoriesSagas(),
     blogSagas(),
 
-    orgSaga()
+    orgSaga(),
+    courseSaga()
   ])
 }

@@ -1,6 +1,6 @@
 const buildCmsCourseLink = (orgId) => {
   if (orgId == null) {
-    orgId = ":id";
+    orgId = ":orgId";
   }
   return "/org/" + orgId + "/course";
 }
