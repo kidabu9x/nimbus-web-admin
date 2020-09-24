@@ -16,3 +16,22 @@ export function filterCourses(
         }
     });
 }
+
+export function createCourse(
+    { name = null, orgId = null } = {}
+) {
+    if (name == null || orgId == null) {
+        return;
+    }
+    return axios.post(`${BASE_URL}`, {
+        name,
+        org_id: orgId
+    });
+}
+
+
+// return new Promise((resolve, reject) => {
+//     setTimeout(() => {
+//         resolve();
+//     }, 5000);
+// });
