@@ -1,6 +1,7 @@
 import {
     CREATE_COURSE_REQUEST,
-    FILTER_COURSES_REQUEST
+    FILTER_COURSES_REQUEST,
+    GET_COURSE_REQUEST
 } from "./constants";
 
 export const filterCourses = (filterObj) => ({
@@ -11,4 +12,9 @@ export const filterCourses = (filterObj) => ({
 export const createCourse = (request) => ({
     type: CREATE_COURSE_REQUEST,
     payload: request
-})
+});
+
+export const getCourse = (id) => ({
+    type: GET_COURSE_REQUEST,
+    payload: id
+});

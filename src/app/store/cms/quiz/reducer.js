@@ -1,19 +1,19 @@
 import {
-    FILTER_COURSES_REQUESTING,
-    FILTER_COURSES_ERROR,
-    FILTER_COURSES_SUCCESS,
+    FILTER_QUIZZES_REQUESTING,
+    FILTER_QUIZZES_ERROR,
+    FILTER_QUIZZES_SUCCESS,
 
-    CREATE_COURSE_REQUESTING,
-    CREATE_COURSE_SUCCESS,
-    CREATE_COURSE_ERROR,
+    CREATE_QUIZ_REQUESTING,
+    CREATE_QUIZ_SUCCESS,
+    CREATE_QUIZ_ERROR,
 
-    GET_COURSE_REQUESTING,
-    GET_COURSE_SUCCESS,
-    GET_COURSE_ERROR
+    GET_QUIZ_REQUESTING,
+    GET_QUIZ_SUCCESS,
+    GET_QUIZ_ERROR
 } from "./constants";
 
 const blogs = {
-    courses: [],
+    quizzes: [],
     filtering: false,
     page: 0,
     size: 20,
@@ -23,50 +23,50 @@ const blogs = {
     createSuccess: 0,
     createError: 0,
 
-    course: null,
+    quiz: null,
     getting: false
 }
 
 export default (state = blogs, action) => {
     switch (action.type) {
-        case FILTER_COURSES_REQUESTING: {
+        case FILTER_QUIZZES_REQUESTING: {
             return {
                 ...state,
                 filtering: true
             };
         }
 
-        case FILTER_COURSES_SUCCESS: {
-            const { courses, size, page, total } = action.payload;
+        case FILTER_QUIZZES_SUCCESS: {
+            const { quizzes, size, page, total } = action.payload;
             return {
                 ...state,
                 filtering: false,
-                courses,
+                quizzes,
                 page,
                 size,
                 total
             };
         }
 
-        case FILTER_COURSES_ERROR: {
+        case FILTER_QUIZZES_ERROR: {
             return {
                 ...state,
                 filtering: false,
-                courses: [],
+                quizzes: [],
                 page: 0,
                 size: 20,
                 total: 0
             };
         }
 
-        case CREATE_COURSE_REQUESTING: {
+        case CREATE_QUIZ_REQUESTING: {
             return {
                 ...state,
                 creating: true
             };
         }
 
-        case CREATE_COURSE_SUCCESS: {
+        case CREATE_QUIZ_SUCCESS: {
             return {
                 ...state,
                 creating: false,
@@ -74,7 +74,7 @@ export default (state = blogs, action) => {
             };
         }
 
-        case CREATE_COURSE_ERROR: {
+        case CREATE_QUIZ_ERROR: {
             return {
                 ...state,
                 creating: false,
@@ -82,28 +82,28 @@ export default (state = blogs, action) => {
             };
         }
 
-        case GET_COURSE_REQUESTING: {
+        case GET_QUIZ_REQUESTING: {
             return {
                 ...state,
                 getting: true,
-                course: null
+                quiz: null
             }
         }
 
-        case GET_COURSE_SUCCESS: {
-            const course = action.payload;
+        case GET_QUIZ_SUCCESS: {
+            const quiz = action.payload;
             return {
                 ...state,
                 getting: false,
-                course
+                quiz
             }
         }
 
-        case GET_COURSE_ERROR: {
+        case GET_QUIZ_ERROR: {
             return {
                 ...state,
                 getting: false,
-                course: null
+                quiz: null
             }
         }
 

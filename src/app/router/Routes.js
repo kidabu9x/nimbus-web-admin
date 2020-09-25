@@ -5,6 +5,20 @@ const buildCmsCourseLink = (orgId) => {
   return "/org/" + orgId + "/course";
 }
 
+const buildCmsQuizLink = (orgId, courseId) => {
+  if (courseId == null) {
+    courseId = ":courseId";
+  }
+  return buildCmsCourseLink(orgId) + "/" + courseId + "/quiz";
+}
+
+const buildCmsQuestionLink = (orgId, courseId, quizId) => {
+  if (quizId == null) {
+    quizId = ":quizId";
+  }
+  return buildCmsQuizLink(orgId, courseId) + "/" + quizId + "/question";
+};
+
 export const ROUTES = {
   dashboard: "/",
   blogs: "/blogs",
@@ -16,7 +30,9 @@ export const ROUTES = {
   logout: "/logout",
   cms: {
     org: "/org",
-    course: buildCmsCourseLink
+    course: buildCmsCourseLink,
+    quiz: buildCmsQuizLink,
+    question: buildCmsQuestionLink
   }
 };
 

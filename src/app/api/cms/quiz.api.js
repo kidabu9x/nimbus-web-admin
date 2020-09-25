@@ -1,13 +1,14 @@
 import axios from "axios";
 import config from "../../config/apiConfig";
 
-export const BASE_URL = config.domain.courseService + "/cms/course";
+export const BASE_URL = config.domain.courseService + "/cms/quiz";
 
-export function filterCourses(
-    { page = 0, size = 20, orgIds = [], name = null } = {}
+export function filterQuizzes(
+    { page = 0, size = 20, orgIds = [], courseIds = [], name = null } = {}
 ) {
     return axios.post(`${BASE_URL}/filter`, {
         org_ids: orgIds,
+        course_ids: courseIds,
         name
     }, {
         params: {
@@ -17,19 +18,20 @@ export function filterCourses(
     });
 }
 
-export function createCourse(
-    { name = null, orgId = null } = {}
+export function createQuiz(
+    { name = null, orgId = null, courseId = null } = {}
 ) {
-    if (name == null || orgId == null) {
+    if (name == null || orgId == null || courseId == null) {
         return;
     }
     return axios.post(`${BASE_URL}`, {
         name,
-        org_id: orgId
+        org_id: orgId,
+        course_id: courseId
     });
 }
 
-export function getCourse(
+export function getQuiz(
     id
 ) {
     if (id == null) {
