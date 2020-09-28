@@ -1,39 +1,39 @@
 import { put, call, takeLatest, select } from "redux-saga/effects";
 import {
-    createCourse,
-    filterCourses,
-    getCourse
-} from "../../../api/cms/course.api";
+    filterQuizzes,
+    createQuiz,
+    getQuiz
+} from "../../../api/cms/quiz.api";
 import {
-    FILTER_COURSES_REQUEST,
-    FILTER_COURSES_REQUESTING,
-    FILTER_COURSES_ERROR,
-    FILTER_COURSES_SUCCESS,
+    FILTER_QUIZZES_REQUEST,
+    FILTER_QUIZZES_REQUESTING,
+    FILTER_QUIZZES_ERROR,
+    FILTER_QUIZZES_SUCCESS,
 
-    CREATE_COURSE_REQUEST,
-    CREATE_COURSE_REQUESTING,
-    CREATE_COURSE_SUCCESS,
-    CREATE_COURSE_ERROR,
+    CREATE_QUIZ_REQUEST,
+    CREATE_QUIZ_REQUESTING,
+    CREATE_QUIZ_SUCCESS,
+    CREATE_QUIZ_ERROR,
 
-    GET_COURSE_REQUEST,
-    GET_COURSE_REQUESTING,
-    GET_COURSE_SUCCESS,
-    GET_COURSE_ERROR
+    GET_QUIZ_REQUEST,
+    GET_QUIZ_REQUESTING,
+    GET_QUIZ_SUCCESS,
+    GET_QUIZ_ERROR
 } from "./constants";
 
-function* filterCoursesFollow(action) {
+function* filterQuizzesFlow(action) {
     try {
         yield put({
-            type: FILTER_COURSES_REQUESTING
+            type: FILTER_QUIZZES_REQUESTING
         });
         const filterObj = action.payload;
-        const response = yield call(filterCourses, filterObj);
-        const courses = response.data.data;
+        const response = yield call(filterQuizzes, filterObj);
+        const quizzes = response.data.data;
         const { page, size, total } = response.data.meta;
         yield put({
-            type: FILTER_COURSES_SUCCESS,
+            type: FILTER_QUIZZES_SUCCESS,
             payload: {
-                courses,
+                quizzes,
                 page,
                 size,
                 total
@@ -41,57 +41,57 @@ function* filterCoursesFollow(action) {
         });
     } catch (error) {
         yield put({
-            type: FILTER_COURSES_ERROR
+            type: FILTER_QUIZZES_ERROR
         });
     }
 }
 
-function* createCourseFollow(action) {
+function* createQuizFlow(action) {
     try {
         yield put({
-            type: CREATE_COURSE_REQUESTING
+            type: CREATE_QUIZ_REQUESTING
         });
         const request = action.payload;
-        yield call(createCourse, request);
+        yield call(createQuiz, request);
         yield put({
-            type: CREATE_COURSE_SUCCESS
+            type: CREATE_QUIZ_SUCCESS
         });
     } catch (error) {
         yield put({
-            type: CREATE_COURSE_ERROR
+            type: CREATE_QUIZ_ERROR
         });
     }
 }
 
-function* getCourseFolow(action) {
+function* getQuizFlow(action) {
     try {
         yield put({
-            type: GET_COURSE_REQUESTING
+            type: GET_QUIZ_REQUESTING
         });
-        const courses = yield select(state => {
-            return state.cms.course.courses;
+        const quizzes = yield select(state => {
+            return state.cms.quiz.quizzes;
         });
         const id = action.payload;
-        let course = courses.filter(c => c.id === parseInt(id))[0];
-        if (!course) {
-            const response = yield call(getCourse, id);
-            course = response.data.data;
+        let quiz = quizzes.filter(c => c.id === parseInt(id))[0];
+        if (!quiz) {
+            const response = yield call(getQuiz, id);
+            quiz = response.data.data;
         }
         yield put({
-            type: GET_COURSE_SUCCESS,
-            payload: course
+            type: GET_QUIZ_SUCCESS,
+            payload: quiz
         });
     } catch (error) {
         yield put({
-            type: GET_COURSE_ERROR
+            type: GET_QUIZ_ERROR
         });
     }
 }
 
 function* watcher() {
-    yield takeLatest(FILTER_COURSES_REQUEST, filterCoursesFollow);
-    yield takeLatest(CREATE_COURSE_REQUEST, createCourseFollow);
-    yield takeLatest(GET_COURSE_REQUEST, getCourseFolow);
+    yield takeLatest(FILTER_QUIZZES_REQUEST, filterQuizzesFlow);
+    yield takeLatest(CREATE_QUIZ_REQUEST, createQuizFlow);
+    yield takeLatest(GET_QUIZ_REQUEST, getQuizFlow);
 }
 
 export default watcher;

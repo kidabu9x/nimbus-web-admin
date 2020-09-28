@@ -19,15 +19,14 @@ export function filterQuizzes(
 }
 
 export function createQuiz(
-    { name = null, orgId = null, courseId = null } = {}
+    { name = null, courseId = null } = {}
 ) {
-    if (name == null || orgId == null || courseId == null) {
+    if (name == null || courseId == null) {
         return;
     }
     return axios.post(`${BASE_URL}`, {
         name,
-        org_id: orgId,
-        course_id: courseId
+        courseId: courseId
     });
 }
 

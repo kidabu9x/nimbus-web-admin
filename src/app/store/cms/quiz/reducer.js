@@ -12,7 +12,7 @@ import {
     GET_QUIZ_ERROR
 } from "./constants";
 
-const blogs = {
+const initState = {
     quizzes: [],
     filtering: false,
     page: 0,
@@ -27,7 +27,7 @@ const blogs = {
     getting: false
 }
 
-export default (state = blogs, action) => {
+export default (state = initState, action) => {
     switch (action.type) {
         case FILTER_QUIZZES_REQUESTING: {
             return {

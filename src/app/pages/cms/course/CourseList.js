@@ -33,7 +33,7 @@ const courseStyles = makeStyles(theme => ({
         minHeight: "50px",
         textDecoration: "none"
     }
-}))
+}));
 
 const CourseList = () => {
     const { org, courses, filtering, creating, createSuccess } = useSelector(({ cms }) => ({
@@ -106,7 +106,7 @@ const CourseList = () => {
         <>
             <Container>
                 <Box display="flex" justifyContent="space-between" marginBottom={2}>
-                    <Typography variant="h5" gutterBottom>
+                    <Typography variant="h5">
                         Danh sách khóa học
                     </Typography>
                     <Button
