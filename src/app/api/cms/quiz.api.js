@@ -26,7 +26,7 @@ export function createQuiz(
     }
     return axios.post(`${BASE_URL}`, {
         name,
-        courseId: courseId
+        course_id: courseId
     });
 }
 

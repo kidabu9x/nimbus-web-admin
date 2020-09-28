@@ -78,7 +78,9 @@ export default function QuizList() {
     useEffect(() => {
         if (createSuccess > 0) {
             setNewName('');
-            toggleIsCreate();
+            if (isCreate) {
+                toggleIsCreate();
+            }
         }
     }, [createSuccess]);
 
