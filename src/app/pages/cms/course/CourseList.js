@@ -91,11 +91,18 @@ const CourseList = () => {
     useEffect(() => {
         if (createSuccess > 0) {
             setNewName('');
-            toggleIsCreate();
+            if (isCreate) {
+                toggleIsCreate();
+            }
         }
     }, [createSuccess]);
 
-    const onCreate = () => {
+    const onSubmit = (event) => {
+        event.preventDefault();
+        if (creating || !newName) {
+            return;
+        }
+
         dispatch(createCourse({
             name: newName,
             orgId: org.id
@@ -141,34 +148,37 @@ const CourseList = () => {
             <Dialog open={isCreate} onClose={toggleIsCreate} disableBackdropClick={creating} aria-labelledby="create-new-course">
                 {creating ? <LinearProgress /> : null}
                 <DialogTitle id="create-new-course">Tạo khóa học</DialogTitle>
-                <DialogContent>
-                    <DialogContentText>
-                        Tạo khóa học mới đơn giản bằng cách nhập tên khóa học mà bạn muốn
+                <form onSubmit={onSubmit}>
+                    <DialogContent>
+                        <DialogContentText>
+                            Tạo khóa học mới đơn giản bằng cách nhập tên khóa học mà bạn muốn
                     </DialogContentText>
-                    <TextField
-                        autoFocus
-                        margin="dense"
-                        id="name"
-                        placeholder="Ví dụ: MOS 2016"
-                        inputProps={{ maxLength: 70 }}
-                        fullWidth
-                        value={newName}
-                        onChange={handleNewName}
-                        disabled={creating}
-                    />
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={toggleIsCreate} disabled={creating}>
-                        Hủy
-                    </Button>
-                    <Button
-                        onClick={onCreate}
-                        color="primary"
-                        disabled={creating || !newName}
-                    >
-                        Lưu
-                    </Button>
-                </DialogActions>
+                        <TextField
+                            autoFocus
+                            margin="dense"
+                            id="name"
+                            placeholder="Ví dụ: MOS 2016"
+                            inputProps={{ maxLength: 70 }}
+                            fullWidth
+                            value={newName}
+                            onChange={handleNewName}
+                            disabled={creating}
+                        />
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={toggleIsCreate} disabled={creating}>
+                            Hủy
+                        </Button>
+                        <Button
+                            type="submit"
+                            color="primary"
+                            disabled={creating || !newName}
+                        >
+                            Lưu
+                        </Button>
+                    </DialogActions>
+                </form>
+
             </Dialog>
         </>
     )
