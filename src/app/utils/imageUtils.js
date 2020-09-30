@@ -1,8 +1,8 @@
 export const handleFileUploadRequest = (event) => {
-    var fileLoader = event.data.fileLoader,
-        formData = new FormData(),
-        xhr = fileLoader.xhr;
     if (fileLoader.total < 2048000) {
+        var fileLoader = event.data.fileLoader,
+            formData = new FormData(),
+            xhr = fileLoader.xhr;
         xhr.open("POST", fileLoader.uploadUrl, true);
         formData.append("file", fileLoader.file, fileLoader.fileName);
         fileLoader.xhr.send(formData);

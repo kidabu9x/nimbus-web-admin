@@ -6,7 +6,8 @@ import {
     Container,
     Typography,
     Button,
-    Divider
+    Divider,
+    TextField
 } from "@material-ui/core";
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
 import {
@@ -21,9 +22,10 @@ import {
 
 import { Link, useParams } from "react-router-dom";
 import { ROUTES } from "../../../router/Routes";
+import { useForm, Controller } from "react-hook-form";
 
 const QuestionList = () => {
-    const { org, course, courseGetting, quiz, quizGetting, filtering, questions } = useSelector(({ cms }) => ({
+    const { org, course, courseGetting, quiz, quizGetting, filtering } = useSelector(({ cms }) => ({
         org: cms.org.org,
 
         course: cms.course.course,
@@ -39,6 +41,7 @@ const QuestionList = () => {
     const [page] = useState(0);
     const [size] = useState(50);
     const [content] = useState('');
+    const { control, handleSubmit } = useForm();
 
     orgId = parseInt(orgId);
     courseId = parseInt(courseId);
@@ -95,7 +98,11 @@ const QuestionList = () => {
 
     }
 
-    return <Container maxWidth="sm">
+    const onSubmit = data => {
+        console.log(data);
+    }
+
+    return <Container>
 
         <Link style={{ opacity: ".5" }} to={ROUTES.cms.quiz(orgId, courseId, quizId)}>
             <Button style={{ textTransform: "none" }} startIcon={<ArrowBackIosIcon />}>Bài trắc nghiệm</Button>
@@ -117,10 +124,23 @@ const QuestionList = () => {
         </Box>
         <Divider />
 
-        <Box marginTop={2}>
-            {filtering ? <Box display="flex" flexDirection="column" alignItems="center">
-                <CircularProgress />
-            </Box> : null}
+        <Box display="flex" flexDirection="column" alignItems="center" marginTop={2}>
+            {
+                filtering ?
+                    <CircularProgress />
+                    :
+                    <>
+                        <form onSubmit={handleSubmit(onSubmit)}>
+                            <Controller
+                                as={TextField}
+                                name="content"
+                                control={control}
+                                defaultValue=""
+                            />
+                            <input type="submit" />
+                        </form>
+                    </>
+            }
         </Box>
     </Container>
 }

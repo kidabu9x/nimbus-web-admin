@@ -3,24 +3,25 @@ import { uploadImageBasic } from "../../../api/image.api";
 import { useDispatch, useSelector, shallowEqual } from "react-redux";
 import { useParams, useHistory } from "react-router-dom";
 import { useSnackbar } from 'notistack';
+import { useForm, Controller } from 'react-hook-form';
 import {
   Card,
   CardContent,
   Typography,
-  Input,
   Button,
   Switch,
   TextField,
   Grid,
-  Container
+  Container,
+  Divider,
+  Box
 } from "@material-ui/core";
 import Autocomplete from "@material-ui/lab/Autocomplete";
-import SaveIcon from "@material-ui/icons/Save";
 import ClearIcon from "@material-ui/icons/Clear";
-import DeleteIcon from "@material-ui/icons/Delete";
 import ArrowBackIosIcon from "@material-ui/icons/ArrowBackIos";
 import useStyles from "./styles";
-import CKEditor from "ckeditor4-react";
+import CKEditor from '@ckeditor/ckeditor5-react';
+import EditorTheme from '@ckeditor/ckeditor5-build-classic';
 import ChipInput from "material-ui-chip-input";
 import { remove, keyBy, filter } from "lodash";
 
@@ -50,9 +51,8 @@ import {
   handleFileUploadRequest,
   handleFileUploadResponse,
 } from "../../../utils/imageUtils";
-import config from "../../../config/apiConfig";
+import CustomUploadAdapterPlugin from "../../../plugin/CustomUploadAdapterPlugin";
 
-const imageService = config.domain.imageService;
 
 const BlogEdit = () => {
   const { id } = useParams();
@@ -82,6 +82,9 @@ const BlogEdit = () => {
   const [blog, setBlog] = useState(null);
   const [thumbUrl, setThumbUrl] = useState(null);
   const [openModalDelete, setOpenModalDelete] = useState(false);
+
+  const { register, handleSubmit, control } = useForm();
+
 
   useEffect(() => {
     disptach(resetMessage());
@@ -193,7 +196,6 @@ const BlogEdit = () => {
     let lookup = keyBy(arrDif, (o) => {
       return o.id ? o.id.toString() : "" + o.title;
     });
-    // find all users where "user + age" exists in index, one loop, quick lookup. no nested loops
     let result = filter(arr, (u) => {
       return lookup[u.id ? u.id.toString() : "" + u.title] === undefined;
     });
@@ -233,6 +235,10 @@ const BlogEdit = () => {
     }
   };
 
+  const onFormSubmit = (data) => {
+    console.log(data);
+  }
+
   return (
     <Container>
       <Button
@@ -243,251 +249,256 @@ const BlogEdit = () => {
       >
         Blogs
       </Button>
-      <div className={`${classes.rowHeader}`}>
-        <Typography variant="h4">
+
+      <Box marginTop={1} marginBottom={2}>
+        <Typography variant="h5">
           {id !== BLOG.QUERY_NEW ? "Chỉnh sửa" : "Tạo mới"}
         </Typography>
-        <Button
-          variant="contained"
-          color="primary"
-          className={classes.btnHeader}
-          startIcon={<SaveIcon />}
-          onClick={onSubmit}
-          disableElevation
-          disabled={requesting}
-        >
-          Lưu
-        </Button>
-      </div>
-      <Grid container spacing={3}>
-        {blog && (
-          <>
-            <Grid item xs={9}>
-              <Card>
-                <CardContent>
-                  <Typography className={classes.cardTitle}>
-                    Tiêu đề
-                  </Typography>
-                  <Input
-                    className={classes.inputFullWidth}
-                    value={blog.title}
-                    onChange={onTitleChange}
-                    placeholder="Nhập tiêu đề..."
-                    disabled={requesting}
-                  />
-                </CardContent>
-                <CardContent>
-                  <Typography className={classes.cardTitle}>
-                    Mô tả
-                  </Typography>
-                  <Input
-                    className={classes.inputFullWidth}
-                    value={blog.description}
-                    onChange={onDescChange}
-                    multiline
-                    placeholder="Nhập mô tả..."
-                    disabled={requesting}
-                  />
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent>
-                  <div className={`${classes.rowBody}`}>
-                    <Typography className={classes.cardTitle}>
-                      Nội dung
-                    </Typography>
-                  </div>
-                  {blog.contents.map((content, index) => (
-                    <CKEditor
-                      key={index}
-                      data={content.content}
-                      config={{
-                        language: "vi",
-                        height: "40em",
-                        filebrowserUploadUrl:
-                          `${imageService}/v1/upload`,
-                        uploadUrl:
-                          `${imageService}/v1/upload`,
-                      }}
-                      onFileUploadRequest={(event) => {
-                        handleFileUploadRequest(event);
-                      }}
-                      onFileUploadResponse={(evt) => {
-                        const url = handleFileUploadResponse(evt);
-                        thumbUrl === null && setThumbUrl(url);
-                      }}
-                      onChange={(event) => {
-                        const data = event.editor.getData();
-                        onContentChange(index, content, data);
-                      }}
-                      onBlur={(event, editor) => { }}
-                      onFocus={(event, editor) => { }}
-                    />
-                  ))}
-                </CardContent>
-              </Card>
-            </Grid>
-            <Grid item xs={3}>
-              <UiCard>
-                <UiCardHeader title="Tổ chức"></UiCardHeader>
-                <UiCardContent className={`row ${classes.statusContainer}`}>
-                  <Typography className={classes.cardTitle}>
-                    Trạng thái
-                  </Typography>
-                  <Switch
-                    checked={blog.status !== BLOG_STATUS.DISABLED}
-                    color="primary"
-                    inputProps={{ "aria-label": "primary checkbox" }}
-                    onChange={() => {
-                      onChangeStatus(
-                        blog.status !== BLOG_STATUS.DISABLED
-                          ? BLOG_STATUS.DISABLED
-                          : BLOG_STATUS.PUBLISHED
-                      );
-                    }}
-                    disabled={requesting}
-                  />
-                </UiCardContent>
-                <UiCardContent>
-                  <Typography className={classes.cardTitle}>
-                    Danh mục
-                  </Typography>
-                  <Autocomplete
-                    id="combo-box-demo"
-                    options={filterCategoriesByArray(
-                      categories,
-                      blog.categories
-                    )}
-                    getOptionLabel={(category) => category.title}
-                    onChange={(event, value) => {
-                      onChooseCategory(value);
-                    }}
-                    value={null}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        label="Chọn danh mục"
-                        className={classes.categoriesContainer}
-                        variant="outlined"
+      </Box>
+
+      <Divider />
+      <form onSubmit={handleSubmit(onFormSubmit)}>
+        <Box marginTop={2} marginBottom={2}>
+          <Grid container spacing={2}>
+            {blog && (
+              <>
+                <Grid item xs={8}>
+                  <Card>
+                    <CardContent>
+                      <Typography >
+                        Tiêu đề
+                      </Typography>
+                      <Controller
+                        as={<TextField fullWidth placeholder="Nhập tiêu đề..." disabled={requesting} />}
+                        name="title"
+                        control={control}
+                        defaultValue=""
                       />
-                    )}
-                    disabled={requesting}
-                  />
-                  {blog.categories.map((category, index) => (
-                    <div key={index} className={classes.categoryTag}>
-                      <Typography>{category.title}</Typography>
-                      <Button
-                        color="primary"
-                        size="small"
-                        className={classes.categoryTagBtn}
-                        onClick={() => {
-                          onDeleteCategory(category, index);
-                        }}
+                      {/* <TextField
+                        fullWidth
+                        value={blog.title}
+                        onChange={onTitleChange}
+                        placeholder="Nhập tiêu đề..."
                         disabled={requesting}
-                      >
-                        <ClearIcon />
-                      </Button>
-                    </div>
-                  ))}
-                </UiCardContent>
-                <UiCardContent>
-                  <Typography className={classes.cardTitle}>
-                    Gắn thẻ
+                      /> */}
+                    </CardContent>
+                    <CardContent>
+                      <Typography>
+                        Mô tả
                   </Typography>
-                  <ChipInput
-                    className={classes.inputFullWidth}
-                    variant="outlined"
-                    value={blog.tags}
-                    onAdd={(chip) => {
-                      handleAddChip(chip);
-                    }}
-                    onDelete={(chip, index) => handleDeleteChip(chip, index)}
-                    disabled={requesting}
-                  />
-                </UiCardContent>
-              </UiCard>
-              <UiCard>
-                <UiCardHeader
-                  title="Thumbnail"
-                  actionComponent="label"
-                  action={
-                    <>
-                      Tải ảnh lên
-                      <input
-                        type="file"
-                        style={{ display: "none" }}
-                        onChange={handleChangeImage}
+                      <TextField
+                        fullWidth
+                        value={blog.description}
+                        onChange={onDescChange}
+                        multiline
+                        placeholder="Nhập mô tả..."
+                        disabled={requesting}
                       />
-                    </>
-                  }
-                ></UiCardHeader>
-                <UiCardContent>
-                  {thumbUrl !== null && (
-                    <img
-                      className={classes.thumbnail}
-                      src={thumbUrl}
-                      alt="thumb"
-                    />
-                  )}
-                </UiCardContent>
-              </UiCard>
-              <UiCard>
-                <UiCardHeader title="Thông tin khác"></UiCardHeader>
-                <UiCardContent>
-                  <TextField
-                    className={classes.inputFullWidth}
-                    label="Facebook Pixel ID"
-                    variant="outlined"
-                    value={blog.extra_data[BLOG_EXTRA_DATA.FB_PIXEL_ID]}
-                    onChange={onFBPixelIdChange}
-                    disabled={requesting}
-                  />
-                </UiCardContent>
-                <UiCardContent>
-                  <TextField
-                    className={classes.inputFullWidth}
-                    label="Google Analytics ID"
-                    variant="outlined"
-                    onChange={onGAIdChange}
-                    value={blog.extra_data[BLOG_EXTRA_DATA.GOOGLE_ANALYTICS_ID]}
-                    disabled={requesting}
-                  />
-                </UiCardContent>
-              </UiCard>
-            </Grid>
-          </>
-        )}
-      </Grid>
-      <div className={`${classes.rowFootHeader}`}>
-        {id !== BLOG.QUERY_NEW ? (
-          <Button
-            variant="contained"
-            color="inherit"
-            className={`${classes.btnFooter}`}
-            startIcon={<DeleteIcon />}
-            onClick={onOpenDeleteBlog}
-            disableElevation
-            disabled={requesting}
-          >
-            Xóa
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent>
+                      <Typography variant="subtitle2" gutterBottom>
+                        Nội dung
+                    </Typography>
+                      {blog.contents.map((content, index) => (
+                        <CKEditor
+                          key={index}
+                          editor={EditorTheme}
+                          data={content.content}
+                          config={{
+                            language: "vi",
+                            toolbar: {
+                              viewportTopOffset: 64,
+                            },
+                            image: {
+                              upload: {
+                                types: ['png', 'jpeg']
+                              }
+                            },
+                            extraPlugins: [CustomUploadAdapterPlugin]
+                          }}
+                          onFileUploadRequest={(event) => {
+                            handleFileUploadRequest(event);
+                          }}
+                          onFileUploadResponse={(evt) => {
+                            const url = handleFileUploadResponse(evt);
+                            thumbUrl === null && setThumbUrl(url);
+                          }}
+                          onChange={(event, editor) => {
+                            const data = editor.getData();
+                            onContentChange(index, content, data);
+                          }}
+                        />
+                      ))}
+                    </CardContent>
+                  </Card>
+                </Grid>
+                <Grid item xs={4}>
+                  <UiCard>
+                    <UiCardHeader title="Tổ chức"></UiCardHeader>
+                    <UiCardContent>
+                      <Box display="flex" justifyContent="space-between" alignItems="center">
+                        <Typography variant="subtitle2" >
+                          Trạng thái
+                    </Typography>
+                        <Switch
+                          checked={blog.status !== BLOG_STATUS.DISABLED}
+                          color="primary"
+                          inputProps={{ "aria-label": "primary checkbox" }}
+                          onChange={() => {
+                            onChangeStatus(
+                              blog.status !== BLOG_STATUS.DISABLED
+                                ? BLOG_STATUS.DISABLED
+                                : BLOG_STATUS.PUBLISHED
+                            );
+                          }}
+                          disabled={requesting}
+                        />
+                      </Box>
+
+                    </UiCardContent>
+                    <UiCardContent>
+                      <Typography variant="subtitle2" gutterBottom>
+                        Danh mục
+                  </Typography>
+                      <Autocomplete
+                        id="combo-box-demo"
+                        options={filterCategoriesByArray(
+                          categories,
+                          blog.categories
+                        )}
+                        getOptionLabel={(category) => category.title}
+                        onChange={(event, value) => {
+                          onChooseCategory(value);
+                        }}
+                        value={null}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            label="Chọn danh mục"
+                            variant="outlined"
+                          />
+                        )}
+                        disabled={requesting}
+                      />
+                      {blog.categories.map((category, index) => (
+                        <div key={index} className={classes.categoryTag}>
+                          <Typography>{category.title}</Typography>
+                          <Button
+                            color="primary"
+                            size="small"
+                            className={classes.categoryTagBtn}
+                            onClick={() => {
+                              onDeleteCategory(category, index);
+                            }}
+                            disabled={requesting}
+                          >
+                            <ClearIcon />
+                          </Button>
+                        </div>
+                      ))}
+                    </UiCardContent>
+                    <UiCardContent>
+                      <Typography variant="subtitle2" gutterBottom>
+                        Gắn thẻ
+                  </Typography>
+                      <ChipInput
+                        variant="outlined"
+                        value={blog.tags}
+                        onAdd={(chip) => {
+                          handleAddChip(chip);
+                        }}
+                        onDelete={(chip, index) => handleDeleteChip(chip, index)}
+                        disabled={requesting}
+                      />
+                    </UiCardContent>
+                  </UiCard>
+                  <UiCard>
+                    <UiCardHeader
+                      title="Thumbnail"
+                      actionComponent="label"
+                      action={
+                        <>
+                          Tải ảnh lên
+                      <input
+                            type="file"
+                            style={{ display: "none" }}
+                            onChange={handleChangeImage}
+                          />
+                        </>
+                      }
+                    ></UiCardHeader>
+                    <UiCardContent>
+                      {thumbUrl !== null && (
+                        <img
+                          className={classes.thumbnail}
+                          src={thumbUrl}
+                          alt="thumb"
+                        />
+                      )}
+                    </UiCardContent>
+                  </UiCard>
+                  <UiCard>
+                    <UiCardHeader title="Thông tin khác"></UiCardHeader>
+                    <UiCardContent>
+                      <TextField
+                        fullWidth
+                        label="Facebook Pixel ID"
+                        variant="outlined"
+                        value={blog.extra_data[BLOG_EXTRA_DATA.FB_PIXEL_ID]}
+                        onChange={onFBPixelIdChange}
+                        disabled={requesting}
+                      />
+                    </UiCardContent>
+                    <UiCardContent>
+                      <TextField
+                        fullWidth
+                        label="Google Analytics ID"
+                        variant="outlined"
+                        onChange={onGAIdChange}
+                        value={blog.extra_data[BLOG_EXTRA_DATA.GOOGLE_ANALYTICS_ID]}
+                        disabled={requesting}
+                      />
+                    </UiCardContent>
+                  </UiCard>
+                </Grid>
+              </>
+            )}
+          </Grid>
+        </Box>
+
+        <Divider />
+
+        <Box display="flex" justifyContent="space-between" alignItems="center" marginTop={2}>
+          {id !== BLOG.QUERY_NEW ? (
+            <Button
+              variant="contained"
+              color="inherit"
+              onClick={onOpenDeleteBlog}
+              disableElevation
+              disabled={requesting}
+            >
+              Xóa
+            </Button>
+          ) : (
+              <div></div>
+            )}
+          <div>
+            <Button
+              size="large"
+              variant="contained"
+              color="primary"
+              type="submit"
+              disableElevation
+              disabled={requesting}
+            >
+              Lưu
           </Button>
-        ) : (
-            <div></div>
-          )}
-        <div>
-          <Button
-            variant="contained"
-            color="primary"
-            className={classes.btnHeader}
-            startIcon={<SaveIcon />}
-            onClick={onSubmit}
-            disableElevation
-            disabled={requesting}
-          >
-            Lưu
-          </Button>
-        </div>
-      </div>
+          </div>
+        </Box>
+      </form>
+
       <ConfirmDelete
         message="Bạn có chắc chắn muốn xóa blog này?"
         title="Xác nhận xóa"

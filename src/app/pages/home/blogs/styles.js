@@ -13,66 +13,11 @@ const useStyles = makeStyles((theme) => ({
   table: {
     minWidth: 650,
   },
-  cardTitle: {
-    color: "#646c9a",
-    fontSize: 17,
-    fontWeight: 500,
-  },
-  cardContainerLeft: {
-    marginBottom: 20,
-    marginRight: 10,
-  },
-  containerRight: {
-    marginBottom: 10,
-    width: "100%",
-  },
-  cardContainerRight: {
-    marginBottom: 10,
-  },
   actions: {
     display: "flex",
     float: "right",
   },
-  btnAdd: {
-    marginLeft: 12,
-  },
-  rowBody: {
-    marginBottom: 12,
-    alignItems: "center",
-    display: "flex",
-  },
-  rowHeader: {
-    margin: theme.spacing(2, 0),
-    alignItems: "center",
-    justifyContent: "space-between",
-    display: "flex",
-  },
-  rowFootHeader: {
-    margin: theme.spacing(2.5, 1.5, 0, 0),
-    alignItems: "center",
-    justifyContent: "space-between",
-    display: "flex",
-  },
-  btnHeader: {
-    marginLeft: 15,
-  },
-  btnFooter: {
-    marginLeft: 0,
-  },
-  inputFullWidth: {
-    width: "100%",
-  },
 
-  btnRemoveCKE: {
-    width: 40,
-    left: "95%",
-  },
-  ckeField: {
-    display: "flex",
-  },
-  categoriesContainer: {
-    width: "100%",
-  },
   categoryTag: {
     width: "100%",
     display: "flex",
@@ -94,30 +39,6 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     justifyContent: "space-between",
   },
-  searchIcon: {
-    padding: theme.spacing(0, 2),
-    height: "100%",
-    position: "absolute",
-    pointerEvents: "none",
-    display: "flex",
-    alignItems: "center",
-  },
-  inputRoot: {
-    color: "inherit",
-  },
-  inputInput: {
-    padding: theme.spacing(1, 1, 1, 0),
-    // vertical padding + font size from searchIcon
-    paddingLeft: `calc(1em + ${theme.spacing(4)}px)`,
-    transition: theme.transitions.create("width"),
-    width: "100%",
-    [theme.breakpoints.up("sm")]: {
-      width: "30ch",
-      "&:focus": {
-        width: "30ch",
-      },
-    },
-  },
   formSearchControl: {
     minWidth: 120,
     marginTop: 0,
@@ -134,9 +55,6 @@ const useStyles = makeStyles((theme) => ({
   },
   titleSearch: {
     paddingLeft: 15,
-  },
-  thumbnail: {
-    width: "100%",
   },
   search: {
     padding: '2px 4px',

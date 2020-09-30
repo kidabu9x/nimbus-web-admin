@@ -31,6 +31,8 @@
     ]
   },
   "dependencies": {
+    "@ckeditor/ckeditor5-build-classic": "^23.0.0",
+    "@ckeditor/ckeditor5-react": "^2.1.0",
     "@material-ui/core": "^4.9.14",
     "@material-ui/icons": "^4.9.1",
     "@material-ui/lab": "^4.0.0-alpha.53",
@@ -38,7 +40,6 @@
     "@material-ui/styles": "^4.9.14",
     "@tanem/svg-injector": "^8.0.35",
     "axios": "^0.19.0",
-    "ckeditor4-react": "^1.1.0",
     "dayjs": "^1.8.24",
     "lodash": "^4.17.15",
     "material-ui-chip-input": "^2.0.0-beta.2",
@@ -47,6 +48,7 @@
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
     "react-google-login": "^5.1.3",
+    "react-hook-form": "^6.8.6",
     "react-redux": "^7.1.3",
     "react-router-dom": "^5.1.2",
     "react-scripts": "3.2.0",
