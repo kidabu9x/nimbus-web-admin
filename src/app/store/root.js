@@ -11,9 +11,10 @@ import orgReducer from "./cms/org/reducer";
 import orgSaga from "./cms/org/sagas";
 import courseReducer from "./cms/course/reducer";
 import courseSaga from "./cms/course/sagas";
-
 import quizReducer from "./cms/quiz/reducer";
 import quizSaga from "./cms/quiz/sagas";
+import questionReducer from "./cms/question/reducer";
+import questionSaga from "./cms/question/sagas";
 
 import authSagas from "./auth/sagas";
 import blogsSagas from "./blogs/sagas";
@@ -24,7 +25,8 @@ import categoriesSagas from "./categories/sagas";
 const cms = combineReducers({
   org: orgReducer,
   course: courseReducer,
-  quiz: quizReducer
+  quiz: quizReducer,
+  question: questionReducer
 });
 
 export const rootReducer = combineReducers({
@@ -44,6 +46,7 @@ export function* rootSaga() {
 
     orgSaga(),
     courseSaga(),
-    quizSaga()
+    quizSaga(),
+    questionSaga()
   ])
 }

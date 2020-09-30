@@ -51,7 +51,7 @@ const CourseList = () => {
     const courseClasses = courseStyles();
 
     const [page] = useState(0);
-    const [size] = useState(30);
+    const [size] = useState(20);
     const [name] = useState(null);
 
     const [isCreate, setIsCreate] = useState(false);

@@ -65,14 +65,21 @@ function* createQuizFlow(action) {
 
 function* getQuizFlow(action) {
     try {
+        const id = parseInt(action.payload);
+        let quiz = yield select(state => {
+            return state.cms.quiz.quiz;
+        });
+        if (quiz != null && quiz.id === id) {
+            return;
+        }
         yield put({
             type: GET_QUIZ_REQUESTING
         });
         const quizzes = yield select(state => {
             return state.cms.quiz.quizzes;
         });
-        const id = action.payload;
-        let quiz = quizzes.filter(c => c.id === parseInt(id))[0];
+
+        quiz = quizzes.filter(c => c.id === id)[0];
         if (!quiz) {
             const response = yield call(getQuiz, id);
             quiz = response.data.data;

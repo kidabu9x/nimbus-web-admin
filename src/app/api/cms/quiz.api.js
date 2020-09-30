@@ -4,10 +4,9 @@ import config from "../../config/apiConfig";
 export const BASE_URL = config.domain.courseService + "/cms/quiz";
 
 export function filterQuizzes(
-    { page = 0, size = 20, orgIds = [], courseIds = [], name = null } = {}
+    { page = 0, size = 20, courseIds = [], name = null } = {}
 ) {
     return axios.post(`${BASE_URL}/filter`, {
-        org_ids: orgIds,
         course_ids: courseIds,
         name
     }, {

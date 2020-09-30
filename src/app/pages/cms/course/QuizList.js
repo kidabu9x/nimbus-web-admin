@@ -47,7 +47,8 @@ export default function QuizList() {
         creating: cms.quiz.creating,
         createSuccess: cms.quiz.createSuccess
     }));
-    const { courseId } = useParams();
+    let { courseId } = useParams();
+    courseId = parseInt(courseId);
     const dispatch = useDispatch();
 
     const [isCreate, setIsCreate] = useState(false);
@@ -63,17 +64,15 @@ export default function QuizList() {
     }, [courseId, dispatch]);
 
     useEffect(() => {
-        if (org != null && course != null) {
+        if (course != null && course.id === courseId) {
             dispatch(filterQuizzes({
                 page,
                 size,
                 name,
-                orgIds: [org.id],
                 courseIds: [course.id]
             }));
         }
-
-    }, [page, size, name, org, course, createSuccess, dispatch]);
+    }, [page, size, name, course, courseId, createSuccess, dispatch]);
 
     useEffect(() => {
         if (createSuccess > 0) {

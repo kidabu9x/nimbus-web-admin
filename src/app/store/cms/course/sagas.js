@@ -21,7 +21,7 @@ import {
     GET_COURSE_ERROR
 } from "./constants";
 
-function* filterCoursesFollow(action) {
+function* filterCoursesFlow(action) {
     try {
         yield put({
             type: FILTER_COURSES_REQUESTING
@@ -46,7 +46,7 @@ function* filterCoursesFollow(action) {
     }
 }
 
-function* createCourseFollow(action) {
+function* createCourseFlow(action) {
     try {
         yield put({
             type: CREATE_COURSE_REQUESTING
@@ -63,16 +63,22 @@ function* createCourseFollow(action) {
     }
 }
 
-function* getCourseFolow(action) {
+function* getCourseFlow(action) {
     try {
+        const id = parseInt(action.payload);
+        let course = yield select(state => {
+            return state.cms.course.course;
+        });
+        if (course != null && course.id === id) {
+            return;
+        }
         yield put({
             type: GET_COURSE_REQUESTING
         });
         const courses = yield select(state => {
             return state.cms.course.courses;
         });
-        const id = action.payload;
-        let course = courses.filter(c => c.id === parseInt(id))[0];
+        course = courses.filter(c => c.id === id)[0];
         if (!course) {
             const response = yield call(getCourse, id);
             course = response.data.data;
@@ -89,9 +95,9 @@ function* getCourseFolow(action) {
 }
 
 function* watcher() {
-    yield takeLatest(FILTER_COURSES_REQUEST, filterCoursesFollow);
-    yield takeLatest(CREATE_COURSE_REQUEST, createCourseFollow);
-    yield takeLatest(GET_COURSE_REQUEST, getCourseFolow);
+    yield takeLatest(FILTER_COURSES_REQUEST, filterCoursesFlow);
+    yield takeLatest(CREATE_COURSE_REQUEST, createCourseFlow);
+    yield takeLatest(GET_COURSE_REQUEST, getCourseFlow);
 }
 
 export default watcher;
