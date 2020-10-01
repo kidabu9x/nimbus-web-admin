@@ -3,7 +3,7 @@ import { uploadImageBasic } from "../../../api/image.api";
 import { useDispatch, useSelector, shallowEqual } from "react-redux";
 import { useParams, useHistory } from "react-router-dom";
 import { useSnackbar } from 'notistack';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import {
   Card,
   CardContent,
@@ -23,7 +23,7 @@ import useStyles from "./styles";
 import CKEditor from '@ckeditor/ckeditor5-react';
 import EditorTheme from '@ckeditor/ckeditor5-build-classic';
 import ChipInput from "material-ui-chip-input";
-import { remove, keyBy, filter } from "lodash";
+import { keyBy, filter } from "lodash";
 
 import { ROUTES } from "../../../router/Routes";
 import {
@@ -43,15 +43,12 @@ import UiCard from "../../../components/Ui/Card/Card";
 import UiCardHeader from "../../../components/Ui/Card/CardHeader";
 import UiCardContent from "../../../components/Ui/Card/CardContent";
 import {
-  BLOG_EXTRA_DATA,
   BLOG_STATUS,
   BLOG
 } from "../../../constants/blog";
-import {
-  handleFileUploadRequest,
-  handleFileUploadResponse,
-} from "../../../utils/imageUtils";
 import CustomUploadAdapterPlugin from "../../../plugin/CustomUploadAdapterPlugin";
+
+const THUMBNAIL = "thumbnail";
 
 
 const BlogEdit = () => {
@@ -80,11 +77,20 @@ const BlogEdit = () => {
   );
   const [initialized, setInitialized] = useState(false);
   const [blog, setBlog] = useState(null);
-  const [thumbUrl, setThumbUrl] = useState(null);
   const [openModalDelete, setOpenModalDelete] = useState(false);
 
-  const { register, handleSubmit, control } = useForm();
+  const { handleSubmit, control, setValue, getValues, watch } = useForm();
+  const categoriesField = useFieldArray({
+    control,
+    name: "categories"
+  });
 
+  const tagsField = useFieldArray({
+    control,
+    name: "tags"
+  });
+
+  const thumbnailWatch = watch(THUMBNAIL);
 
   useEffect(() => {
     disptach(resetMessage());
@@ -100,12 +106,6 @@ const BlogEdit = () => {
   useEffect(() => {
     setBlog(initBlog);
   }, [initBlog]);
-
-  useEffect(() => {
-    if (blog !== null) {
-      setThumbUrl(blog.thumbnail);
-    }
-  }, [blog]);
 
   useEffect(() => {
     if (initialized) {
@@ -129,45 +129,21 @@ const BlogEdit = () => {
     }
   }, [enqueueSnackbar, errorMessage, initialized]);
 
-  const handleAddChip = (chip) => {
-    let newTags = blog.tags;
-    newTags[newTags.length] = chip;
-    setBlog({ ...blog, tags: newTags });
-  };
-
-  const handleDeleteChip = (chip) => {
-    let newTags = blog.tags;
-    newTags = remove(newTags, (tag) => tag !== chip);
-    setBlog({ ...blog, tags: newTags });
-  };
-
-  const onChangeStatus = (value) => {
-    setBlog({ ...blog, status: value });
-  };
-
-  const onSubmit = () => {
-    if (id !== BLOG.QUERY_NEW) {
-      disptach(updateBlog({
-        id,
-        blog
-      }));
-    } else {
-      disptach(createBlog(blog));
-    }
-  };
+  // const onSubmit = () => {
+  //   if (id !== BLOG.QUERY_NEW) {
+  //     disptach(updateBlog({
+  //       id,
+  //       blog
+  //     }));
+  //   } else {
+  //     disptach(createBlog(blog));
+  //   }
+  // };
 
   const onDelete = () => {
     disptach(deleteBlog({
       id: blog.id
     }));
-  };
-
-  const onTitleChange = (event) => {
-    setBlog({ ...blog, title: event.target.value });
-  };
-
-  const onDescChange = (event) => {
-    setBlog({ ...blog, description: event.target.value });
   };
 
   const onContentChange = (index, content, data) => {
@@ -176,20 +152,6 @@ const BlogEdit = () => {
     newContent = { ...content, content: data, type: "HTML" };
     newContents[index] = newContent;
     setBlog({ ...blog, contents: newContents });
-  };
-
-  const onChooseCategory = (category) => {
-    let newCategories = blog.categories;
-    newCategories[newCategories.length] = category;
-    setBlog({ ...blog, categories: newCategories });
-  };
-
-  const onDeleteCategory = (category, index) => {
-    let newCategories = blog.categories;
-    newCategories = newCategories
-      .slice(0, index)
-      .concat(newCategories.slice(index + 1, newCategories.length));
-    setBlog({ ...blog, categories: newCategories });
   };
 
   const filterCategoriesByArray = (arr, arrDif) => {
@@ -202,36 +164,15 @@ const BlogEdit = () => {
     return result;
   };
 
-  const onFBPixelIdChange = (evt) => {
-    setBlog({
-      ...blog,
-      extra_data: {
-        ...blog.extra_data,
-        [BLOG_EXTRA_DATA.FB_PIXEL_ID]: evt.target.value,
-      },
-    });
-  };
-
-  const onGAIdChange = (evt) => {
-    setBlog({
-      ...blog,
-      extra_data: {
-        ...blog.extra_data,
-        [BLOG_EXTRA_DATA.GOOGLE_ANALYTICS_ID]: evt.target.value,
-      },
-    });
-  };
-
   const onOpenDeleteBlog = () => {
     setOpenModalDelete(true);
   };
 
   const handleChangeImage = async (event) => {
     if (event.target.value.length !== 0) {
-      setThumbUrl(URL.createObjectURL(event.target.files[0]));
+      setValue(THUMBNAIL, URL.createObjectURL(event.target.files[0]));
       const { url } = await uploadImageBasic(event.target.files[0]);
-      setThumbUrl(url);
-      setBlog({ ...blog, thumbnail: url });
+      setValue(THUMBNAIL, url);
     }
   };
 
@@ -274,25 +215,16 @@ const BlogEdit = () => {
                         control={control}
                         defaultValue=""
                       />
-                      {/* <TextField
-                        fullWidth
-                        value={blog.title}
-                        onChange={onTitleChange}
-                        placeholder="Nhập tiêu đề..."
-                        disabled={requesting}
-                      /> */}
                     </CardContent>
                     <CardContent>
                       <Typography>
                         Mô tả
                   </Typography>
-                      <TextField
-                        fullWidth
-                        value={blog.description}
-                        onChange={onDescChange}
-                        multiline
-                        placeholder="Nhập mô tả..."
-                        disabled={requesting}
+                      <Controller
+                        as={<TextField fullWidth multiline placeholder="Nhập mô tả..." disabled={requesting} />}
+                        name="description"
+                        control={control}
+                        defaultValue=""
                       />
                     </CardContent>
                   </Card>
@@ -318,14 +250,7 @@ const BlogEdit = () => {
                             },
                             extraPlugins: [CustomUploadAdapterPlugin]
                           }}
-                          onFileUploadRequest={(event) => {
-                            handleFileUploadRequest(event);
-                          }}
-                          onFileUploadResponse={(evt) => {
-                            const url = handleFileUploadResponse(evt);
-                            thumbUrl === null && setThumbUrl(url);
-                          }}
-                          onChange={(event, editor) => {
+                          onChange={(_, editor) => {
                             const data = editor.getData();
                             onContentChange(index, content, data);
                           }}
@@ -341,19 +266,27 @@ const BlogEdit = () => {
                       <Box display="flex" justifyContent="space-between" alignItems="center">
                         <Typography variant="subtitle2" >
                           Trạng thái
-                    </Typography>
-                        <Switch
-                          checked={blog.status !== BLOG_STATUS.DISABLED}
-                          color="primary"
-                          inputProps={{ "aria-label": "primary checkbox" }}
-                          onChange={() => {
-                            onChangeStatus(
-                              blog.status !== BLOG_STATUS.DISABLED
-                                ? BLOG_STATUS.DISABLED
-                                : BLOG_STATUS.PUBLISHED
-                            );
-                          }}
-                          disabled={requesting}
+                        </Typography>
+                        <Controller
+                          render={(props) => (
+                            <Switch
+                              {...props}
+                              color="primary"
+                              checked={props.value !== BLOG_STATUS.DISABLED}
+                              disabled={requesting}
+                              onChange={() => {
+                                props.onChange(
+                                  props.value !== BLOG_STATUS.DISABLED
+                                    ? BLOG_STATUS.DISABLED
+                                    : BLOG_STATUS.PUBLISHED
+
+                                )
+                              }}
+                            />
+                          )}
+                          name="status"
+                          control={control}
+                          defaultValue={BLOG_STATUS.DISABLED}
                         />
                       </Box>
 
@@ -361,57 +294,76 @@ const BlogEdit = () => {
                     <UiCardContent>
                       <Typography variant="subtitle2" gutterBottom>
                         Danh mục
-                  </Typography>
-                      <Autocomplete
-                        id="combo-box-demo"
-                        options={filterCategoriesByArray(
-                          categories,
-                          blog.categories
-                        )}
-                        getOptionLabel={(category) => category.title}
-                        onChange={(event, value) => {
-                          onChooseCategory(value);
-                        }}
-                        value={null}
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            label="Chọn danh mục"
-                            variant="outlined"
+                      </Typography>
+                      <Controller
+                        name="categories"
+                        control={control}
+                        defaultValue={[]}
+                        render={(props) => (
+                          <Autocomplete
+                            options={filterCategoriesByArray(
+                              categories,
+                              props.value
+                            )}
+                            getOptionLabel={(category) => category.title}
+                            onChange={(_, value) => {
+                              categoriesField.append(value);
+                            }}
+                            renderInput={(params) => (
+                              <TextField
+                                {...params}
+                                label="Chọn danh mục"
+                                variant="outlined"
+                              />
+                            )}
+                            disabled={requesting}
                           />
                         )}
-                        disabled={requesting}
                       />
-                      {blog.categories.map((category, index) => (
-                        <div key={index} className={classes.categoryTag}>
+                      {categoriesField.fields.map((category, index) => (
+                        <Box
+                          key={index}
+                          display="flex"
+                          alignItems="center"
+                          justifyContent="space-between"
+                          mt={2} ml={2}
+                        >
                           <Typography>{category.title}</Typography>
                           <Button
                             color="primary"
                             size="small"
                             className={classes.categoryTagBtn}
                             onClick={() => {
-                              onDeleteCategory(category, index);
+                              categoriesField.remove(index);
                             }}
                             disabled={requesting}
                           >
                             <ClearIcon />
                           </Button>
-                        </div>
+                        </Box>
                       ))}
                     </UiCardContent>
                     <UiCardContent>
                       <Typography variant="subtitle2" gutterBottom>
                         Gắn thẻ
-                  </Typography>
-                      <ChipInput
-                        variant="outlined"
-                        value={blog.tags}
-                        onAdd={(chip) => {
-                          handleAddChip(chip);
-                        }}
-                        onDelete={(chip, index) => handleDeleteChip(chip, index)}
-                        disabled={requesting}
+                      </Typography>
+                      <Controller
+                        name="tags"
+                        control={control}
+                        defaultValue={[]}
+                        render={(props) => (
+                          <ChipInput
+                            variant="outlined"
+                            value={props.value}
+                            onAdd={(chip) => {
+                              tagsField.append(chip);
+                            }}
+                            onDelete={(_, index) => tagsField.remove(index)}
+                            disabled={requesting}
+                          />
+                        )}
                       />
+
                     </UiCardContent>
                   </UiCard>
                   <UiCard>
@@ -421,19 +373,28 @@ const BlogEdit = () => {
                       action={
                         <>
                           Tải ảnh lên
-                      <input
+                          <input
                             type="file"
                             style={{ display: "none" }}
                             onChange={handleChangeImage}
                           />
+                          <Controller
+                            control={control}
+                            name={THUMBNAIL}
+                            defaultValue=""
+                            as={<input
+                              type="hidden"
+                            />}
+                          />
+
                         </>
                       }
                     ></UiCardHeader>
                     <UiCardContent>
-                      {thumbUrl !== null && (
+                      {thumbnailWatch && (
                         <img
                           className={classes.thumbnail}
-                          src={thumbUrl}
+                          src={thumbnailWatch}
                           alt="thumb"
                         />
                       )}
@@ -442,23 +403,34 @@ const BlogEdit = () => {
                   <UiCard>
                     <UiCardHeader title="Thông tin khác"></UiCardHeader>
                     <UiCardContent>
-                      <TextField
-                        fullWidth
-                        label="Facebook Pixel ID"
-                        variant="outlined"
-                        value={blog.extra_data[BLOG_EXTRA_DATA.FB_PIXEL_ID]}
-                        onChange={onFBPixelIdChange}
-                        disabled={requesting}
+                      <Controller
+                        control={control}
+                        name="extra_data.facebook_pixel_id"
+                        defaultValue=""
+                        as={
+                          <TextField
+                            fullWidth
+                            label="Facebook Pixel ID"
+                            variant="outlined"
+                            disabled={requesting}
+                          />
+                        }
                       />
+
                     </UiCardContent>
                     <UiCardContent>
-                      <TextField
-                        fullWidth
-                        label="Google Analytics ID"
-                        variant="outlined"
-                        onChange={onGAIdChange}
-                        value={blog.extra_data[BLOG_EXTRA_DATA.GOOGLE_ANALYTICS_ID]}
-                        disabled={requesting}
+                      <Controller
+                        control={control}
+                        name="extra_data.google_analytics_id"
+                        defaultValue=""
+                        as={
+                          <TextField
+                            fullWidth
+                            label="Google Analytics ID"
+                            variant="outlined"
+                            disabled={requesting}
+                          />
+                        }
                       />
                     </UiCardContent>
                   </UiCard>

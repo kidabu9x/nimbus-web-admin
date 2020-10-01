@@ -17,15 +17,6 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     float: "right",
   },
-
-  categoryTag: {
-    width: "100%",
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginTop: 15,
-    marginLeft: 20,
-  },
   categoryTagBtn: { float: "right" },
   statusContainer: {
     justifyContent: "space-between",
