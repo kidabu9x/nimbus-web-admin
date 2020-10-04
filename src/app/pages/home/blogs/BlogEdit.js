@@ -49,7 +49,7 @@ import {
 import CustomUploadAdapterPlugin from "../../../plugin/CustomUploadAdapterPlugin";
 
 const THUMBNAIL = "thumbnail";
-
+const TAGS = "tags";
 
 const BlogEdit = () => {
   const { id } = useParams();
@@ -83,11 +83,6 @@ const BlogEdit = () => {
   const categoriesField = useFieldArray({
     control,
     name: "categories"
-  });
-
-  const tagsField = useFieldArray({
-    control,
-    name: "tags"
   });
 
   const thumbnailWatch = watch(THUMBNAIL);
@@ -178,6 +173,24 @@ const BlogEdit = () => {
 
   const onFormSubmit = (data) => {
     console.log(data);
+  }
+
+  const onAddTag = (tag) => {
+    let currentTags = getValues(TAGS);
+    if (currentTags == null || !Array.isArray(currentTags)) {
+      currentTags = [];
+    }
+    currentTags.push(tag);
+    setValue(TAGS, currentTags);
+  }
+
+  const onDeleteTag = (_, index) => {
+    console.log(index);
+    let currentTags = getValues(TAGS);
+    console.log(currentTags);
+    currentTags.splice(index, 1);
+    console.log(currentTags);
+    setValue(TAGS, currentTags);
   }
 
   return (
@@ -348,20 +361,14 @@ const BlogEdit = () => {
                         Gắn thẻ
                       </Typography>
                       <Controller
-                        name="tags"
+                        name={TAGS}
                         control={control}
                         defaultValue={[]}
-                        render={(props) => (
-                          <ChipInput
-                            variant="outlined"
-                            value={props.value}
-                            onAdd={(chip) => {
-                              tagsField.append(chip);
-                            }}
-                            onDelete={(_, index) => tagsField.remove(index)}
-                            disabled={requesting}
-                          />
-                        )}
+                        as={<ChipInput variant="outlined" />}
+                        value={getValues(TAGS)}
+                        onAdd={onAddTag}
+                        onDelete={onDeleteTag}
+                        disabled={requesting}
                       />
 
                     </UiCardContent>
