@@ -6,6 +6,7 @@ import {
     updateCategory
 } from "../../api/category.api";
 import {
+    GET_CATEGORIES_REQUEST,
     GET_CATEGORIES_REQUESTING,
     GET_CATEGORIES_SUCCESS,
     GET_CATEGORIES_ERROR,
@@ -27,6 +28,9 @@ function getErrorMessage(error) {
 
 function* getCategoriesFlow() {
     try {
+        yield put({
+            type: GET_CATEGORIES_REQUESTING
+        });
         const response = yield call(getAllCategories);
         const categories = response.data.data;
         yield put({
@@ -112,7 +116,7 @@ function* updateCategoryFlow(action) {
 }
 
 function* watcher() {
-    yield takeEvery(GET_CATEGORIES_REQUESTING, getCategoriesFlow);
+    yield takeEvery(GET_CATEGORIES_REQUEST, getCategoriesFlow);
     yield takeLatest(DELETE_CATEGORY_REQUESTING, deleteCategoryFlow);
     yield takeLatest(CREATE_CATEGORY_REQUESTING, createCategoryFlow);
     yield takeLatest(UPDATE_CATEGORY_REQUESTING, updateCategoryFlow);

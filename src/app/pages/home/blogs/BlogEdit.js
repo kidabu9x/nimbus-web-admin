@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { uploadImageBasic } from "../../../api/image.api";
-import { useDispatch, useSelector, shallowEqual } from "react-redux";
+import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { useParams, useHistory } from "react-router-dom";
 import { useSnackbar } from 'notistack';
-import { useForm, useFieldArray, Controller } from 'react-hook-form';
+import { useForm, Controller, useWatch, useFormContext, FormProvider } from 'react-hook-form';
 import {
   Card,
   CardContent,
@@ -50,6 +50,10 @@ import CustomUploadAdapterPlugin from "../../../plugin/CustomUploadAdapterPlugin
 
 const THUMBNAIL = "thumbnail";
 const TAGS = "tags";
+const CATEGORIES = "categories";
+const CONTENTS = "contents";
+
+let renderCount = 0;
 
 const BlogEdit = () => {
   const { id } = useParams();
@@ -57,15 +61,15 @@ const BlogEdit = () => {
   const classes = useStyles();
   const disptach = useDispatch();
   const { enqueueSnackbar } = useSnackbar();
+  renderCount++;
   const {
     categories,
-    initBlog,
     requesting,
     redirectCount,
     errorMessage,
     successMessage
-  } = useSelector((
-    { blog, categories }) => ({
+  } = useSelector(
+    ({ blog, categories }) => ({
       categories: categories.categories,
       initBlog: blog.blog,
       requesting: blog.requesting,
@@ -75,54 +79,80 @@ const BlogEdit = () => {
     }),
     shallowEqual
   );
-  const [initialized, setInitialized] = useState(false);
-  const [blog, setBlog] = useState(null);
+
   const [openModalDelete, setOpenModalDelete] = useState(false);
 
-  const { handleSubmit, control, setValue, getValues, watch } = useForm();
-  const categoriesField = useFieldArray({
-    control,
-    name: "categories"
+  const methods = useForm({
+    defaultValues: {
+      id: null,
+      title: "",
+      contents: [
+        {
+          content: "Chèn nội dung",
+          type: "HTML", // HTML
+        },
+      ],
+      tags: [],
+      description: "",
+      status: "DISABLED", // DELETED, PUBLISHED, DISABLED
+      // created_at: new Date().toDateString(),
+      // updated_at: new Date().toDateString(),
+      // authors: [],
+      categories: [],
+      thumbnail: null,
+      extra_data: {
+        facebook_pixel_id: "",
+        google_analytics_id: "",
+      },
+    }
   });
-
+  const { handleSubmit, control, setValue, getValues, watch, register, errors } = methods;
   const thumbnailWatch = watch(THUMBNAIL);
 
   useEffect(() => {
-    disptach(resetMessage());
     disptach(getCategories());
-    if (id !== "new") {
-      disptach(getBlog({ id }));
-    } else {
-      disptach(resetBlog());
-    }
-    setInitialized(true);
-  }, [disptach, id]);
+  }, []);
 
   useEffect(() => {
-    setBlog(initBlog);
-  }, [initBlog]);
+    register(CONTENTS)
+  });
 
-  useEffect(() => {
-    if (initialized) {
-      history.push(ROUTES.blogs);
-    }
-  }, [history, redirectCount]);
+  // useEffect(() => {
+  //   disptach(resetMessage());
+  //   disptach(getCategories());
+  //   if (id !== "new") {
+  //     disptach(getBlog({ id }));
+  //   } else {
+  //     disptach(resetBlog());
+  //   }
+  //   setInitialized(true);
+  // }, [disptach, id]);
 
-  useEffect(() => {
-    if (initialized && successMessage) {
-      enqueueSnackbar(successMessage, {
-        variant: "success"
-      });
-    }
-  }, [enqueueSnackbar, successMessage, initialized]);
+  // useEffect(() => {
+  //   setBlog(initBlog);
+  // }, [initBlog]);
 
-  useEffect(() => {
-    if (initialized && errorMessage) {
-      enqueueSnackbar(errorMessage, {
-        variant: "error"
-      });
-    }
-  }, [enqueueSnackbar, errorMessage, initialized]);
+  // useEffect(() => {
+  //   if (initialized) {
+  //     history.push(ROUTES.blogs);
+  //   }
+  // }, [history, redirectCount]);
+
+  // useEffect(() => {
+  //   if (initialized && successMessage) {
+  //     enqueueSnackbar(successMessage, {
+  //       variant: "success"
+  //     });
+  //   }
+  // }, [enqueueSnackbar, successMessage, initialized]);
+
+  // useEffect(() => {
+  //   if (initialized && errorMessage) {
+  //     enqueueSnackbar(errorMessage, {
+  //       variant: "error"
+  //     });
+  //   }
+  // }, [enqueueSnackbar, errorMessage, initialized]);
 
   // const onSubmit = () => {
   //   if (id !== BLOG.QUERY_NEW) {
@@ -137,26 +167,8 @@ const BlogEdit = () => {
 
   const onDelete = () => {
     disptach(deleteBlog({
-      id: blog.id
+      // id: blog.id
     }));
-  };
-
-  const onContentChange = (index, content, data) => {
-    const newContents = blog.contents;
-    let newContent = blog.contents[index];
-    newContent = { ...content, content: data, type: "HTML" };
-    newContents[index] = newContent;
-    setBlog({ ...blog, contents: newContents });
-  };
-
-  const filterCategoriesByArray = (arr, arrDif) => {
-    let lookup = keyBy(arrDif, (o) => {
-      return o.id ? o.id.toString() : "" + o.title;
-    });
-    let result = filter(arr, (u) => {
-      return lookup[u.id ? u.id.toString() : "" + u.title] === undefined;
-    });
-    return result;
   };
 
   const onOpenDeleteBlog = () => {
@@ -175,26 +187,9 @@ const BlogEdit = () => {
     console.log(data);
   }
 
-  const onAddTag = (tag) => {
-    let currentTags = getValues(TAGS);
-    if (currentTags == null || !Array.isArray(currentTags)) {
-      currentTags = [];
-    }
-    currentTags.push(tag);
-    setValue(TAGS, currentTags);
-  }
-
-  const onDeleteTag = (_, index) => {
-    console.log(index);
-    let currentTags = getValues(TAGS);
-    console.log(currentTags);
-    currentTags.splice(index, 1);
-    console.log(currentTags);
-    setValue(TAGS, currentTags);
-  }
-
   return (
     <Container>
+      <h1>{renderCount}</h1>
       <Button
         startIcon={<ArrowBackIosIcon />}
         onClick={() => {
@@ -211,272 +206,195 @@ const BlogEdit = () => {
       </Box>
 
       <Divider />
-      <form onSubmit={handleSubmit(onFormSubmit)}>
-        <Box marginTop={2} marginBottom={2}>
-          <Grid container spacing={2}>
-            {blog && (
-              <>
-                <Grid item xs={8}>
-                  <Card>
-                    <CardContent>
-                      <Typography >
-                        Tiêu đề
-                      </Typography>
-                      <Controller
-                        as={<TextField fullWidth placeholder="Nhập tiêu đề..." disabled={requesting} />}
-                        name="title"
-                        control={control}
-                        defaultValue=""
-                      />
-                    </CardContent>
-                    <CardContent>
-                      <Typography>
-                        Mô tả
+      <FormProvider {...methods}>
+        <form onSubmit={handleSubmit(onFormSubmit)}>
+          <Box marginTop={2} marginBottom={2}>
+            <Grid container spacing={2}>
+              <Grid item xs={8}>
+                <Card>
+                  <CardContent>
+                    <Typography >
+                      Tiêu đề
                   </Typography>
-                      <Controller
-                        as={<TextField fullWidth multiline placeholder="Nhập mô tả..." disabled={requesting} />}
-                        name="description"
-                        control={control}
-                        defaultValue=""
-                      />
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardContent>
-                      <Typography variant="subtitle2" gutterBottom>
-                        Nội dung
+                    <TextField
+                      name="title"
+                      inputRef={register({ required: true, maxLength: 70 })}
+                      fullWidth
+                      placeholder="Nhập tiêu đề..."
+                      disabled={requesting}
+                      error={errors.title ? true : false}
+                    />
+
+                  </CardContent>
+                  <CardContent>
+                    <Typography>
+                      Mô tả
+                  </Typography>
+                    <TextField
+                      name="description"
+                      inputRef={register({ maxLength: 255 })}
+                      fullWidth
+                      multiline
+                      placeholder="Nhập mô tả..."
+                      error={errors.description ? true : false}
+                      disabled={requesting}
+                    />
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent>
+                    <Typography variant="subtitle2" gutterBottom>
+                      Nội dung
+                  </Typography>
+                    <ContentEdit
+                    />
+
+                  </CardContent>
+                </Card>
+              </Grid>
+              <Grid item xs={4}>
+                <UiCard>
+                  <UiCardHeader title="Tổ chức"></UiCardHeader>
+                  <UiCardContent>
+                    <Box display="flex" justifyContent="space-between" alignItems="center">
+                      <Typography variant="subtitle2" >
+                        Trạng thái
                     </Typography>
-                      {blog.contents.map((content, index) => (
-                        <CKEditor
-                          key={index}
-                          editor={EditorTheme}
-                          data={content.content}
-                          config={{
-                            language: "vi",
-                            toolbar: {
-                              viewportTopOffset: 64,
-                            },
-                            image: {
-                              upload: {
-                                types: ['png', 'jpeg']
-                              }
-                            },
-                            extraPlugins: [CustomUploadAdapterPlugin]
-                          }}
-                          onChange={(_, editor) => {
-                            const data = editor.getData();
-                            onContentChange(index, content, data);
-                          }}
-                        />
-                      ))}
-                    </CardContent>
-                  </Card>
-                </Grid>
-                <Grid item xs={4}>
-                  <UiCard>
-                    <UiCardHeader title="Tổ chức"></UiCardHeader>
-                    <UiCardContent>
-                      <Box display="flex" justifyContent="space-between" alignItems="center">
-                        <Typography variant="subtitle2" >
-                          Trạng thái
-                        </Typography>
-                        <Controller
-                          render={(props) => (
-                            <Switch
-                              {...props}
-                              color="primary"
-                              checked={props.value !== BLOG_STATUS.DISABLED}
-                              disabled={requesting}
-                              onChange={() => {
-                                props.onChange(
-                                  props.value !== BLOG_STATUS.DISABLED
-                                    ? BLOG_STATUS.DISABLED
-                                    : BLOG_STATUS.PUBLISHED
-
-                                )
-                              }}
-                            />
-                          )}
-                          name="status"
-                          control={control}
-                          defaultValue={BLOG_STATUS.DISABLED}
-                        />
-                      </Box>
-
-                    </UiCardContent>
-                    <UiCardContent>
-                      <Typography variant="subtitle2" gutterBottom>
-                        Danh mục
-                      </Typography>
                       <Controller
-                        name="categories"
-                        control={control}
-                        defaultValue={[]}
                         render={(props) => (
-                          <Autocomplete
-                            options={filterCategoriesByArray(
-                              categories,
-                              props.value
-                            )}
-                            getOptionLabel={(category) => category.title}
-                            onChange={(_, value) => {
-                              categoriesField.append(value);
-                            }}
-                            renderInput={(params) => (
-                              <TextField
-                                {...params}
-                                label="Chọn danh mục"
-                                variant="outlined"
-                              />
-                            )}
+                          <Switch
+                            {...props}
+                            color="primary"
+                            checked={props.value !== BLOG_STATUS.DISABLED}
                             disabled={requesting}
+                            onChange={() => {
+                              props.onChange(
+                                props.value !== BLOG_STATUS.DISABLED
+                                  ? BLOG_STATUS.DISABLED
+                                  : BLOG_STATUS.PUBLISHED
+
+                              )
+                            }}
                           />
                         )}
-                      />
-                      {categoriesField.fields.map((category, index) => (
-                        <Box
-                          key={index}
-                          display="flex"
-                          alignItems="center"
-                          justifyContent="space-between"
-                          mt={2} ml={2}
-                        >
-                          <Typography>{category.title}</Typography>
-                          <Button
-                            color="primary"
-                            size="small"
-                            className={classes.categoryTagBtn}
-                            onClick={() => {
-                              categoriesField.remove(index);
-                            }}
-                            disabled={requesting}
-                          >
-                            <ClearIcon />
-                          </Button>
-                        </Box>
-                      ))}
-                    </UiCardContent>
-                    <UiCardContent>
-                      <Typography variant="subtitle2" gutterBottom>
-                        Gắn thẻ
-                      </Typography>
-                      <Controller
-                        name={TAGS}
+                        name="status"
                         control={control}
-                        defaultValue={[]}
-                        as={<ChipInput variant="outlined" />}
-                        value={getValues(TAGS)}
-                        onAdd={onAddTag}
-                        onDelete={onDeleteTag}
-                        disabled={requesting}
+                        defaultValue={BLOG_STATUS.DISABLED}
                       />
+                    </Box>
 
-                    </UiCardContent>
-                  </UiCard>
-                  <UiCard>
-                    <UiCardHeader
-                      title="Thumbnail"
-                      actionComponent="label"
-                      action={
-                        <>
-                          Tải ảnh lên
+                  </UiCardContent>
+                  <UiCardContent>
+                    <Typography variant="subtitle2" gutterBottom>
+                      Danh mục
+                  </Typography>
+                    <CategoryEdit
+                      categories={categories}
+                      disabled={requesting}
+                      classes={classes}
+                    />
+                  </UiCardContent>
+                  <UiCardContent>
+                    <Typography variant="subtitle2" gutterBottom>
+                      Gắn thẻ
+                  </Typography>
+                    <TagEdit
+                      disabled={requesting}
+                    />
+                  </UiCardContent>
+                </UiCard>
+                <UiCard>
+                  <UiCardHeader
+                    title="Thumbnail"
+                    actionComponent="label"
+                    action={
+                      <>
+                        Tải ảnh lên
                           <input
-                            type="file"
-                            style={{ display: "none" }}
-                            onChange={handleChangeImage}
-                          />
-                          <Controller
-                            control={control}
-                            name={THUMBNAIL}
-                            defaultValue=""
-                            as={<input
-                              type="hidden"
-                            />}
-                          />
-
-                        </>
-                      }
-                    ></UiCardHeader>
-                    <UiCardContent>
-                      {thumbnailWatch && (
-                        <img
-                          className={classes.thumbnail}
-                          src={thumbnailWatch}
-                          alt="thumb"
+                          type="file"
+                          style={{ display: "none" }}
+                          onChange={handleChangeImage}
                         />
-                      )}
-                    </UiCardContent>
-                  </UiCard>
-                  <UiCard>
-                    <UiCardHeader title="Thông tin khác"></UiCardHeader>
-                    <UiCardContent>
-                      <Controller
-                        control={control}
-                        name="extra_data.facebook_pixel_id"
-                        defaultValue=""
-                        as={
-                          <TextField
-                            fullWidth
-                            label="Facebook Pixel ID"
-                            variant="outlined"
-                            disabled={requesting}
-                          />
-                        }
+                        <Controller
+                          control={control}
+                          name={THUMBNAIL}
+                          defaultValue=""
+                          as={<input
+                            type="hidden"
+                          />}
+                        />
+                      </>
+                    }
+                  ></UiCardHeader>
+                  <UiCardContent>
+                    {thumbnailWatch && (
+                      <img
+                        className={classes.thumbnail}
+                        src={thumbnailWatch}
+                        alt="thumb"
                       />
+                    )}
+                  </UiCardContent>
+                </UiCard>
+                <UiCard>
+                  <UiCardHeader title="Thông tin khác"></UiCardHeader>
+                  <UiCardContent>
+                    <TextField
+                      name="extra_data.facebook_pixel_id"
+                      inputRef={register}
+                      fullWidth
+                      label="Facebook Pixel ID"
+                      variant="outlined"
+                      disabled={requesting}
+                    />
 
-                    </UiCardContent>
-                    <UiCardContent>
-                      <Controller
-                        control={control}
-                        name="extra_data.google_analytics_id"
-                        defaultValue=""
-                        as={
-                          <TextField
-                            fullWidth
-                            label="Google Analytics ID"
-                            variant="outlined"
-                            disabled={requesting}
-                          />
-                        }
-                      />
-                    </UiCardContent>
-                  </UiCard>
-                </Grid>
-              </>
-            )}
-          </Grid>
-        </Box>
+                  </UiCardContent>
+                  <UiCardContent>
+                    <TextField
+                      name="extra_data.google_analytics_id"
+                      inputRef={register}
+                      fullWidth
+                      label="Google Analytics ID"
+                      variant="outlined"
+                      disabled={requesting}
+                    />
+                  </UiCardContent>
+                </UiCard>
+              </Grid>
+            </Grid>
+          </Box>
 
-        <Divider />
+          <Divider />
 
-        <Box display="flex" justifyContent="space-between" alignItems="center" marginTop={2}>
-          {id !== BLOG.QUERY_NEW ? (
-            <Button
-              variant="contained"
-              color="inherit"
-              onClick={onOpenDeleteBlog}
-              disableElevation
-              disabled={requesting}
-            >
-              Xóa
-            </Button>
-          ) : (
-              <div></div>
-            )}
-          <div>
-            <Button
-              size="large"
-              variant="contained"
-              color="primary"
-              type="submit"
-              disableElevation
-              disabled={requesting}
-            >
-              Lưu
+          <Box display="flex" justifyContent="space-between" alignItems="center" marginTop={2}>
+            {id !== BLOG.QUERY_NEW ? (
+              <Button
+                variant="contained"
+                color="inherit"
+                onClick={onOpenDeleteBlog}
+                disableElevation
+                disabled={requesting}
+              >
+                Xóa
+              </Button>
+            ) : (
+                <div></div>
+              )}
+            <div>
+              <Button
+                size="large"
+                variant="contained"
+                color="primary"
+                type="submit"
+                disableElevation
+                disabled={requesting}
+              >
+                Lưu
           </Button>
-          </div>
-        </Box>
-      </form>
+            </div>
+          </Box>
+        </form>
+      </FormProvider>
 
       <ConfirmDelete
         message="Bạn có chắc chắn muốn xóa blog này?"
@@ -492,3 +410,165 @@ const BlogEdit = () => {
 };
 
 export default BlogEdit;
+
+const TagEdit = ({ disabled }) => {
+  const { control, getValues, setValue } = useFormContext();
+
+  const tags = useWatch({
+    control,
+    name: TAGS,
+    defaultValue: []
+  });
+
+  const onDeleteTag = (_, index) => {
+    let currentTags = getValues(TAGS);
+    currentTags.splice(index, 1);
+    setValue(TAGS, currentTags);
+  }
+
+  return tags && <Controller
+    name={TAGS}
+    as={ChipInput}
+    variant="outlined"
+    control={control}
+    defaultValue={[]}
+    onDelete={onDeleteTag}
+    disabled={disabled}
+    fullWidth
+  />
+}
+
+const CategoryEdit = ({ disabled, classes, categories }) => {
+  const { control, getValues, setValue } = useFormContext();
+  const [catSearach, setCatSearch] = useState(null);
+
+  const selectedCategories = useWatch({
+    control,
+    name: CATEGORIES,
+    defaultValue: []
+  });
+
+  const filterCategoriesByArray = (arr, arrDif) => {
+    let lookup = keyBy(arrDif, (o) => {
+      return o.id ? o.id.toString() : "" + o.title;
+    });
+    let result = filter(arr, (u) => {
+      return lookup[u.id ? u.id.toString() : "" + u.title] === undefined;
+    });
+    return result;
+  };
+
+  const onAddCategory = (_, selectedCat) => {
+    let currentCats = getValues(CATEGORIES);
+    if (!currentCats.some(cat => cat.id === selectedCat.id)) {
+      currentCats.push(selectedCat);
+      setValue(CATEGORIES, currentCats);
+    }
+    setCatSearch(null);
+  }
+
+  const onRemoveCategory = (index) => {
+    let currentCats = getValues(CATEGORIES);
+    currentCats.splice(index, 1);
+    setValue(CATEGORIES, currentCats);
+  }
+  return <>
+    <Controller
+      name={CATEGORIES}
+      control={control}
+      defaultValue={[]}
+      render={() => (
+        <Autocomplete
+          value={catSearach}
+          options={filterCategoriesByArray(
+            categories,
+            selectedCategories
+          )}
+          getOptionLabel={(category) => category.title}
+          onChange={onAddCategory}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="Chọn danh mục"
+              variant="outlined"
+            />
+          )}
+          disabled={disabled}
+        />
+      )}
+    />
+
+    {
+      selectedCategories.map((category, index) => (
+        <Box
+          key={index}
+          display="flex"
+          alignItems="center"
+          justifyContent="space-between"
+          mt={2} ml={2}
+        >
+          <Typography>{category.title}</Typography>
+          <Button
+            color="primary"
+            size="small"
+            className={classes.categoryTagBtn}
+            onClick={() => {
+              onRemoveCategory(index);
+            }}
+            disabled={disabled}
+          >
+            <ClearIcon />
+          </Button>
+        </Box>
+      ))
+    }
+  </>
+}
+
+const ContentEdit = () => {
+  const { control, getValues, setValue } = useFormContext();
+  const contents = useWatch({
+    control,
+    name: CONTENTS,
+    defaultValue: [{
+      content: "Chèn nội dung",
+      type: "HTML", // HTML
+    }]
+  });
+
+  const onContentChange = (index, data) => {
+    let contents = getValues(CONTENTS);
+    if (contents === null || !Array.isArray(contents)) {
+      contents = [];
+    }
+    contents[index] = {
+      content: data, type: "HTML"
+    };
+    setValue(CONTENTS, contents);
+  };
+  return <>
+    {contents.map((content, index) => (
+      <CKEditor
+        key={index}
+        editor={EditorTheme}
+        data={content.content}
+        config={{
+          language: "vi",
+          toolbar: {
+            viewportTopOffset: 64,
+          },
+          image: {
+            upload: {
+              types: ['png', 'jpeg']
+            }
+          },
+          extraPlugins: [CustomUploadAdapterPlugin]
+        }}
+        onChange={(_, editor) => {
+          const data = editor.getData();
+          onContentChange(index, data);
+        }}
+      />
+    ))}
+  </>
+}

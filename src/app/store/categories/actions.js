@@ -1,12 +1,12 @@
 import {
-    GET_CATEGORIES_REQUESTING,
+    GET_CATEGORIES_REQUEST,
     DELETE_CATEGORY_REQUESTING,
     UPDATE_CATEGORY_REQUESTING,
     CREATE_CATEGORY_REQUESTING
 } from "./constants";
 
 export const getCategories = () => ({
-    type: GET_CATEGORIES_REQUESTING
+    type: GET_CATEGORIES_REQUEST
 });
 
 export const deleteCategory = ({
