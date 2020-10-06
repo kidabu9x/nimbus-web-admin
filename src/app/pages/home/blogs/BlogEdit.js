@@ -24,6 +24,9 @@ import CKEditor from '@ckeditor/ckeditor5-react';
 import EditorTheme from '@ckeditor/ckeditor5-build-classic';
 import ChipInput from "material-ui-chip-input";
 import { keyBy, filter } from "lodash";
+import {
+  createBlog
+} from "../../../api/blog.api";
 
 import { ROUTES } from "../../../router/Routes";
 import {
@@ -31,7 +34,6 @@ import {
 } from "../../../store/categories/actions";
 import {
   getBlog,
-  createBlog,
   deleteBlog,
   updateBlog,
   resetBlog,
@@ -64,21 +66,19 @@ const BlogEdit = () => {
   renderCount++;
   const {
     categories,
-    requesting,
     redirectCount,
-    errorMessage,
     successMessage
   } = useSelector(
     ({ blog, categories }) => ({
       categories: categories.categories,
-      initBlog: blog.blog,
-      requesting: blog.requesting,
       redirectCount: blog.redirectCount,
       errorMessage: blog.errorMessage,
       successMessage: blog.successMessage
     }),
     shallowEqual
   );
+
+  const [requesting, setRequesting] = useState(false);
 
   const [openModalDelete, setOpenModalDelete] = useState(false);
 
@@ -94,10 +94,7 @@ const BlogEdit = () => {
       ],
       tags: [],
       description: "",
-      status: "DISABLED", // DELETED, PUBLISHED, DISABLED
-      // created_at: new Date().toDateString(),
-      // updated_at: new Date().toDateString(),
-      // authors: [],
+      status: "DISABLED",
       categories: [],
       thumbnail: null,
       extra_data: {
@@ -112,10 +109,6 @@ const BlogEdit = () => {
   useEffect(() => {
     disptach(getCategories());
   }, []);
-
-  useEffect(() => {
-    register(CONTENTS)
-  });
 
   // useEffect(() => {
   //   disptach(resetMessage());
@@ -183,8 +176,23 @@ const BlogEdit = () => {
     }
   };
 
-  const onFormSubmit = (data) => {
-    console.log(data);
+  const onFormSubmit = async (blog) => {
+    console.log(blog);
+    setRequesting(true);
+    try {
+      if (blog.id) {
+        // TODO: call update api
+      } else {
+        // TODO: call create api
+        const response = await createBlog(blog);
+        enqueueSnackbar("Tạo blog thành công", {
+          variant: "success"
+        });
+      }
+    } catch (error) {
+
+    }
+    setRequesting(false);
   }
 
   return (
@@ -246,8 +254,34 @@ const BlogEdit = () => {
                     <Typography variant="subtitle2" gutterBottom>
                       Nội dung
                   </Typography>
-                    <ContentEdit
+                    <Controller
+                      control={control}
+                      name={`${CONTENTS}[0].content`}
+                      defaultValue={"<p>Chèn nội dung</p>"}
+                      render={({ value, onChange }) => (
+                        <CKEditor
+                          editor={EditorTheme}
+                          data={value}
+                          config={{
+                            language: "vi",
+                            toolbar: {
+                              viewportTopOffset: 64,
+                            },
+                            image: {
+                              upload: {
+                                types: ['png', 'jpeg']
+                              }
+                            },
+                            extraPlugins: [CustomUploadAdapterPlugin]
+                          }}
+                          onChange={(_, editor) => {
+                            const data = editor.getData();
+                            onChange(data);
+                          }}
+                        />
+                      )}
                     />
+                    <input type="hidden" name={`${CONTENTS}[0].type`} defaultValue="HTML" ref={register} />
 
                   </CardContent>
                 </Card>
@@ -315,14 +349,7 @@ const BlogEdit = () => {
                           style={{ display: "none" }}
                           onChange={handleChangeImage}
                         />
-                        <Controller
-                          control={control}
-                          name={THUMBNAIL}
-                          defaultValue=""
-                          as={<input
-                            type="hidden"
-                          />}
-                        />
+                        <input type="hidden" name={THUMBNAIL} ref={register} defaultValue="" />
                       </>
                     }
                   ></UiCardHeader>
@@ -522,53 +549,5 @@ const CategoryEdit = ({ disabled, classes, categories }) => {
         </Box>
       ))
     }
-  </>
-}
-
-const ContentEdit = () => {
-  const { control, getValues, setValue } = useFormContext();
-  const contents = useWatch({
-    control,
-    name: CONTENTS,
-    defaultValue: [{
-      content: "Chèn nội dung",
-      type: "HTML", // HTML
-    }]
-  });
-
-  const onContentChange = (index, data) => {
-    let contents = getValues(CONTENTS);
-    if (contents === null || !Array.isArray(contents)) {
-      contents = [];
-    }
-    contents[index] = {
-      content: data, type: "HTML"
-    };
-    setValue(CONTENTS, contents);
-  };
-  return <>
-    {contents.map((content, index) => (
-      <CKEditor
-        key={index}
-        editor={EditorTheme}
-        data={content.content}
-        config={{
-          language: "vi",
-          toolbar: {
-            viewportTopOffset: 64,
-          },
-          image: {
-            upload: {
-              types: ['png', 'jpeg']
-            }
-          },
-          extraPlugins: [CustomUploadAdapterPlugin]
-        }}
-        onChange={(_, editor) => {
-          const data = editor.getData();
-          onContentChange(index, data);
-        }}
-      />
-    ))}
   </>
 }
