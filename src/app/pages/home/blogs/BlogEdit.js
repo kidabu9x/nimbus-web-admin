@@ -25,20 +25,16 @@ import EditorTheme from '@ckeditor/ckeditor5-build-classic';
 import ChipInput from "material-ui-chip-input";
 import { keyBy, filter } from "lodash";
 import {
-  createBlog
+  createBlog,
+  getBlog,
+  updateBlog,
+  deleteBlog
 } from "../../../api/blog.api";
 
 import { ROUTES } from "../../../router/Routes";
 import {
   getCategories
 } from "../../../store/categories/actions";
-import {
-  getBlog,
-  deleteBlog,
-  updateBlog,
-  resetBlog,
-  resetMessage
-} from "../../../store/blog/actions";
 
 import ConfirmDelete from "../../../components/ConfirmDelete/ConfirmDelete";
 import UiCard from "../../../components/Ui/Card/Card";
@@ -55,25 +51,17 @@ const TAGS = "tags";
 const CATEGORIES = "categories";
 const CONTENTS = "contents";
 
-let renderCount = 0;
-
 const BlogEdit = () => {
   const { id } = useParams();
   const history = useHistory();
   const classes = useStyles();
   const disptach = useDispatch();
   const { enqueueSnackbar } = useSnackbar();
-  renderCount++;
   const {
-    categories,
-    redirectCount,
-    successMessage
+    categories
   } = useSelector(
-    ({ blog, categories }) => ({
-      categories: categories.categories,
-      redirectCount: blog.redirectCount,
-      errorMessage: blog.errorMessage,
-      successMessage: blog.successMessage
+    ({ categories }) => ({
+      categories: categories.categories
     }),
     shallowEqual
   );
@@ -103,65 +91,45 @@ const BlogEdit = () => {
       },
     }
   });
-  const { handleSubmit, control, setValue, getValues, watch, register, errors } = methods;
+  const { handleSubmit, control, setValue, watch, register, errors, reset } = methods;
   const thumbnailWatch = watch(THUMBNAIL);
 
   useEffect(() => {
     disptach(getCategories());
-  }, []);
+  }, [disptach]);
 
-  // useEffect(() => {
-  //   disptach(resetMessage());
-  //   disptach(getCategories());
-  //   if (id !== "new") {
-  //     disptach(getBlog({ id }));
-  //   } else {
-  //     disptach(resetBlog());
-  //   }
-  //   setInitialized(true);
-  // }, [disptach, id]);
+  useEffect(() => {
+    if (id !== BLOG.QUERY_NEW) {
+      setRequesting(true);
+      getBlog(id)
+        .then(response => {
+          reset(response.data.data);
+        })
+        .catch(error => {
+          enqueueSnackbar(error, {
+            variant: "error"
+          });
+        })
+        .finally(() => {
+          setRequesting(false);
+        });
+    }
+  }, [id]);
 
-  // useEffect(() => {
-  //   setBlog(initBlog);
-  // }, [initBlog]);
-
-  // useEffect(() => {
-  //   if (initialized) {
-  //     history.push(ROUTES.blogs);
-  //   }
-  // }, [history, redirectCount]);
-
-  // useEffect(() => {
-  //   if (initialized && successMessage) {
-  //     enqueueSnackbar(successMessage, {
-  //       variant: "success"
-  //     });
-  //   }
-  // }, [enqueueSnackbar, successMessage, initialized]);
-
-  // useEffect(() => {
-  //   if (initialized && errorMessage) {
-  //     enqueueSnackbar(errorMessage, {
-  //       variant: "error"
-  //     });
-  //   }
-  // }, [enqueueSnackbar, errorMessage, initialized]);
-
-  // const onSubmit = () => {
-  //   if (id !== BLOG.QUERY_NEW) {
-  //     disptach(updateBlog({
-  //       id,
-  //       blog
-  //     }));
-  //   } else {
-  //     disptach(createBlog(blog));
-  //   }
-  // };
-
-  const onDelete = () => {
-    disptach(deleteBlog({
-      // id: blog.id
-    }));
+  const onDelete = async () => {
+    setRequesting(true);
+    try {
+      await deleteBlog(id);
+      enqueueSnackbar("Đã xóa", {
+        variant: "success"
+      });
+      history.push(ROUTES.blogs);
+    } catch (error) {
+      enqueueSnackbar(error, {
+        variant: "error"
+      });
+    }
+    setRequesting(false);
   };
 
   const onOpenDeleteBlog = () => {
@@ -177,27 +145,30 @@ const BlogEdit = () => {
   };
 
   const onFormSubmit = async (blog) => {
-    console.log(blog);
     setRequesting(true);
     try {
       if (blog.id) {
-        // TODO: call update api
+        await updateBlog(blog.id, blog);
+        enqueueSnackbar("Đã lưu", {
+          variant: "success"
+        });
       } else {
-        // TODO: call create api
-        const response = await createBlog(blog);
+        await createBlog(blog);
         enqueueSnackbar("Tạo blog thành công", {
           variant: "success"
         });
+        history.push(ROUTES.blogs);
       }
     } catch (error) {
-
+      enqueueSnackbar(error, {
+        variant: "error"
+      });
     }
     setRequesting(false);
   }
 
   return (
     <Container>
-      <h1>{renderCount}</h1>
       <Button
         startIcon={<ArrowBackIosIcon />}
         onClick={() => {
@@ -216,6 +187,7 @@ const BlogEdit = () => {
       <Divider />
       <FormProvider {...methods}>
         <form onSubmit={handleSubmit(onFormSubmit)}>
+          <input type="hidden" name="id" defaultValue={id} ref={register} />
           <Box marginTop={2} marginBottom={2}>
             <Grid container spacing={2}>
               <Grid item xs={8}>
@@ -424,9 +396,10 @@ const BlogEdit = () => {
       </FormProvider>
 
       <ConfirmDelete
-        message="Bạn có chắc chắn muốn xóa blog này?"
-        title="Xác nhận xóa"
+        message="Tác vụ này sẽ xóa blog khỏi hệ thống vĩnh viễn và không thể hoàn tác"
+        title="Xóa blog"
         open={openModalDelete}
+        requesting={requesting}
         onSubmit={onDelete}
         setOpen={(value) => {
           setOpenModalDelete(value);

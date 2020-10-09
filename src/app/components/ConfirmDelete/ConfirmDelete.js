@@ -7,16 +7,15 @@ import {
   DialogContentText,
   DialogActions,
   Button,
+  LinearProgress
 } from "@material-ui/core";
-import useStyles from "./styles";
 import PropTypes from "prop-types";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
-const ConfirmDelete = ({ open, setOpen, onSubmit, message, title }) => {
-  const classes = useStyles();
+const ConfirmDelete = ({ open, setOpen, onSubmit, message, title, requesting }) => {
 
   const handleClose = () => {
     setOpen(false);
@@ -27,31 +26,30 @@ const ConfirmDelete = ({ open, setOpen, onSubmit, message, title }) => {
   };
 
   return (
-    <div className={classes.container}>
-      <Dialog
-        open={open}
-        TransitionComponent={Transition}
-        keepMounted
-        onClose={handleClose}
-        aria-labelledby="alert-dialog-slide-title"
-        aria-describedby="alert-dialog-slide-description"
-      >
-        <DialogTitle id="alert-dialog-slide-title">{title}</DialogTitle>
-        <DialogContent>
-          <DialogContentText id="alert-dialog-slide-description">
-            {message}
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose} color="primary">
-            HỦY
+    <Dialog
+      open={open}
+      TransitionComponent={Transition}
+      keepMounted
+      onClose={handleClose}
+      aria-labelledby="alert-dialog-slide-title"
+      aria-describedby="alert-dialog-slide-description"
+    >
+      {requesting && <LinearProgress />}
+      <DialogTitle id="alert-dialog-slide-title">{title}</DialogTitle>
+      <DialogContent>
+        <DialogContentText id="alert-dialog-slide-description">
+          {message}
+        </DialogContentText>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={handleClose} color="primary" disabled={requesting}>
+          HỦY
           </Button>
-          <Button onClick={handleSubmit} color="default">
-            XÓA
+        <Button onClick={handleSubmit} color="default" disabled={requesting}>
+          XÓA
           </Button>
-        </DialogActions>
-      </Dialog>
-    </div>
+      </DialogActions>
+    </Dialog>
   );
 };
 

@@ -1,3 +1,7 @@
 a {
     text-decoration: none;
 }
+
+.ck.ck-reset {
+    width: 100%;   
+}

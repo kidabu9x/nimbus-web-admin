@@ -7,9 +7,15 @@ import {
     Typography,
     Button,
     Divider,
-    TextField
+    Paper,
+    RadioGroup,
+    FormControlLabel,
+    Radio
 } from "@material-ui/core";
+import CustomUploadAdapterPlugin from "../../../plugin/CustomUploadAdapterPlugin";
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
+import CKEditor from '@ckeditor/ckeditor5-react';
+import EditorTheme from '@ckeditor/ckeditor5-build-classic';
 import {
     getCourse
 } from "../../../store/cms/course/actions";
@@ -131,13 +137,61 @@ const QuestionList = () => {
                     :
                     <>
                         <form onSubmit={handleSubmit(onSubmit)}>
-                            <Controller
-                                as={TextField}
-                                name="content"
-                                control={control}
-                                defaultValue=""
-                            />
-                            <input type="submit" />
+                            <Box bgcolor="white" p={2} width="530px">
+                                <Box mb={2}>
+                                    <CKEditor
+                                        editor={EditorTheme}
+                                        config={{
+                                            language: "vi",
+                                            toolbar: ['bold', 'italic', 'link', 'bulletedList', 'numberedList', '|', 'imageUpload', 'blockQuote', 'insertTable'],
+                                            image: {
+                                                upload: {
+                                                    types: ['png', 'jpeg']
+                                                }
+                                            },
+                                            extraPlugins: [CustomUploadAdapterPlugin]
+                                        }}
+                                        onChange={(_, editor) => {
+                                            const data = editor.getData();
+                                            console.log(data);
+                                        }}
+                                    />
+                                </Box>
+                                <Box mt={1} mb={2} display="flex" alignItems="center">
+                                    <Box width="30%">
+                                        <Typography variant="subtitle1">Loại câu hỏi</Typography>
+                                    </Box>
+                                    <RadioGroup name="type" row>
+                                        <FormControlLabel value="MULTIPLE_CHOICE_ONE_ANSWER" control={<Radio />} label="1 đáp án" />
+                                        <FormControlLabel value="MULTIPLE_CHOICE_MULTIPLE_ANSWERS" control={<Radio />} label="Nhiều đáp án" />
+                                    </RadioGroup>
+                                </Box>
+
+                                <Box mt={1} mb={2} display="flex" alignItems="flex-start">
+                                    <Radio
+                                        value={false}
+                                        name="is_correct"
+                                    />
+                                    <CKEditor
+                                        editor={EditorTheme}
+                                        config={{
+                                            language: "vi",
+                                            toolbar: ['bold', 'italic'],
+                                            image: {
+                                                upload: {
+                                                    types: ['png', 'jpeg']
+                                                }
+                                            },
+                                            extraPlugins: [CustomUploadAdapterPlugin]
+                                        }}
+                                        onChange={(_, editor) => {
+                                            const data = editor.getData();
+                                            console.log(data);
+                                        }}
+                                    />
+                                </Box>
+                            </Box>
+
                         </form>
                     </>
             }
