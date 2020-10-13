@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { Fragment, useEffect, useState } from "react"
 import { useDispatch, useSelector } from "react-redux";
 import {
     Box,
@@ -7,13 +7,14 @@ import {
     Typography,
     Button,
     Divider,
-    Paper,
     RadioGroup,
     FormControlLabel,
-    Radio
+    Radio,
+    IconButton
 } from "@material-ui/core";
 import CustomUploadAdapterPlugin from "../../../plugin/CustomUploadAdapterPlugin";
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
+import CloseIcon from '@material-ui/icons/Close';
 import CKEditor from '@ckeditor/ckeditor5-react';
 import EditorTheme from '@ckeditor/ckeditor5-build-classic';
 import {
@@ -28,7 +29,9 @@ import {
 
 import { Link, useParams } from "react-router-dom";
 import { ROUTES } from "../../../router/Routes";
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
+
+let renderCount = 0;
 
 const QuestionList = () => {
     const { org, course, courseGetting, quiz, quizGetting, filtering } = useSelector(({ cms }) => ({
@@ -54,7 +57,7 @@ const QuestionList = () => {
     quizId = parseInt(quizId);
 
     const dispatch = useDispatch();
-
+    renderCount++;
     useEffect(() => {
         if (org != null) {
             dispatch(getCourse(courseId));
@@ -109,7 +112,9 @@ const QuestionList = () => {
     }
 
     return <Container>
-
+        <Typography variant="body1">
+            {renderCount}
+        </Typography>
         <Link style={{ opacity: ".5" }} to={ROUTES.cms.quiz(orgId, courseId, quizId)}>
             <Button style={{ textTransform: "none" }} startIcon={<ArrowBackIosIcon />}>Bài trắc nghiệm</Button>
         </Link>
@@ -149,7 +154,8 @@ const QuestionList = () => {
                                                     types: ['png', 'jpeg']
                                                 }
                                             },
-                                            extraPlugins: [CustomUploadAdapterPlugin]
+                                            extraPlugins: [CustomUploadAdapterPlugin],
+                                            placeholder: "Nhập câu hỏi"
                                         }}
                                         onChange={(_, editor) => {
                                             const data = editor.getData();
@@ -166,30 +172,41 @@ const QuestionList = () => {
                                         <FormControlLabel value="MULTIPLE_CHOICE_MULTIPLE_ANSWERS" control={<Radio />} label="Nhiều đáp án" />
                                     </RadioGroup>
                                 </Box>
+                                <Fragment>
+                                    <Divider />
+                                    <Box display="flex" alignItems="center" justifyContent="space-between">
+                                        <Typography variant="subtitle1">Câu trả lời 1</Typography>
+                                        <IconButton aria-label="delete">
+                                            <CloseIcon />
+                                        </IconButton>
+                                    </Box>
+                                    <Box mt={1} mb={2} display="flex" alignItems="flex-start">
+                                        <Radio
+                                            value={false}
+                                            name="is_correct"
+                                        />
+                                        <CKEditor
+                                            editor={EditorTheme}
+                                            config={{
+                                                language: "vi",
+                                                toolbar: ['bold', 'italic'],
+                                                image: {
+                                                    upload: {
+                                                        types: ['png', 'jpeg']
+                                                    }
+                                                },
+                                                extraPlugins: [CustomUploadAdapterPlugin],
+                                                placeholder: "Câu trả lời"
+                                            }}
+                                            onChange={(_, editor) => {
+                                                const data = editor.getData();
+                                                console.log(data);
+                                            }}
+                                        />
+                                    </Box>
+                                </Fragment>
 
-                                <Box mt={1} mb={2} display="flex" alignItems="flex-start">
-                                    <Radio
-                                        value={false}
-                                        name="is_correct"
-                                    />
-                                    <CKEditor
-                                        editor={EditorTheme}
-                                        config={{
-                                            language: "vi",
-                                            toolbar: ['bold', 'italic'],
-                                            image: {
-                                                upload: {
-                                                    types: ['png', 'jpeg']
-                                                }
-                                            },
-                                            extraPlugins: [CustomUploadAdapterPlugin]
-                                        }}
-                                        onChange={(_, editor) => {
-                                            const data = editor.getData();
-                                            console.log(data);
-                                        }}
-                                    />
-                                </Box>
+                                <Button fullWidth>Thêm câu trả lời</Button>
                             </Box>
 
                         </form>
