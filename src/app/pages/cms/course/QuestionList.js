@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from "react"
+import React, { Fragment, useEffect, useState, useMemo } from "react"
 import { useDispatch, useSelector } from "react-redux";
 import {
     Box,
@@ -10,7 +10,8 @@ import {
     RadioGroup,
     FormControlLabel,
     Radio,
-    IconButton
+    IconButton,
+    FormHelperText
 } from "@material-ui/core";
 import CustomUploadAdapterPlugin from "../../../plugin/CustomUploadAdapterPlugin";
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
@@ -29,7 +30,9 @@ import {
 
 import { Link, useParams } from "react-router-dom";
 import { ROUTES } from "../../../router/Routes";
-import { useForm } from "react-hook-form";
+import { useForm, Controller, useFieldArray } from "react-hook-form";
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from "yup";
 
 let renderCount = 0;
 
@@ -50,8 +53,6 @@ const QuestionList = () => {
     const [page] = useState(0);
     const [size] = useState(50);
     const [content] = useState('');
-    const { control, handleSubmit } = useForm();
-
     orgId = parseInt(orgId);
     courseId = parseInt(courseId);
     quizId = parseInt(quizId);
@@ -107,10 +108,6 @@ const QuestionList = () => {
 
     }
 
-    const onSubmit = data => {
-        console.log(data);
-    }
-
     return <Container>
         <Typography variant="body1">
             {renderCount}
@@ -141,55 +138,134 @@ const QuestionList = () => {
                     <CircularProgress />
                     :
                     <>
-                        <form onSubmit={handleSubmit(onSubmit)}>
-                            <Box bgcolor="white" p={2} width="530px">
-                                <Box mb={2}>
-                                    <CKEditor
-                                        editor={EditorTheme}
-                                        config={{
-                                            language: "vi",
-                                            toolbar: ['bold', 'italic', 'link', 'bulletedList', 'numberedList', '|', 'imageUpload', 'blockQuote', 'insertTable'],
-                                            image: {
-                                                upload: {
-                                                    types: ['png', 'jpeg']
-                                                }
-                                            },
-                                            extraPlugins: [CustomUploadAdapterPlugin],
-                                            placeholder: "Nhập câu hỏi"
-                                        }}
-                                        onChange={(_, editor) => {
-                                            const data = editor.getData();
-                                            console.log(data);
-                                        }}
-                                    />
-                                </Box>
-                                <Box mt={1} mb={2} display="flex" alignItems="center">
-                                    <Box width="30%">
-                                        <Typography variant="subtitle1">Loại câu hỏi</Typography>
-                                    </Box>
-                                    <RadioGroup name="type" row>
-                                        <FormControlLabel value="MULTIPLE_CHOICE_ONE_ANSWER" control={<Radio />} label="1 đáp án" />
-                                        <FormControlLabel value="MULTIPLE_CHOICE_MULTIPLE_ANSWERS" control={<Radio />} label="Nhiều đáp án" />
-                                    </RadioGroup>
-                                </Box>
-                                <Fragment>
-                                    <Divider />
-                                    <Box display="flex" alignItems="center" justifyContent="space-between">
-                                        <Typography variant="subtitle1">Câu trả lời 1</Typography>
-                                        <IconButton aria-label="delete">
-                                            <CloseIcon />
-                                        </IconButton>
-                                    </Box>
-                                    <Box mt={1} mb={2} display="flex" alignItems="flex-start">
-                                        <Radio
-                                            value={false}
-                                            name="is_correct"
-                                        />
+                        <Question courseId={courseId} quizId={quizId} />
+                    </>
+            }
+        </Box>
+    </Container>
+}
+
+const QuestionYupSchema = yup.object().shape({
+    course_id: yup.number().required("Bắt buộc"),
+    quiz_id: yup.number().required("Bắt buộc"),
+    content: yup.string().required("*Bắt buộc"),
+    answers: yup.array().of(yup.object().shape({
+        id: yup.number(),
+        content: yup.string().required("*Không được bỏ trống"),
+        description: yup.string(),
+        is_correct: yup.bool()
+    }))
+        .required("Tối thiểu có 1 câu trả lời đúng")
+        .min(1, "Tối thiểu có 1 câu trả lời đúng")
+});
+
+const Question = ({ courseId, quizId }) => {
+    const { control, handleSubmit, register, setValue, errors, formState } = useForm({
+        defaultValues: {
+            "answers": [
+                {
+                    "content": "",
+                    "description": "",
+                    "id": null,
+                    "is_correct": true
+                }
+            ],
+            "content": "",
+            "course_id": courseId,
+            "description": "",
+            "id": null,
+            "position": 0,
+            "quiz_id": quizId,
+            "type": "MULTIPLE_CHOICE_ONE_ANSWER"
+        },
+        resolver: yupResolver(QuestionYupSchema),
+        mode: "onChange"
+    });
+
+    console.log(formState.isValid);
+    console.log(formState.errors);
+
+    const { fields, append, remove } = useFieldArray(
+        {
+            control,
+            name: "answers"
+        }
+    );
+
+    useEffect(() => {
+        register("content");
+    })
+
+    const onSubmit = data => {
+        console.log(data);
+    }
+
+    return <form onSubmit={handleSubmit(onSubmit)}>
+        <input name="quiz_id" ref={register} type="hidden" />
+        <input name="course_id" ref={register} type="hidden" />
+        <Box bgcolor="white" p={2} width="530px">
+            <Box mb={2}>
+                <CKEditor
+                    editor={EditorTheme}
+                    config={{
+                        language: "vi",
+                        toolbar: ['bold', 'italic', 'link', 'bulletedList', 'numberedList', '|', 'imageUpload', 'blockQuote', 'insertTable'],
+                        image: {
+                            upload: {
+                                types: ['png', 'jpeg']
+                            }
+                        },
+                        extraPlugins: [CustomUploadAdapterPlugin],
+                        placeholder: "Nhập câu hỏi"
+                    }}
+                    onChange={(_, editor) => {
+                        const data = editor.getData();
+                        setValue("content", data)
+                    }}
+                />
+                {errors.content && <FormHelperText error>{errors.content.message}</FormHelperText>}
+            </Box>
+            <Box mt={1} mb={2} display="flex" alignItems="center">
+                <Box width="30%">
+                    <Typography variant="subtitle1">Loại câu hỏi</Typography>
+                </Box>
+                <Controller
+                    as={
+                        <RadioGroup aria-label="type" row>
+                            <FormControlLabel value="MULTIPLE_CHOICE_ONE_ANSWER" control={<Radio color="primary" />} label="1 đáp án" />
+                            <FormControlLabel value="MULTIPLE_CHOICE_MULTIPLE_ANSWERS" control={<Radio color="primary" />} label="Nhiều đáp án" />
+                        </RadioGroup>
+                    }
+                    name="type"
+                    control={control}
+                />
+            </Box>
+            <Box mb={4}>
+                {fields.map((answer, index) => (
+                    <Fragment key={index}>
+                        <Divider />
+                        <input name={`answers[${index}].id`} ref={register()} defaultValue={`${answer.id}`} type="hidden" />
+                        <Box mt={1} display="flex" alignItems="center" justifyContent="space-between">
+                            <Typography variant="subtitle1">Câu trả lời {index + 1}</Typography>
+                            <IconButton aria-label="delete" onClick={() => remove(index)}>
+                                <CloseIcon />
+                            </IconButton>
+                        </Box>
+                        <Box mt={1} mb={2}>
+                            <Box display="flex" alignItems="flex-start">
+                                <Controller
+                                    render={({ value, onChange }) => <Radio color="primary" checked={value} onChange={(e) => onChange(e.target.value)} />}
+                                    name={`answers[${index}].is_correct`}
+                                    control={control}
+                                    defaultValue={answer.is_correct}
+                                />
+                                <Controller
+                                    render={({ onChange }) => (
                                         <CKEditor
                                             editor={EditorTheme}
                                             config={{
                                                 language: "vi",
-                                                toolbar: ['bold', 'italic'],
+                                                toolbar: ['bold', 'italic', '|', 'imageUpload'],
                                                 image: {
                                                     upload: {
                                                         types: ['png', 'jpeg']
@@ -200,20 +276,38 @@ const QuestionList = () => {
                                             }}
                                             onChange={(_, editor) => {
                                                 const data = editor.getData();
-                                                console.log(data);
+                                                onChange(data);
                                             }}
                                         />
-                                    </Box>
-                                </Fragment>
-
-                                <Button fullWidth>Thêm câu trả lời</Button>
+                                    )}
+                                    name={`answers[${index}].content`}
+                                    control={control}
+                                    defaultValue={answer.content} // make sure to set up defaultValue
+                                />
                             </Box>
+                            <Box pl={6}>
+                                {errors.answers && errors.answers[index] && errors.answers[index].content && <FormHelperText error>{errors.answers[index].content.message}</FormHelperText>}
+                            </Box>
+                        </Box>
 
-                        </form>
-                    </>
-            }
+                    </Fragment>
+                ))}
+                {errors.answers && <FormHelperText error>{errors.answers.message}</FormHelperText>}
+            </Box>
+
+            <Divider />
+            <Box mt={2} display="flex" alignItems="center" justifyContent="space-between">
+                <Button onClick={() => {
+                    append({ id: null, content: "", is_correct: false });
+                }}>Thêm câu trả lời</Button>
+                <Box>
+                    <Button>Hủy</Button>
+                    <Button variant="contained" color="primary" disableElevation type="submit">Lưu</Button>
+                </Box>
+            </Box>
         </Box>
-    </Container>
+
+    </form>;
 }
 
 export default QuestionList;
