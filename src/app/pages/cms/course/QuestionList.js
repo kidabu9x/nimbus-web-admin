@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState, useMemo } from "react"
+import React, { Fragment, useEffect, useState } from "react"
 import { useDispatch, useSelector } from "react-redux";
 import {
     Box,
@@ -11,7 +11,8 @@ import {
     FormControlLabel,
     Radio,
     IconButton,
-    FormHelperText
+    FormHelperText,
+    LinearProgress
 } from "@material-ui/core";
 import CustomUploadAdapterPlugin from "../../../plugin/CustomUploadAdapterPlugin";
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
@@ -160,7 +161,8 @@ const QuestionYupSchema = yup.object().shape({
 });
 
 const Question = ({ courseId, quizId }) => {
-    const { control, handleSubmit, register, setValue, errors, formState } = useForm({
+    const [requesting, setRequesting] = useState(false);
+    const { control, handleSubmit, register, setValue, errors } = useForm({
         defaultValues: {
             "answers": [
                 {
@@ -182,9 +184,6 @@ const Question = ({ courseId, quizId }) => {
         mode: "onChange"
     });
 
-    console.log(formState.isValid);
-    console.log(formState.errors);
-
     const { fields, append, remove } = useFieldArray(
         {
             control,
@@ -198,15 +197,27 @@ const Question = ({ courseId, quizId }) => {
 
     const onSubmit = data => {
         console.log(data);
+        setRequesting(true);
+        setTimeout(() => {
+            setRequesting(false);
+        }, 5000);
     }
 
     return <form onSubmit={handleSubmit(onSubmit)}>
         <input name="quiz_id" ref={register} type="hidden" />
         <input name="course_id" ref={register} type="hidden" />
         <Box bgcolor="white" p={2} width="530px">
+            {requesting && <LinearProgress />}
+            <Box mb={1} display="flex" alignItems="center" justifyContent="space-between">
+                <Typography variant="subtitle1">Câu hỏi mới</Typography>
+                <IconButton aria-label="delete" disabled={requesting}>
+                    <CloseIcon />
+                </IconButton>
+            </Box>
             <Box mb={2}>
                 <CKEditor
                     editor={EditorTheme}
+                    disabled={requesting}
                     config={{
                         language: "vi",
                         toolbar: ['bold', 'italic', 'link', 'bulletedList', 'numberedList', '|', 'imageUpload', 'blockQuote', 'insertTable'],
@@ -222,6 +233,7 @@ const Question = ({ courseId, quizId }) => {
                         const data = editor.getData();
                         setValue("content", data)
                     }}
+
                 />
                 {errors.content && <FormHelperText error>{errors.content.message}</FormHelperText>}
             </Box>
@@ -232,8 +244,8 @@ const Question = ({ courseId, quizId }) => {
                 <Controller
                     as={
                         <RadioGroup aria-label="type" row>
-                            <FormControlLabel value="MULTIPLE_CHOICE_ONE_ANSWER" control={<Radio color="primary" />} label="1 đáp án" />
-                            <FormControlLabel value="MULTIPLE_CHOICE_MULTIPLE_ANSWERS" control={<Radio color="primary" />} label="Nhiều đáp án" />
+                            <FormControlLabel value="MULTIPLE_CHOICE_ONE_ANSWER" control={<Radio color="primary" />} label="1 đáp án" disabled={requesting} />
+                            <FormControlLabel value="MULTIPLE_CHOICE_MULTIPLE_ANSWERS" control={<Radio color="primary" />} label="Nhiều đáp án" disabled={requesting} />
                         </RadioGroup>
                     }
                     name="type"
@@ -247,14 +259,14 @@ const Question = ({ courseId, quizId }) => {
                         <input name={`answers[${index}].id`} ref={register()} defaultValue={`${answer.id}`} type="hidden" />
                         <Box mt={1} display="flex" alignItems="center" justifyContent="space-between">
                             <Typography variant="subtitle1">Câu trả lời {index + 1}</Typography>
-                            <IconButton aria-label="delete" onClick={() => remove(index)}>
+                            <IconButton aria-label="delete" onClick={() => remove(index)} disabled={requesting}>
                                 <CloseIcon />
                             </IconButton>
                         </Box>
                         <Box mt={1} mb={2}>
                             <Box display="flex" alignItems="flex-start">
                                 <Controller
-                                    render={({ value, onChange }) => <Radio color="primary" checked={value} onChange={(e) => onChange(e.target.value)} />}
+                                    render={({ value, onChange }) => <Radio color="primary" checked={value} onChange={(e) => onChange(e.target.value)} disabled={requesting} />}
                                     name={`answers[${index}].is_correct`}
                                     control={control}
                                     defaultValue={answer.is_correct}
@@ -263,6 +275,7 @@ const Question = ({ courseId, quizId }) => {
                                     render={({ onChange }) => (
                                         <CKEditor
                                             editor={EditorTheme}
+                                            disabled={requesting}
                                             config={{
                                                 language: "vi",
                                                 toolbar: ['bold', 'italic', '|', 'imageUpload'],
@@ -297,12 +310,17 @@ const Question = ({ courseId, quizId }) => {
 
             <Divider />
             <Box mt={2} display="flex" alignItems="center" justifyContent="space-between">
-                <Button onClick={() => {
-                    append({ id: null, content: "", is_correct: false });
-                }}>Thêm câu trả lời</Button>
+                <Button
+                    onClick={() => {
+                        append({ id: null, content: "", is_correct: false });
+                    }}
+                    disabled={requesting}
+                >
+                    Thêm câu trả lời
+                </Button>
                 <Box>
-                    <Button>Hủy</Button>
-                    <Button variant="contained" color="primary" disableElevation type="submit">Lưu</Button>
+                    <Button disabled={requesting}>Hủy</Button>
+                    <Button variant="contained" color="primary" disableElevation type="submit" disabled={requesting}>Lưu</Button>
                 </Box>
             </Box>
         </Box>
