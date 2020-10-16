@@ -1,5 +1,6 @@
-import React, { Fragment, useEffect, useState } from "react"
+import React, { Fragment, useEffect, useState, useRef } from "react"
 import { useDispatch, useSelector } from "react-redux";
+import { useSnackbar } from 'notistack';
 import {
     Box,
     CircularProgress,
@@ -12,11 +13,15 @@ import {
     Radio,
     IconButton,
     FormHelperText,
-    LinearProgress
+    LinearProgress,
+    Menu,
+    MenuItem,
+    makeStyles
 } from "@material-ui/core";
 import CustomUploadAdapterPlugin from "../../../plugin/CustomUploadAdapterPlugin";
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
 import CloseIcon from '@material-ui/icons/Close';
+import MoreVertIcon from '@material-ui/icons/MoreVert';
 import CKEditor from '@ckeditor/ckeditor5-react';
 import EditorTheme from '@ckeditor/ckeditor5-build-classic';
 import {
@@ -25,40 +30,53 @@ import {
 import {
     getQuiz
 } from "../../../store/cms/quiz/actions";
-import {
-    filterQuestions
-} from "../../../store/cms/question/actions";
+import { filterQuestions, createQuestion, updateQuestion, getQuestion, deleteQuestion } from "../../../api/cms/question.api";
 
 import { Link, useParams } from "react-router-dom";
 import { ROUTES } from "../../../router/Routes";
 import { useForm, Controller, useFieldArray } from "react-hook-form";
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from "yup";
+import PopupState, { bindTrigger, bindMenu } from 'material-ui-popup-state';
 
 let renderCount = 0;
 
+const initQuestion = {
+    "answers": [
+        {
+            "content": "",
+            "description": "",
+            "id": null,
+            "is_correct": true
+        }
+    ],
+    "content": "",
+    "description": "",
+    "id": null,
+    "position": 0,
+    "type": "MULTIPLE_CHOICE_ONE_ANSWER"
+}
+
 const QuestionList = () => {
-    const { org, course, courseGetting, quiz, quizGetting, filtering } = useSelector(({ cms }) => ({
+    const { org, course, quiz } = useSelector(({ cms }) => ({
         org: cms.org.org,
-
         course: cms.course.course,
-        courseGetting: cms.course.getting,
-
-        quiz: cms.quiz.quiz,
-        quizGetting: cms.quiz.getting,
-
-        questions: cms.question.questions,
-        filtering: cms.question.filtering
+        quiz: cms.quiz.quiz
     }));
     let { orgId, courseId, quizId } = useParams();
     const [page] = useState(0);
     const [size] = useState(50);
     const [content] = useState('');
+    const [questions, setQuestions] = useState([]);
+    const [filtering, setFiltering] = useState(false);
+    const [isAddNew, setIsAddNew] = useState(false);
+    const { enqueueSnackbar } = useSnackbar();
     orgId = parseInt(orgId);
     courseId = parseInt(courseId);
     quizId = parseInt(quizId);
 
     const dispatch = useDispatch();
+    const newQuestionRef = useRef();
     renderCount++;
     useEffect(() => {
         if (org != null) {
@@ -73,22 +91,28 @@ const QuestionList = () => {
     }, [course, quizId, dispatch]);
 
     useEffect(() => {
-        if (course !== null && course.id === courseId && quiz !== null && quiz.id === quizId) {
-            dispatch(filterQuestions({
-                content: content,
-                page,
-                size,
-                quiz_ids: [quizId],
-                course_ids: [courseId]
-            }));
-        }
-    }, [course, courseId, quiz, quizId, page, size, content, dispatch]);
+        setFiltering(true);
+        filterQuestions({
+            content: content,
+            page,
+            size,
+            quiz_ids: [quizId],
+            course_ids: [courseId]
+        })
+            .then(response => {
+                setQuestions(response.data.data);
+            })
+            .catch(error => {
+                enqueueSnackbar(error, {
+                    variant: "error"
+                });
+            })
+            .finally(() => {
+                setFiltering(false);
+            })
 
-    if (courseGetting || quizGetting) {
-        return <Box display="flex" flexDirection="column" alignItems="center">
-            <CircularProgress />
-        </Box>;
-    }
+    }, [courseId, quizId, page, size, content]);
+
     if (org == null) {
         return <Container>
             <Typography variant="h5">Tổ chức không tồn tại</Typography>
@@ -105,7 +129,24 @@ const QuestionList = () => {
         </Container>;
     }
 
+    const createNewQuestion = () => {
+        toggleIsCreate();
+        window.scrollTo({
+            behavior: "smooth",
+            top: newQuestionRef.current.offsetTop
+        });
+    }
+
     const toggleIsCreate = () => {
+        setIsAddNew(!isAddNew);
+    }
+
+    const onCreated = (question) => {
+        setQuestions(questions.concat([question]));
+        toggleIsCreate();
+    }
+
+    const onUpdated = (question) => {
 
     }
 
@@ -121,15 +162,15 @@ const QuestionList = () => {
             <Typography variant="h5">
                 Danh sách câu hỏi
             </Typography>
-            <Button
+            {!isAddNew && <Button
                 variant="contained"
                 size="medium"
                 color="primary"
                 disableElevation
-                onClick={toggleIsCreate}
+                onClick={createNewQuestion}
             >
                 Tạo mới
-            </Button>
+            </Button>}
         </Box>
         <Divider />
 
@@ -139,7 +180,28 @@ const QuestionList = () => {
                     <CircularProgress />
                     :
                     <>
-                        <Question courseId={courseId} quizId={quizId} />
+                        {questions.map((question, index) => (
+                            <Question
+                                key={index}
+                                index={index}
+                                courseId={courseId}
+                                quizId={quizId}
+                                question={question}
+                                onUpdated={onUpdated}
+                                viewable={true}
+                            />
+                        ))
+                        }
+                        <div ref={newQuestionRef}>
+                            {isAddNew && <Question
+                                courseId={courseId}
+                                quizId={quizId}
+                                question={initQuestion}
+                                onCreated={onCreated}
+                                onCancelCreate={toggleIsCreate}
+                                viewable={false}
+                            />}
+                        </div>
                     </>
             }
         </Box>
@@ -151,7 +213,6 @@ const QuestionYupSchema = yup.object().shape({
     quiz_id: yup.number().required("Bắt buộc"),
     content: yup.string().required("*Bắt buộc"),
     answers: yup.array().of(yup.object().shape({
-        id: yup.number(),
         content: yup.string().required("*Không được bỏ trống"),
         description: yup.string(),
         is_correct: yup.bool()
@@ -160,28 +221,31 @@ const QuestionYupSchema = yup.object().shape({
         .min(1, "Tối thiểu có 1 câu trả lời đúng")
 });
 
-const Question = ({ courseId, quizId }) => {
+const radioStyles = makeStyles(theme => ({
+    root: {
+    },
+    colorPrimary: {
+        '&$disabled': {
+            color: theme.palette.primary.main
+        }
+    },
+    disabled: {
+        color: theme.palette.primary.main
+    }
+}));
+
+const Question = ({ index, viewable, courseId, quizId, question, onCreated, onUpdated, onCancelCreate }) => {
     const [requesting, setRequesting] = useState(false);
+    const [editMode, setEditMode] = useState(!viewable);
+    const customRadioClasses = radioStyles();
+
     const { control, handleSubmit, register, setValue, errors } = useForm({
         defaultValues: {
-            "answers": [
-                {
-                    "content": "",
-                    "description": "",
-                    "id": null,
-                    "is_correct": true
-                }
-            ],
-            "content": "",
-            "course_id": courseId,
-            "description": "",
-            "id": null,
-            "position": 0,
-            "quiz_id": quizId,
-            "type": "MULTIPLE_CHOICE_ONE_ANSWER"
+            ...question,
+            course_id: courseId,
+            quiz_id: quizId
         },
-        resolver: yupResolver(QuestionYupSchema),
-        mode: "onChange"
+        resolver: yupResolver(QuestionYupSchema)
     });
 
     const { fields, append, remove } = useFieldArray(
@@ -190,142 +254,223 @@ const Question = ({ courseId, quizId }) => {
             name: "answers"
         }
     );
+    const { enqueueSnackbar } = useSnackbar();
 
     useEffect(() => {
         register("content");
-    })
+    });
 
-    const onSubmit = data => {
-        console.log(data);
+    const onSubmit = async data => {
         setRequesting(true);
-        setTimeout(() => {
-            setRequesting(false);
-        }, 5000);
+        try {
+            if (data.id == null) {
+                const createRes = await createQuestion(data);
+                const id = createRes.data.data;
+                const detailRes = await getQuestion(id);
+                const question = detailRes.data.data;
+                onCreated(question);
+            } else {
+                await updateQuestion(data);
+                const detailRes = await getQuestion(data.id);
+                const question = detailRes.data.data;
+                onUpdated(question);
+            }
+        }
+        catch (error) {
+            enqueueSnackbar(error, {
+                variant: "error"
+            });
+        }
+        setRequesting(false);
     }
 
-    return <form onSubmit={handleSubmit(onSubmit)}>
-        <input name="quiz_id" ref={register} type="hidden" />
-        <input name="course_id" ref={register} type="hidden" />
-        <Box bgcolor="white" p={2} width="530px">
-            {requesting && <LinearProgress />}
+    const onCancel = () => {
+        if (question.id == null) {
+            onCancelCreate();
+        } else {
+            setEditMode(false);
+        }
+    }
+
+    const onDelete = () => {
+
+    }
+
+    if (editMode) {
+        return <form onSubmit={handleSubmit(onSubmit)}>
+            <input name="id" ref={register} type="hidden" />
+            <input name="quiz_id" ref={register} type="hidden" />
+            <input name="course_id" ref={register} type="hidden" />
+            <Box bgcolor="white" p={2} width="530px" mb={4}>
+                {requesting && <LinearProgress />}
+                <Box mb={1} display="flex" alignItems="center" justifyContent="space-between">
+                    <Typography variant="subtitle1">
+                        {index != null ? `Câu hỏi ${index + 1}` : "Câu hỏi mới"}
+                    </Typography>
+                    <IconButton aria-label="delete" disabled={requesting} onClick={onCancel}>
+                        <CloseIcon />
+                    </IconButton>
+                </Box>
+                <Box mb={2}>
+                    <CKEditor
+                        editor={EditorTheme}
+                        disabled={requesting}
+                        config={{
+                            language: "vi",
+                            toolbar: ['bold', 'italic', 'link', 'bulletedList', 'numberedList', '|', 'imageUpload', 'blockQuote', 'insertTable'],
+                            image: {
+                                upload: {
+                                    types: ['png', 'jpeg']
+                                }
+                            },
+                            extraPlugins: [CustomUploadAdapterPlugin],
+                            placeholder: "Nhập câu hỏi"
+                        }}
+                        data={question.content}
+                        onChange={(_, editor) => {
+                            const data = editor.getData();
+                            setValue("content", data)
+                        }}
+
+                    />
+                    {errors.content && <FormHelperText error>{errors.content.message}</FormHelperText>}
+                </Box>
+                <Box mt={1} mb={2} display="flex" alignItems="center">
+                    <Box width="30%">
+                        <Typography variant="subtitle1">Loại câu hỏi</Typography>
+                    </Box>
+                    <Controller
+                        as={
+                            <RadioGroup aria-label="type" row>
+                                <FormControlLabel value="MULTIPLE_CHOICE_ONE_ANSWER" control={<Radio color="primary" />} label="1 đáp án" disabled={requesting} />
+                                <FormControlLabel value="MULTIPLE_CHOICE_MULTIPLE_ANSWERS" control={<Radio color="primary" />} label="Nhiều đáp án" disabled={requesting} />
+                            </RadioGroup>
+                        }
+                        name="type"
+                        control={control}
+                    />
+                </Box>
+                <Box mb={4}>
+                    {fields.map((answer, index) => (
+                        <Fragment key={index}>
+                            <Divider />
+                            <input name={`answers[${index}].id`} ref={register()} defaultValue={`${answer.id}`} type="hidden" />
+                            <Box mt={1} display="flex" alignItems="center" justifyContent="space-between">
+                                <Typography variant="subtitle1">Câu trả lời {index + 1}</Typography>
+                                <IconButton aria-label="delete" onClick={() => remove(index)} disabled={requesting}>
+                                    <CloseIcon />
+                                </IconButton>
+                            </Box>
+                            <Box mt={1} mb={2}>
+                                <Box display="flex" alignItems="flex-start">
+                                    <Controller
+                                        render={({ value, onChange }) => <Radio color="primary" checked={value} onChange={(e) => onChange(e.target.value)} disabled={requesting} />}
+                                        name={`answers[${index}].is_correct`}
+                                        control={control}
+                                        defaultValue={answer.is_correct}
+                                    />
+                                    <Controller
+                                        render={({ onChange }) => (
+                                            <CKEditor
+                                                data={answer.content}
+                                                editor={EditorTheme}
+                                                disabled={requesting}
+                                                config={{
+                                                    language: "vi",
+                                                    toolbar: ['bold', 'italic', '|', 'imageUpload'],
+                                                    image: {
+                                                        upload: {
+                                                            types: ['png', 'jpeg']
+                                                        }
+                                                    },
+                                                    extraPlugins: [CustomUploadAdapterPlugin],
+                                                    placeholder: "Câu trả lời"
+                                                }}
+                                                onChange={(_, editor) => {
+                                                    const data = editor.getData();
+                                                    onChange(data);
+                                                }}
+                                            />
+                                        )}
+                                        name={`answers[${index}].content`}
+                                        control={control}
+                                        defaultValue={answer.content} // make sure to set up defaultValue
+                                    />
+                                </Box>
+                                <Box pl={6}>
+                                    {errors.answers && errors.answers[index] && errors.answers[index].content && <FormHelperText error>{errors.answers[index].content.message}</FormHelperText>}
+                                </Box>
+                            </Box>
+
+                        </Fragment>
+                    ))}
+                    {errors.answers && <FormHelperText error>{errors.answers.message}</FormHelperText>}
+                </Box>
+
+                <Divider />
+                <Box mt={2} display="flex" alignItems="center" justifyContent="space-between">
+                    <Button
+                        onClick={() => {
+                            append({ id: null, content: "", is_correct: false });
+                        }}
+                        disabled={requesting}
+                    >
+                        Thêm câu trả lời
+                </Button>
+                    <Box>
+                        <Button disabled={requesting} onClick={onCancel}>Hủy</Button>
+                        <Button variant="contained" color="primary" disableElevation type="submit" disabled={requesting}>Lưu</Button>
+                    </Box>
+                </Box>
+            </Box>
+        </form>;
+    } else {
+        return <Box bgcolor="white" p={2} width="530px" mb={4}>
             <Box mb={1} display="flex" alignItems="center" justifyContent="space-between">
-                <Typography variant="subtitle1">Câu hỏi mới</Typography>
-                <IconButton aria-label="delete" disabled={requesting}>
-                    <CloseIcon />
-                </IconButton>
+                <Typography variant="subtitle1">
+                    {index != null ? `Câu hỏi ${index + 1}` : "Câu hỏi mới"}
+                </Typography>
+                <PopupState variant="popover" popupId="more-action">
+                    {(popupState) => (
+                        <React.Fragment>
+                            <IconButton
+                                {...bindTrigger(popupState)}
+                            >
+                                <MoreVertIcon />
+                            </IconButton>
+                            <Menu {...bindMenu(popupState)}>
+                                <MenuItem onClick={() => setEditMode(true)}>Sửa</MenuItem>
+                                <MenuItem onClick={popupState.close}>Xóa</MenuItem>
+                            </Menu>
+                        </React.Fragment>
+                    )}
+                </PopupState>
             </Box>
             <Box mb={2}>
-                <CKEditor
-                    editor={EditorTheme}
-                    disabled={requesting}
-                    config={{
-                        language: "vi",
-                        toolbar: ['bold', 'italic', 'link', 'bulletedList', 'numberedList', '|', 'imageUpload', 'blockQuote', 'insertTable'],
-                        image: {
-                            upload: {
-                                types: ['png', 'jpeg']
-                            }
-                        },
-                        extraPlugins: [CustomUploadAdapterPlugin],
-                        placeholder: "Nhập câu hỏi"
-                    }}
-                    onChange={(_, editor) => {
-                        const data = editor.getData();
-                        setValue("content", data)
-                    }}
-
-                />
-                {errors.content && <FormHelperText error>{errors.content.message}</FormHelperText>}
+                <div className=".ck-editor" dangerouslySetInnerHTML={{
+                    __html: question.content
+                }}></div>
             </Box>
-            <Box mt={1} mb={2} display="flex" alignItems="center">
-                <Box width="30%">
-                    <Typography variant="subtitle1">Loại câu hỏi</Typography>
-                </Box>
-                <Controller
-                    as={
-                        <RadioGroup aria-label="type" row>
-                            <FormControlLabel value="MULTIPLE_CHOICE_ONE_ANSWER" control={<Radio color="primary" />} label="1 đáp án" disabled={requesting} />
-                            <FormControlLabel value="MULTIPLE_CHOICE_MULTIPLE_ANSWERS" control={<Radio color="primary" />} label="Nhiều đáp án" disabled={requesting} />
-                        </RadioGroup>
-                    }
-                    name="type"
-                    control={control}
-                />
-            </Box>
-            <Box mb={4}>
-                {fields.map((answer, index) => (
-                    <Fragment key={index}>
-                        <Divider />
-                        <input name={`answers[${index}].id`} ref={register()} defaultValue={`${answer.id}`} type="hidden" />
-                        <Box mt={1} display="flex" alignItems="center" justifyContent="space-between">
-                            <Typography variant="subtitle1">Câu trả lời {index + 1}</Typography>
-                            <IconButton aria-label="delete" onClick={() => remove(index)} disabled={requesting}>
-                                <CloseIcon />
-                            </IconButton>
-                        </Box>
-                        <Box mt={1} mb={2}>
-                            <Box display="flex" alignItems="flex-start">
-                                <Controller
-                                    render={({ value, onChange }) => <Radio color="primary" checked={value} onChange={(e) => onChange(e.target.value)} disabled={requesting} />}
-                                    name={`answers[${index}].is_correct`}
-                                    control={control}
-                                    defaultValue={answer.is_correct}
-                                />
-                                <Controller
-                                    render={({ onChange }) => (
-                                        <CKEditor
-                                            editor={EditorTheme}
-                                            disabled={requesting}
-                                            config={{
-                                                language: "vi",
-                                                toolbar: ['bold', 'italic', '|', 'imageUpload'],
-                                                image: {
-                                                    upload: {
-                                                        types: ['png', 'jpeg']
-                                                    }
-                                                },
-                                                extraPlugins: [CustomUploadAdapterPlugin],
-                                                placeholder: "Câu trả lời"
-                                            }}
-                                            onChange={(_, editor) => {
-                                                const data = editor.getData();
-                                                onChange(data);
-                                            }}
-                                        />
-                                    )}
-                                    name={`answers[${index}].content`}
-                                    control={control}
-                                    defaultValue={answer.content} // make sure to set up defaultValue
-                                />
-                            </Box>
-                            <Box pl={6}>
-                                {errors.answers && errors.answers[index] && errors.answers[index].content && <FormHelperText error>{errors.answers[index].content.message}</FormHelperText>}
-                            </Box>
-                        </Box>
-
-                    </Fragment>
-                ))}
-                {errors.answers && <FormHelperText error>{errors.answers.message}</FormHelperText>}
-            </Box>
-
             <Divider />
-            <Box mt={2} display="flex" alignItems="center" justifyContent="space-between">
-                <Button
-                    onClick={() => {
-                        append({ id: null, content: "", is_correct: false });
-                    }}
-                    disabled={requesting}
-                >
-                    Thêm câu trả lời
-                </Button>
-                <Box>
-                    <Button disabled={requesting}>Hủy</Button>
-                    <Button variant="contained" color="primary" disableElevation type="submit" disabled={requesting}>Lưu</Button>
-                </Box>
+            <Box mb={4}>
+                {question.answers.map((answer, index) => (
+                    <Box key={index} mt={1} mb={2}>
+                        <Box display="flex" alignItems="flex-start">
+                            <Radio color="primary" checked={answer.is_correct} disabled classes={{
+                                root: customRadioClasses.root,
+                                colorPrimary: customRadioClasses.colorPrimary,
+                                disabled: customRadioClasses.disabled
+                            }} />
+                            <div className=".ck-editor" dangerouslySetInnerHTML={{
+                                __html: answer.content
+                            }}></div>
+                        </Box>
+                    </Box>
+                ))}
             </Box>
         </Box>
+    }
 
-    </form>;
 }
 
 export default QuestionList;

@@ -6,6 +6,7 @@ import { SnackbarProvider } from 'notistack';
 import Routes from "./app/router";
 import ThemeProvider from "./app/theme/ThemeProvider";
 import "./App.css";
+import "./app/static/css/ck-editor.css";
 
 export default function App({ store, persistor, basename }) {
   return (

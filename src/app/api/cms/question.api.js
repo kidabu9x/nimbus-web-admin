@@ -91,6 +91,15 @@ export function getQuestion(
     return axios.get(`${BASE_URL}/${id}`);
 }
 
+export function deleteQuestion(
+    id
+) {
+    if (id == null) {
+        return;
+    }
+    return axios.delete(`${BASE_URL}/${id}`);
+}
+
 // return new Promise((resolve, reject) => {
 //     setTimeout(() => {
 //         resolve();
