@@ -11,6 +11,7 @@ import {
     RadioGroup,
     FormControlLabel,
     Radio,
+    Checkbox,
     IconButton,
     FormHelperText,
     LinearProgress,
@@ -41,6 +42,11 @@ import PopupState, { bindTrigger, bindMenu } from 'material-ui-popup-state';
 
 let renderCount = 0;
 
+const QUESTION_TYPE = {
+    MULTIPLE_CHOICE_ONE_ANSWER: "MULTIPLE_CHOICE_ONE_ANSWER",
+    MULTIPLE_CHOICE_MULTIPLE_ANSWERS: "MULTIPLE_CHOICE_MULTIPLE_ANSWERS"
+}
+
 const initQuestion = {
     "answers": [
         {
@@ -54,7 +60,7 @@ const initQuestion = {
     "description": "",
     "id": null,
     "position": 0,
-    "type": "MULTIPLE_CHOICE_ONE_ANSWER"
+    "type": QUESTION_TYPE.MULTIPLE_CHOICE_ONE_ANSWER
 }
 
 const QuestionList = () => {
@@ -147,7 +153,9 @@ const QuestionList = () => {
     }
 
     const onUpdated = (question) => {
-
+        const index = questions.findIndex(q => q.id === question.id);
+        questions[index] = question;
+        setQuestions([...questions]);
     }
 
     return <Container>
@@ -239,7 +247,7 @@ const Question = ({ index, viewable, courseId, quizId, question, onCreated, onUp
     const [editMode, setEditMode] = useState(!viewable);
     const customRadioClasses = radioStyles();
 
-    const { control, handleSubmit, register, setValue, errors } = useForm({
+    const { control, handleSubmit, register, setValue, errors, reset, watch } = useForm({
         defaultValues: {
             ...question,
             course_id: courseId,
@@ -247,6 +255,8 @@ const Question = ({ index, viewable, courseId, quizId, question, onCreated, onUp
         },
         resolver: yupResolver(QuestionYupSchema)
     });
+
+    const watchType = watch("type");
 
     const { fields, append, remove } = useFieldArray(
         {
@@ -262,26 +272,39 @@ const Question = ({ index, viewable, courseId, quizId, question, onCreated, onUp
 
     const onSubmit = async data => {
         setRequesting(true);
-        try {
-            if (data.id == null) {
+        if (!data.id) {
+            try {
                 const createRes = await createQuestion(data);
                 const id = createRes.data.data;
                 const detailRes = await getQuestion(id);
                 const question = detailRes.data.data;
                 onCreated(question);
-            } else {
+            } catch (error) {
+                enqueueSnackbar("Đã có lỗi xảy ra", {
+                    variant: "error"
+                });
+            }
+
+        } else {
+            try {
                 await updateQuestion(data);
                 const detailRes = await getQuestion(data.id);
                 const question = detailRes.data.data;
                 onUpdated(question);
+                setRequesting(false);
+                setEditMode(false);
+                reset({
+                    ...question,
+                    course_id: courseId,
+                    quiz_id: quizId
+                });
+            } catch (error) {
+                setRequesting(false);
+                enqueueSnackbar(error.message, {
+                    variant: "error"
+                });
             }
         }
-        catch (error) {
-            enqueueSnackbar(error, {
-                variant: "error"
-            });
-        }
-        setRequesting(false);
     }
 
     const onCancel = () => {
@@ -289,11 +312,27 @@ const Question = ({ index, viewable, courseId, quizId, question, onCreated, onUp
             onCancelCreate();
         } else {
             setEditMode(false);
+            reset({
+                ...question,
+                course_id: courseId,
+                quiz_id: quizId
+            });
         }
     }
 
     const onDelete = () => {
 
+    }
+
+    const switchCorrectAnswers = (index) => {
+        for (let i = 0; i < fields.length; i++) {
+            if (i !== index) {
+                fields[i].is_correct = false;
+            } else {
+                fields[i].is_correct = true;
+            }
+        }
+        setValue("answers", fields);
     }
 
     if (editMode) {
@@ -342,8 +381,8 @@ const Question = ({ index, viewable, courseId, quizId, question, onCreated, onUp
                     <Controller
                         as={
                             <RadioGroup aria-label="type" row>
-                                <FormControlLabel value="MULTIPLE_CHOICE_ONE_ANSWER" control={<Radio color="primary" />} label="1 đáp án" disabled={requesting} />
-                                <FormControlLabel value="MULTIPLE_CHOICE_MULTIPLE_ANSWERS" control={<Radio color="primary" />} label="Nhiều đáp án" disabled={requesting} />
+                                <FormControlLabel value={QUESTION_TYPE.MULTIPLE_CHOICE_ONE_ANSWER} control={<Radio color="primary" />} label="1 đáp án" disabled={requesting} />
+                                <FormControlLabel value={QUESTION_TYPE.MULTIPLE_CHOICE_MULTIPLE_ANSWERS} control={<Radio color="primary" />} label="Nhiều đáp án" disabled={requesting} />
                             </RadioGroup>
                         }
                         name="type"
@@ -363,12 +402,18 @@ const Question = ({ index, viewable, courseId, quizId, question, onCreated, onUp
                             </Box>
                             <Box mt={1} mb={2}>
                                 <Box display="flex" alignItems="flex-start">
-                                    <Controller
-                                        render={({ value, onChange }) => <Radio color="primary" checked={value} onChange={(e) => onChange(e.target.value)} disabled={requesting} />}
+                                    {watchType === QUESTION_TYPE.MULTIPLE_CHOICE_ONE_ANSWER && <Controller
+                                        render={({ value }) => <Radio color="primary" checked={value} onChange={() => switchCorrectAnswers(index)} disabled={requesting} />}
                                         name={`answers[${index}].is_correct`}
                                         control={control}
                                         defaultValue={answer.is_correct}
-                                    />
+                                    />}
+                                    {watchType === QUESTION_TYPE.MULTIPLE_CHOICE_MULTIPLE_ANSWERS && <Controller
+                                        render={({ value, onChange }) => <Checkbox color="primary" checked={value} onChange={() => onChange(!value)} disabled={requesting} />}
+                                        name={`answers[${index}].is_correct`}
+                                        control={control}
+                                        defaultValue={answer.is_correct}
+                                    />}
                                     <Controller
                                         render={({ onChange }) => (
                                             <CKEditor
@@ -447,7 +492,7 @@ const Question = ({ index, viewable, courseId, quizId, question, onCreated, onUp
                 </PopupState>
             </Box>
             <Box mb={2}>
-                <div className=".ck-editor" dangerouslySetInnerHTML={{
+                <div className="ck-editor" dangerouslySetInnerHTML={{
                     __html: question.content
                 }}></div>
             </Box>
@@ -456,12 +501,17 @@ const Question = ({ index, viewable, courseId, quizId, question, onCreated, onUp
                 {question.answers.map((answer, index) => (
                     <Box key={index} mt={1} mb={2}>
                         <Box display="flex" alignItems="flex-start">
-                            <Radio color="primary" checked={answer.is_correct} disabled classes={{
+                            {question.type === QUESTION_TYPE.MULTIPLE_CHOICE_ONE_ANSWER && <Radio color="primary" checked={answer.is_correct} disabled classes={{
                                 root: customRadioClasses.root,
                                 colorPrimary: customRadioClasses.colorPrimary,
                                 disabled: customRadioClasses.disabled
-                            }} />
-                            <div className=".ck-editor" dangerouslySetInnerHTML={{
+                            }} />}
+                            {question.type === QUESTION_TYPE.MULTIPLE_CHOICE_MULTIPLE_ANSWERS && <Checkbox color="primary" checked={answer.is_correct} disabled classes={{
+                                root: customRadioClasses.root,
+                                colorPrimary: customRadioClasses.colorPrimary,
+                                disabled: customRadioClasses.disabled
+                            }} />}
+                            <div className="ck-editor" dangerouslySetInnerHTML={{
                                 __html: answer.content
                             }}></div>
                         </Box>

@@ -71,7 +71,7 @@ export function updateQuestion(
     if (id === null || content === null || course_id === null || quiz_id === null || answers === null || answers.length === 0) {
         return;
     }
-    return axios.post(`${BASE_URL}/${id}`, {
+    return axios.put(`${BASE_URL}/${id}`, {
         answers,
         content,
         course_id,
