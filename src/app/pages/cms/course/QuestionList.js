@@ -17,7 +17,13 @@ import {
     LinearProgress,
     Menu,
     MenuItem,
-    makeStyles
+    makeStyles,
+    Dialog,
+    DialogTitle,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+
 } from "@material-ui/core";
 import CustomUploadAdapterPlugin from "../../../plugin/CustomUploadAdapterPlugin";
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
@@ -150,12 +156,26 @@ const QuestionList = () => {
     const onCreated = (question) => {
         setQuestions(questions.concat([question]));
         toggleIsCreate();
+        enqueueSnackbar("Tạo mới câu hỏi thành công", {
+            variant: "success"
+        });
     }
 
     const onUpdated = (question) => {
         const index = questions.findIndex(q => q.id === question.id);
         questions[index] = question;
         setQuestions([...questions]);
+        enqueueSnackbar("Cập nhật câu hỏi thành công", {
+            variant: "success"
+        });
+    }
+
+    const onDeleted = index => {
+        questions.splice(index, 1);
+        setQuestions([...questions]);
+        enqueueSnackbar("Đã xóa câu hỏi", {
+            variant: "success"
+        });
     }
 
     return <Container>
@@ -196,6 +216,7 @@ const QuestionList = () => {
                                 quizId={quizId}
                                 question={question}
                                 onUpdated={onUpdated}
+                                onDeleted={onDeleted}
                                 viewable={true}
                             />
                         ))
@@ -242,9 +263,10 @@ const radioStyles = makeStyles(theme => ({
     }
 }));
 
-const Question = ({ index, viewable, courseId, quizId, question, onCreated, onUpdated, onCancelCreate }) => {
+const Question = ({ index, viewable, courseId, quizId, question, onCreated, onUpdated, onCancelCreate, onDeleted }) => {
     const [requesting, setRequesting] = useState(false);
     const [editMode, setEditMode] = useState(!viewable);
+    const [showDelete, setShowDelete] = useState(false);
     const customRadioClasses = radioStyles();
 
     const { control, handleSubmit, register, setValue, errors, reset, watch } = useForm({
@@ -320,8 +342,23 @@ const Question = ({ index, viewable, courseId, quizId, question, onCreated, onUp
         }
     }
 
-    const onDelete = () => {
+    const toggleDelete = () => {
+        setShowDelete(!showDelete);
+    }
 
+    const onDelete = async () => {
+        setRequesting(true);
+        try {
+            await deleteQuestion(question);
+            toggleDelete();
+            setRequesting(false);
+            onDeleted(index);
+        } catch (error) {
+            setRequesting(false);
+            enqueueSnackbar(error.message, {
+                variant: "error"
+            });
+        }
     }
 
     const switchCorrectAnswers = (index) => {
@@ -333,6 +370,23 @@ const Question = ({ index, viewable, courseId, quizId, question, onCreated, onUp
             }
         }
         setValue("answers", fields);
+    }
+
+    const onTypeChange = (type) => {
+        console.log(type);
+        if (type === QUESTION_TYPE.MULTIPLE_CHOICE_ONE_ANSWER) {
+            let firstCorrectIndex = null;
+            for (let i = 0; i < fields.length; i++) {
+                if (firstCorrectIndex === null && fields[i].is_correct) {
+                    firstCorrectIndex = i;
+                }
+                if (firstCorrectIndex !== null && i !== firstCorrectIndex) {
+                    fields[i].is_correct = false;
+                }
+            }
+            setValue("answers", fields);
+        }
+        setValue("type", type);
     }
 
     if (editMode) {
@@ -379,8 +433,8 @@ const Question = ({ index, viewable, courseId, quizId, question, onCreated, onUp
                         <Typography variant="subtitle1">Loại câu hỏi</Typography>
                     </Box>
                     <Controller
-                        as={
-                            <RadioGroup aria-label="type" row>
+                        render={({ value }) =>
+                            <RadioGroup aria-label="type" value={value} row onChange={(e) => onTypeChange(e.target.value)}>
                                 <FormControlLabel value={QUESTION_TYPE.MULTIPLE_CHOICE_ONE_ANSWER} control={<Radio color="primary" />} label="1 đáp án" disabled={requesting} />
                                 <FormControlLabel value={QUESTION_TYPE.MULTIPLE_CHOICE_MULTIPLE_ANSWERS} control={<Radio color="primary" />} label="Nhiều đáp án" disabled={requesting} />
                             </RadioGroup>
@@ -402,18 +456,18 @@ const Question = ({ index, viewable, courseId, quizId, question, onCreated, onUp
                             </Box>
                             <Box mt={1} mb={2}>
                                 <Box display="flex" alignItems="flex-start">
-                                    {watchType === QUESTION_TYPE.MULTIPLE_CHOICE_ONE_ANSWER && <Controller
-                                        render={({ value }) => <Radio color="primary" checked={value} onChange={() => switchCorrectAnswers(index)} disabled={requesting} />}
+                                    <Controller
                                         name={`answers[${index}].is_correct`}
                                         control={control}
                                         defaultValue={answer.is_correct}
-                                    />}
-                                    {watchType === QUESTION_TYPE.MULTIPLE_CHOICE_MULTIPLE_ANSWERS && <Controller
-                                        render={({ value, onChange }) => <Checkbox color="primary" checked={value} onChange={() => onChange(!value)} disabled={requesting} />}
-                                        name={`answers[${index}].is_correct`}
-                                        control={control}
-                                        defaultValue={answer.is_correct}
-                                    />}
+                                        render={({ value, onChange }) =>
+                                            watchType === QUESTION_TYPE.MULTIPLE_CHOICE_ONE_ANSWER ?
+                                                <Radio color="primary" checked={value} onChange={() => switchCorrectAnswers(index)} disabled={requesting} />
+                                                :
+                                                <Checkbox color="primary" checked={value} onChange={() => onChange(!value)} disabled={requesting} />
+                                        }
+                                    />
+
                                     <Controller
                                         render={({ onChange }) => (
                                             <CKEditor
@@ -456,7 +510,7 @@ const Question = ({ index, viewable, courseId, quizId, question, onCreated, onUp
                 <Box mt={2} display="flex" alignItems="center" justifyContent="space-between">
                     <Button
                         onClick={() => {
-                            append({ id: null, content: "", is_correct: false });
+                            append({ id: null, content: "", description: "", is_correct: false });
                         }}
                         disabled={requesting}
                     >
@@ -485,7 +539,7 @@ const Question = ({ index, viewable, courseId, quizId, question, onCreated, onUp
                             </IconButton>
                             <Menu {...bindMenu(popupState)}>
                                 <MenuItem onClick={() => setEditMode(true)}>Sửa</MenuItem>
-                                <MenuItem onClick={popupState.close}>Xóa</MenuItem>
+                                <MenuItem onClick={() => toggleDelete()}>Xóa</MenuItem>
                             </Menu>
                         </React.Fragment>
                     )}
@@ -518,6 +572,30 @@ const Question = ({ index, viewable, courseId, quizId, question, onCreated, onUp
                     </Box>
                 ))}
             </Box>
+            <Dialog
+                open={showDelete}
+                onClose={toggleDelete}
+                disableBackdropClick={requesting}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+            >
+                {requesting && <LinearProgress />}
+                <DialogTitle id="alert-dialog-title">Xác nhận xóa câu hỏi này ?</DialogTitle>
+                <DialogContent>
+                    <DialogContentText id="alert-dialog-description">
+                        Hành động này sẽ xóa vĩnh viên câu hỏi và không thể khôi phục
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={toggleDelete}>
+                        Hủy
+                    </Button>
+                    <Button onClick={onDelete} color="primary" autoFocus>
+                        Xóa
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
         </Box>
     }
 

@@ -92,12 +92,20 @@ export function getQuestion(
 }
 
 export function deleteQuestion(
-    id
+    {
+        id = null,
+        quiz_id = null
+    }
 ) {
-    if (id == null) {
+    if (id === null || quiz_id === null) {
         return;
     }
-    return axios.delete(`${BASE_URL}/${id}`);
+    return axios.delete(`${BASE_URL}`, {
+        data: {
+            question_id: id,
+            quiz_id: quiz_id
+        }
+    });
 }
 
 // return new Promise((resolve, reject) => {
