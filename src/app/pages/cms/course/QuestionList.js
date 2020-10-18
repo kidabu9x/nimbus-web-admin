@@ -23,12 +23,14 @@ import {
     DialogActions,
     DialogContent,
     DialogContentText,
-
+    InputAdornment,
+    TextField
 } from "@material-ui/core";
 import CustomUploadAdapterPlugin from "../../../plugin/CustomUploadAdapterPlugin";
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
 import CloseIcon from '@material-ui/icons/Close';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
+import SearchIcon from '@material-ui/icons/Search';
 import CKEditor from '@ckeditor/ckeditor5-react';
 import EditorTheme from '@ckeditor/ckeditor5-build-classic';
 import {
@@ -39,12 +41,13 @@ import {
 } from "../../../store/cms/quiz/actions";
 import { filterQuestions, createQuestion, updateQuestion, getQuestion, deleteQuestion } from "../../../api/cms/question.api";
 
-import { Link, useParams } from "react-router-dom";
+import { Link, useHistory, useParams, useLocation } from "react-router-dom";
 import { ROUTES } from "../../../router/Routes";
 import { useForm, Controller, useFieldArray } from "react-hook-form";
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from "yup";
 import PopupState, { bindTrigger, bindMenu } from 'material-ui-popup-state';
+import Highlighter from "react-highlight-words";
 
 let renderCount = 0;
 
@@ -69,6 +72,10 @@ const initQuestion = {
     "type": QUESTION_TYPE.MULTIPLE_CHOICE_ONE_ANSWER
 }
 
+function useQuery() {
+    return new URLSearchParams(useLocation().search);
+}
+
 const QuestionList = () => {
     const { org, course, quiz } = useSelector(({ cms }) => ({
         org: cms.org.org,
@@ -76,9 +83,10 @@ const QuestionList = () => {
         quiz: cms.quiz.quiz
     }));
     let { orgId, courseId, quizId } = useParams();
+    const query = useQuery();
     const [page] = useState(0);
     const [size] = useState(50);
-    const [content] = useState('');
+    const [content, setContent] = useState(query.get("search"));
     const [questions, setQuestions] = useState([]);
     const [filtering, setFiltering] = useState(false);
     const [isAddNew, setIsAddNew] = useState(false);
@@ -122,7 +130,6 @@ const QuestionList = () => {
             .finally(() => {
                 setFiltering(false);
             })
-
     }, [courseId, quizId, page, size, content]);
 
     if (org == null) {
@@ -203,6 +210,7 @@ const QuestionList = () => {
         <Divider />
 
         <Box display="flex" flexDirection="column" alignItems="center" marginTop={2}>
+            <SearchBox content={content} setContent={setContent} />
             {
                 filtering ?
                     <CircularProgress />
@@ -218,6 +226,7 @@ const QuestionList = () => {
                                 onUpdated={onUpdated}
                                 onDeleted={onDeleted}
                                 viewable={true}
+                                search={content}
                             />
                         ))
                         }
@@ -235,6 +244,47 @@ const QuestionList = () => {
             }
         </Box>
     </Container>
+}
+
+const SearchBox = ({ content, setContent }) => {
+    const [localSearch, setLocalSearch] = useState(content);
+    const history = useHistory();
+    const filterTimeoutRef = useRef(null);
+
+    const onChange = (e) => {
+        const value = e.target.value;
+        setLocalSearch(value);
+        history.push({
+            pathname: window.location.pathname,
+            search: "?search=" + value
+        });
+        if (filterTimeoutRef.current) {
+            clearTimeout(filterTimeoutRef.current);
+        }
+
+        filterTimeoutRef.current = setTimeout(() => {
+            setContent(value)
+        }, 300);
+    }
+
+    return <Box width="530px" mb={4}>
+        <TextField
+            variant="outlined"
+            label="Tìm kiếm"
+            value={localSearch}
+            onChange={onChange}
+            fullWidth
+            InputProps={{
+                endAdornment: (
+                    <InputAdornment>
+                        <IconButton>
+                            <SearchIcon />
+                        </IconButton>
+                    </InputAdornment>
+                )
+            }}
+        />
+    </Box>
 }
 
 const QuestionYupSchema = yup.object().shape({
@@ -263,7 +313,7 @@ const radioStyles = makeStyles(theme => ({
     }
 }));
 
-const Question = ({ index, viewable, courseId, quizId, question, onCreated, onUpdated, onCancelCreate, onDeleted }) => {
+const Question = ({ search, index, viewable, courseId, quizId, question, onCreated, onUpdated, onCancelCreate, onDeleted }) => {
     const [requesting, setRequesting] = useState(false);
     const [editMode, setEditMode] = useState(!viewable);
     const [showDelete, setShowDelete] = useState(false);
@@ -373,7 +423,6 @@ const Question = ({ index, viewable, courseId, quizId, question, onCreated, onUp
     }
 
     const onTypeChange = (type) => {
-        console.log(type);
         if (type === QUESTION_TYPE.MULTIPLE_CHOICE_ONE_ANSWER) {
             let firstCorrectIndex = null;
             for (let i = 0; i < fields.length; i++) {
@@ -549,6 +598,14 @@ const Question = ({ index, viewable, courseId, quizId, question, onCreated, onUp
                 <div className="ck-editor" dangerouslySetInnerHTML={{
                     __html: question.content
                 }}></div>
+                <Highlighter
+                    highlightClassName="ck-editor"
+                    searchWords={[search]}
+                    autoEscape={true}
+                    textToHighlight={{
+                        __html: JSON.stringify(question.content)
+                    }}
+                />
             </Box>
             <Divider />
             <Box mb={4}>
