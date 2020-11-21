@@ -47,9 +47,6 @@ import { useForm, Controller, useFieldArray } from "react-hook-form";
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from "yup";
 import PopupState, { bindTrigger, bindMenu } from 'material-ui-popup-state';
-import Highlighter from "react-highlight-words";
-
-let renderCount = 0;
 
 const QUESTION_TYPE = {
     MULTIPLE_CHOICE_ONE_ANSWER: "MULTIPLE_CHOICE_ONE_ANSWER",
@@ -97,7 +94,6 @@ const QuestionList = () => {
 
     const dispatch = useDispatch();
     const newQuestionRef = useRef();
-    renderCount++;
     useEffect(() => {
         if (org != null) {
             dispatch(getCourse(courseId));
@@ -178,17 +174,31 @@ const QuestionList = () => {
     }
 
     const onDeleted = index => {
-        questions.splice(index, 1);
-        setQuestions([...questions]);
         enqueueSnackbar("Đã xóa câu hỏi", {
             variant: "success"
         });
+
+        filterQuestions({
+            content: content,
+            page,
+            size,
+            quiz_ids: [quizId],
+            course_ids: [courseId]
+        })
+            .then(response => {
+                setQuestions(response.data.data);
+            })
+            .catch(error => {
+                enqueueSnackbar(error, {
+                    variant: "error"
+                });
+            })
+            .finally(() => {
+                setFiltering(false);
+            })
     }
 
     return <Container>
-        <Typography variant="body1">
-            {renderCount}
-        </Typography>
         <Link style={{ opacity: ".5" }} to={ROUTES.cms.quiz(orgId, courseId, quizId)}>
             <Button style={{ textTransform: "none" }} startIcon={<ArrowBackIosIcon />}>Bài trắc nghiệm</Button>
         </Link>
@@ -313,7 +323,7 @@ const radioStyles = makeStyles(theme => ({
     }
 }));
 
-const Question = ({ search, index, viewable, courseId, quizId, question, onCreated, onUpdated, onCancelCreate, onDeleted }) => {
+const Question = ({ index, viewable, courseId, quizId, question, onCreated, onUpdated, onCancelCreate, onDeleted }) => {
     const [requesting, setRequesting] = useState(false);
     const [editMode, setEditMode] = useState(!viewable);
     const [showDelete, setShowDelete] = useState(false);
@@ -598,14 +608,6 @@ const Question = ({ search, index, viewable, courseId, quizId, question, onCreat
                 <div className="ck-editor" dangerouslySetInnerHTML={{
                     __html: question.content
                 }}></div>
-                <Highlighter
-                    highlightClassName="ck-editor"
-                    searchWords={[search]}
-                    autoEscape={true}
-                    textToHighlight={{
-                        __html: JSON.stringify(question.content)
-                    }}
-                />
             </Box>
             <Divider />
             <Box mb={4}>
