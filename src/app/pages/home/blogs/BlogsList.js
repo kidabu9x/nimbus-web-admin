@@ -127,8 +127,7 @@ const BlogsList = () => {
       if (categoryString !== null && categoryString !== "") {
         resultString =
           resultString +
-          ` trong danh mục ${
-          find(
+          ` trong danh mục ${find(
             categories,
             (category) => category.id === parseInt(categoryString)
           ).title
@@ -217,7 +216,7 @@ const BlogsList = () => {
         <Table className={`${classes.table}`} aria-label="simple table">
           <TableHead>
             <TableRow>
-              <TableCell>ID</TableCell>
+
               <TableCell>
                 Ngày tạo
               </TableCell>
@@ -236,7 +235,6 @@ const BlogsList = () => {
             {blogs
               .map((blog) => (
                 <TableRow key={blog.id}>
-                  <TableCell>{blog.id}</TableCell>
                   <TableCell>
                     {dayjs(blog.created_at).format("DD/MM/YY")}
                   </TableCell>

@@ -107,7 +107,7 @@ function* deleteBlogFlow(action) {
 
 function* watcher() {
     yield takeEvery(GET_BLOG_REQUESTING, getBlogFlow);
-    yield takeLatest(DELETE_BLOG_REQUESTING, deleteBlogFlow);
+    yield takeEvery(DELETE_BLOG_REQUESTING, deleteBlogFlow);
     yield takeLatest(CREATE_BLOG_REQUESTING, createBlogFlow);
     yield takeLatest(UPDATE_BLOG_REQUESTING, updateBlogFlow);
 }
