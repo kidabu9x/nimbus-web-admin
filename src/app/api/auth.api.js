@@ -1,7 +1,7 @@
 import axios from "axios";
 import config from "../config/apiConfig";
 
-export const LOGIN_URL = config.domain.authService + "/v1";
+export const LOGIN_URL = config.domain.authService;
 export const REGISTER_URL = "api/auth/register";
 export const REQUEST_PASSWORD_URL = "api/auth/forgot-password";
 
@@ -13,13 +13,12 @@ export function login(email, password) {
 
 export function loginWithGoogle(data) {
   const profConv = {
-    type: "GOOGLE",
     first_name: data.givenName,
     last_name: data.familyName,
     email: data.email,
     avatar: data.imageUrl
   };
-  return axios.post(`${LOGIN_URL}/oauth2`, profConv);
+  return axios.post(`${LOGIN_URL}/oauth`, profConv);
 }
 
 export function register(email, fullname, username, password) {
