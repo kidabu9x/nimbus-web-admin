@@ -24,7 +24,8 @@ import {
     DialogContent,
     DialogContentText,
     InputAdornment,
-    TextField
+    TextField,
+    Grid
 } from "@material-ui/core";
 import CustomUploadAdapterPlugin from "../../../plugin/CustomUploadAdapterPlugin";
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
@@ -50,12 +51,29 @@ import PopupState, { bindTrigger, bindMenu } from 'material-ui-popup-state';
 
 const QUESTION_TYPE = {
     MULTIPLE_CHOICE_ONE_ANSWER: "MULTIPLE_CHOICE_ONE_ANSWER",
-    MULTIPLE_CHOICE_MULTIPLE_ANSWERS: "MULTIPLE_CHOICE_MULTIPLE_ANSWERS"
+    MULTIPLE_CHOICE_MULTIPLE_ANSWERS: "MULTIPLE_CHOICE_MULTIPLE_ANSWERS",
+    PAIRING_ANSWERS: "PAIRING_ANSWERS"
+}
+
+const ANSWER_TYPE = {
+    MULTIPLE_CHOICE_ANSWER: "MULTIPLE_CHOICE_ANSWER",
+    PAIRING_SOURCE: "PAIRING_SOURCE",
+    PAIRING_TARGET: "PAIRING_TARGET"
 }
 
 const initQuestion = {
     "answers": [
         {
+            "type": ANSWER_TYPE.MULTIPLE_CHOICE_ANSWER,
+            "content": "",
+            "description": "",
+            "id": null,
+            "is_correct": true
+        }
+    ],
+    "pairing_answers": [
+        {
+            "type": ANSWER_TYPE.PAIRING_TARGET,
             "content": "",
             "description": "",
             "id": null,
@@ -83,7 +101,8 @@ const QuestionList = () => {
     const query = useQuery();
     const [page] = useState(0);
     const [size] = useState(50);
-    const [content, setContent] = useState(query.get("search"));
+    const searchContext = query.get("search");
+    const [content, setContent] = useState(searchContext ? searchContext : "");
     const [questions, setQuestions] = useState([]);
     const [filtering, setFiltering] = useState(false);
     const [isAddNew, setIsAddNew] = useState(false);
@@ -298,16 +317,37 @@ const SearchBox = ({ content, setContent }) => {
 }
 
 const QuestionYupSchema = yup.object().shape({
+    id: yup.number(),
     course_id: yup.number().required("Bắt buộc"),
     quiz_id: yup.number().required("Bắt buộc"),
+    type: yup.string().required("Bắt buộc"),
     content: yup.string().required("*Bắt buộc"),
     answers: yup.array().of(yup.object().shape({
+        id: yup.number(),
+        type: yup.string().required("Bắt buộc"),
+        content: yup.string().when("type", {
+            is: ANSWER_TYPE.PAIRING_SOURCE,
+            then: yup.string(),
+            otherwise: yup.string().required("*Không được bỏ trống")
+        }),
+        description: yup.string(),
+        is_correct: yup.bool()
+    }))
+        .required("Tối thiểu có 1 câu trả lời")
+        .min(1, "Tối thiểu có 1 câu trả lời đúng"),
+    pairing_answers: yup.array().of(yup.object().shape({
+        id: yup.number(),
+        type: yup.string().required("Bắt buộc"),
         content: yup.string().required("*Không được bỏ trống"),
         description: yup.string(),
         is_correct: yup.bool()
     }))
-        .required("Tối thiểu có 1 câu trả lời đúng")
-        .min(1, "Tối thiểu có 1 câu trả lời đúng")
+        .when("type", {
+            is: QUESTION_TYPE.PAIRING_ANSWERS,
+            then: yup.array().required("Tối thiểu có 1 câu trả lời")
+                .min(1, "Tối thiểu có 1 câu trả lời đúng"),
+            otherwise: yup.array()
+        })
 });
 
 const radioStyles = makeStyles(theme => ({
@@ -340,12 +380,20 @@ const Question = ({ index, viewable, courseId, quizId, question, onCreated, onUp
 
     const watchType = watch("type");
 
-    const { fields, append, remove } = useFieldArray(
+    const answers = useFieldArray(
         {
             control,
             name: "answers"
         }
     );
+
+    const pairingAnswers = useFieldArray(
+        {
+            control,
+            name: "pairing_answers"
+        }
+    );
+
     const { enqueueSnackbar } = useSnackbar();
 
     useEffect(() => {
@@ -353,40 +401,41 @@ const Question = ({ index, viewable, courseId, quizId, question, onCreated, onUp
     });
 
     const onSubmit = async data => {
-        setRequesting(true);
-        if (!data.id) {
-            try {
-                const createRes = await createQuestion(data);
-                const id = createRes.data.data;
-                const detailRes = await getQuestion(id);
-                const question = detailRes.data.data;
-                onCreated(question);
-            } catch (error) {
-                enqueueSnackbar("Đã có lỗi xảy ra", {
-                    variant: "error"
-                });
-            }
+        console.log(data);
+        // setRequesting(true);
+        // if (!data.id) {
+        //     try {
+        //         const createRes = await createQuestion(data);
+        //         const id = createRes.data.data;
+        //         const detailRes = await getQuestion(id);
+        //         const question = detailRes.data.data;
+        //         onCreated(question);
+        //     } catch (error) {
+        //         enqueueSnackbar("Đã có lỗi xảy ra", {
+        //             variant: "error"
+        //         });
+        //     }
 
-        } else {
-            try {
-                await updateQuestion(data);
-                const detailRes = await getQuestion(data.id);
-                const question = detailRes.data.data;
-                onUpdated(question);
-                setRequesting(false);
-                setEditMode(false);
-                reset({
-                    ...question,
-                    course_id: courseId,
-                    quiz_id: quizId
-                });
-            } catch (error) {
-                setRequesting(false);
-                enqueueSnackbar(error.message, {
-                    variant: "error"
-                });
-            }
-        }
+        // } else {
+        //     try {
+        //         await updateQuestion(data);
+        //         const detailRes = await getQuestion(data.id);
+        //         const question = detailRes.data.data;
+        //         onUpdated(question);
+        //         setRequesting(false);
+        //         setEditMode(false);
+        //         reset({
+        //             ...question,
+        //             course_id: courseId,
+        //             quiz_id: quizId
+        //         });
+        //     } catch (error) {
+        //         setRequesting(false);
+        //         enqueueSnackbar(error.message, {
+        //             variant: "error"
+        //         });
+        //     }
+        // }
     }
 
     const onCancel = () => {
@@ -422,28 +471,48 @@ const Question = ({ index, viewable, courseId, quizId, question, onCreated, onUp
     }
 
     const switchCorrectAnswers = (index) => {
-        for (let i = 0; i < fields.length; i++) {
+        for (let i = 0; i < answers.fields.length; i++) {
             if (i !== index) {
-                fields[i].is_correct = false;
+                answers.fields[i].is_correct = false;
             } else {
-                fields[i].is_correct = true;
+                answers.fields[i].is_correct = true;
             }
         }
-        setValue("answers", fields);
+        setValue("answers", answers.fields);
     }
 
     const onTypeChange = (type) => {
-        if (type === QUESTION_TYPE.MULTIPLE_CHOICE_ONE_ANSWER) {
-            let firstCorrectIndex = null;
-            for (let i = 0; i < fields.length; i++) {
-                if (firstCorrectIndex === null && fields[i].is_correct) {
-                    firstCorrectIndex = i;
-                }
-                if (firstCorrectIndex !== null && i !== firstCorrectIndex) {
-                    fields[i].is_correct = false;
-                }
+        if (type === QUESTION_TYPE.PAIRING_ANSWERS) {
+            let answerSource = {
+                "type": ANSWER_TYPE.PAIRING_SOURCE,
+                "content": "",
+                "description": "",
+                "id": null,
+                "is_correct": true
             }
-            setValue("answers", fields);
+            answers.fields = [answerSource];
+            setValue("answers", answers.fields);
+
+            let answerTarget = JSON.parse(JSON.stringify(answerSource));
+            answerTarget.type = ANSWER_TYPE.PAIRING_TARGET;
+            pairingAnswers.fields = [answerTarget];
+            setValue("pairing_answers", pairingAnswers.fields);
+        } else {
+            pairingAnswers.fields = [];
+            setValue("pairing_answers", pairingAnswers.fields);
+            if (type === QUESTION_TYPE.MULTIPLE_CHOICE_ONE_ANSWER) {
+                let firstCorrectIndex = null;
+                for (let i = 0; i < answers.fields.length; i++) {
+                    answers.fields[i].type = ANSWER_TYPE.MULTIPLE_CHOICE_ANSWER;
+                    if (firstCorrectIndex === null && answers.fields[i].is_correct) {
+                        firstCorrectIndex = i;
+                    }
+                    if (firstCorrectIndex !== null && i !== firstCorrectIndex) {
+                        answers.fields[i].is_correct = false;
+                    }
+                }
+                setValue("answers", answers.fields);
+            }
         }
         setValue("type", type);
     }
@@ -453,7 +522,7 @@ const Question = ({ index, viewable, courseId, quizId, question, onCreated, onUp
             <input name="id" ref={register} type="hidden" />
             <input name="quiz_id" ref={register} type="hidden" />
             <input name="course_id" ref={register} type="hidden" />
-            <Box bgcolor="white" p={2} width="530px" mb={4}>
+            <Box bgcolor="white" p={2} width="560px" mb={4}>
                 {requesting && <LinearProgress />}
                 <Box mb={1} display="flex" alignItems="center" justifyContent="space-between">
                     <Typography variant="subtitle1">
@@ -496,6 +565,7 @@ const Question = ({ index, viewable, courseId, quizId, question, onCreated, onUp
                             <RadioGroup aria-label="type" value={value} row onChange={(e) => onTypeChange(e.target.value)}>
                                 <FormControlLabel value={QUESTION_TYPE.MULTIPLE_CHOICE_ONE_ANSWER} control={<Radio color="primary" />} label="1 đáp án" disabled={requesting} />
                                 <FormControlLabel value={QUESTION_TYPE.MULTIPLE_CHOICE_MULTIPLE_ANSWERS} control={<Radio color="primary" />} label="Nhiều đáp án" disabled={requesting} />
+                                <FormControlLabel value={QUESTION_TYPE.PAIRING_ANSWERS} control={<Radio color="primary" />} label="Ghép đôi" disabled={requesting} />
                             </RadioGroup>
                         }
                         name="type"
@@ -503,65 +573,123 @@ const Question = ({ index, viewable, courseId, quizId, question, onCreated, onUp
                     />
                 </Box>
                 <Box mb={4}>
-                    {fields.map((answer, index) => (
-                        <Fragment key={index}>
-                            <Divider />
-                            <input name={`answers[${index}].id`} ref={register()} defaultValue={`${answer.id}`} type="hidden" />
-                            <Box mt={1} display="flex" alignItems="center" justifyContent="space-between">
-                                <Typography variant="subtitle1">Câu trả lời {index + 1}</Typography>
-                                <IconButton aria-label="delete" onClick={() => remove(index)} disabled={requesting}>
-                                    <CloseIcon />
-                                </IconButton>
-                            </Box>
-                            <Box mt={1} mb={2}>
-                                <Box display="flex" alignItems="flex-start">
-                                    <Controller
-                                        name={`answers[${index}].is_correct`}
-                                        control={control}
-                                        defaultValue={answer.is_correct}
-                                        render={({ value, onChange }) =>
-                                            watchType === QUESTION_TYPE.MULTIPLE_CHOICE_ONE_ANSWER ?
-                                                <Radio color="primary" checked={value} onChange={() => switchCorrectAnswers(index)} disabled={requesting} />
-                                                :
-                                                <Checkbox color="primary" checked={value} onChange={() => onChange(!value)} disabled={requesting} />
-                                        }
-                                    />
+                    {watchType !== QUESTION_TYPE.PAIRING_ANSWERS
+                        &&
+                        answers.fields.map((answer, index) => (
+                            <Fragment key={index}>
+                                <Divider />
+                                <input name={`answers[${index}].id`} ref={register()} defaultValue={`${answer.id}`} type="hidden" />
+                                <input name={`answers[${index}].type`} ref={register()} defaultValue={`${answer.type}`} type="hidden" />
+                                <Box mt={1} display="flex" alignItems="center" justifyContent="space-between">
+                                    <Typography variant="subtitle1">Câu trả lời {index + 1}</Typography>
+                                    <IconButton aria-label="delete" onClick={() => answers.remove(index)} disabled={requesting}>
+                                        <CloseIcon />
+                                    </IconButton>
+                                </Box>
+                                <Box mt={1} mb={2}>
+                                    <Box display="flex" alignItems="flex-start">
+                                        <Controller
+                                            name={`answers[${index}].is_correct`}
+                                            control={control}
+                                            defaultValue={answer.is_correct}
+                                            render={({ value, onChange }) =>
+                                                watchType === QUESTION_TYPE.MULTIPLE_CHOICE_ONE_ANSWER ?
+                                                    <Radio color="primary" checked={value} onChange={() => switchCorrectAnswers(index)} disabled={requesting} />
+                                                    :
+                                                    <Checkbox color="primary" checked={value} onChange={() => onChange(!value)} disabled={requesting} />
+                                            }
+                                        />
 
-                                    <Controller
-                                        render={({ onChange }) => (
-                                            <CKEditor
-                                                data={answer.content}
-                                                editor={EditorTheme}
-                                                disabled={requesting}
-                                                config={{
-                                                    language: "vi",
-                                                    toolbar: ['bold', 'italic', '|', 'imageUpload'],
-                                                    image: {
-                                                        upload: {
-                                                            types: ['png', 'jpeg']
-                                                        }
-                                                    },
-                                                    extraPlugins: [CustomUploadAdapterPlugin],
-                                                    placeholder: "Câu trả lời"
-                                                }}
-                                                onChange={(_, editor) => {
-                                                    const data = editor.getData();
-                                                    onChange(data);
-                                                }}
+                                        <Controller
+                                            render={({ onChange }) => (
+                                                <CKEditor
+                                                    data={answer.content}
+                                                    editor={EditorTheme}
+                                                    disabled={requesting}
+                                                    config={{
+                                                        language: "vi",
+                                                        toolbar: ['bold', 'italic', '|', 'imageUpload'],
+                                                        image: {
+                                                            upload: {
+                                                                types: ['png', 'jpeg']
+                                                            }
+                                                        },
+                                                        extraPlugins: [CustomUploadAdapterPlugin],
+                                                        placeholder: "Câu trả lời"
+                                                    }}
+                                                    onChange={(_, editor) => {
+                                                        const data = editor.getData();
+                                                        onChange(data);
+                                                    }}
+                                                />
+                                            )}
+                                            name={`answers[${index}].content`}
+                                            control={control}
+                                            defaultValue={answer.content} // make sure to set up defaultValue
+                                        />
+                                    </Box>
+                                    <Box pl={6}>
+                                        {errors.answers && errors.answers[index] && errors.answers[index].content && <FormHelperText error>{errors.answers[index].content.message}</FormHelperText>}
+                                    </Box>
+                                </Box>
+
+                            </Fragment>
+                        ))
+                    }
+                    {watchType === QUESTION_TYPE.PAIRING_ANSWERS
+                        &&
+                        answers.fields.map((answer, index) => (
+                            <Fragment key={index}>
+                                <Divider />
+                                <input name={`answers[${index}].id`} ref={register()} defaultValue={`${answer.id}`} type="hidden" />
+                                <input name={`answers[${index}].type`} ref={register()} defaultValue={`${answer.type}`} type="hidden" />
+                                <input name={`pairing_answers[${index}].id`} ref={register()} defaultValue={`${pairingAnswers.fields[index].id}`} type="hidden" />
+                                <input name={`pairing_answers[${index}].type`} ref={register()} defaultValue={`${pairingAnswers.fields[index].type}`} type="hidden" />
+                                <Box mt={1} display="flex" justifyContent="flex-end">
+                                    <IconButton aria-label="delete" onClick={() => answers.remove(index)} disabled={requesting}>
+                                        <CloseIcon />
+                                    </IconButton>
+                                </Box>
+                                <Box mt={1} mb={2}>
+                                    <Grid container spacing={2}>
+                                        <Grid item xs={6}>
+                                            <Controller
+                                                control={control}
+                                                name={`answers[${index}].content`}
+                                                as={<TextField
+                                                    placeholder="ex: 1 + 1 = ?"
+                                                    fullWidth
+                                                    variant="filled"
+                                                />}
+                                                defaultValue={`${answer.content}`}
                                             />
-                                        )}
-                                        name={`answers[${index}].content`}
-                                        control={control}
-                                        defaultValue={answer.content} // make sure to set up defaultValue
-                                    />
+                                            <Box pl={6}>
+                                                {errors.answers && errors.answers[index] && errors.answers[index].content && <FormHelperText error>{errors.answers[index].content.message}</FormHelperText>}
+                                            </Box>
+                                        </Grid>
+                                        <Grid item xs={6}>
+                                            <Controller
+                                                control={control}
+                                                name={`pairing_answers[${index}].content`}
+                                                as={<TextField
+                                                    placeholder="2"
+                                                    fullWidth
+                                                    variant="filled"
+                                                    required
+                                                />}
+                                                defaultValue={`${pairingAnswers.fields[index].content}`}
+                                            />
+                                            <Box pl={6}>
+                                                {errors.pairingAnswers && errors.pairingAnswers[index] && errors.pairingAnswers[index].content && <FormHelperText error>{errors.pairingAnswers[index].content.message}</FormHelperText>}
+                                            </Box>
+                                        </Grid>
+                                    </Grid>
                                 </Box>
-                                <Box pl={6}>
-                                    {errors.answers && errors.answers[index] && errors.answers[index].content && <FormHelperText error>{errors.answers[index].content.message}</FormHelperText>}
-                                </Box>
-                            </Box>
 
-                        </Fragment>
-                    ))}
+                            </Fragment>
+                        ))
+                    }
+
                     {errors.answers && <FormHelperText error>{errors.answers.message}</FormHelperText>}
                 </Box>
 
@@ -569,7 +697,10 @@ const Question = ({ index, viewable, courseId, quizId, question, onCreated, onUp
                 <Box mt={2} display="flex" alignItems="center" justifyContent="space-between">
                     <Button
                         onClick={() => {
-                            append({ id: null, content: "", description: "", is_correct: false });
+                            answers.append({ id: null, content: "", description: "", is_correct: false });
+                            if (watchType === QUESTION_TYPE.PAIRING_ANSWERS) {
+                                pairingAnswers.append({ id: null, content: "", description: "", is_correct: false });
+                            }
                         }}
                         disabled={requesting}
                     >
@@ -583,7 +714,7 @@ const Question = ({ index, viewable, courseId, quizId, question, onCreated, onUp
             </Box>
         </form>;
     } else {
-        return <Box bgcolor="white" p={2} width="530px" mb={4}>
+        return <Box bgcolor="white" p={2} width="560px" mb={4}>
             <Box mb={1} display="flex" alignItems="center" justifyContent="space-between">
                 <Typography variant="subtitle1">
                     {index != null ? `Câu hỏi ${index + 1}` : "Câu hỏi mới"}
@@ -614,19 +745,41 @@ const Question = ({ index, viewable, courseId, quizId, question, onCreated, onUp
                 {question.answers.map((answer, index) => (
                     <Box key={index} mt={1} mb={2}>
                         <Box display="flex" alignItems="flex-start">
-                            {question.type === QUESTION_TYPE.MULTIPLE_CHOICE_ONE_ANSWER && <Radio color="primary" checked={answer.is_correct} disabled classes={{
-                                root: customRadioClasses.root,
-                                colorPrimary: customRadioClasses.colorPrimary,
-                                disabled: customRadioClasses.disabled
-                            }} />}
-                            {question.type === QUESTION_TYPE.MULTIPLE_CHOICE_MULTIPLE_ANSWERS && <Checkbox color="primary" checked={answer.is_correct} disabled classes={{
-                                root: customRadioClasses.root,
-                                colorPrimary: customRadioClasses.colorPrimary,
-                                disabled: customRadioClasses.disabled
-                            }} />}
-                            <div className="ck-editor" dangerouslySetInnerHTML={{
-                                __html: answer.content
-                            }}></div>
+                            {question.type !== QUESTION_TYPE.PAIRING_ANSWERS && (
+                                <>
+                                    {question.type === QUESTION_TYPE.MULTIPLE_CHOICE_ONE_ANSWER && <Radio color="primary" checked={answer.is_correct} disabled classes={{
+                                        root: customRadioClasses.root,
+                                        colorPrimary: customRadioClasses.colorPrimary,
+                                        disabled: customRadioClasses.disabled
+                                    }} />}
+                                    {question.type === QUESTION_TYPE.MULTIPLE_CHOICE_MULTIPLE_ANSWERS && <Checkbox color="primary" checked={answer.is_correct} disabled classes={{
+                                        root: customRadioClasses.root,
+                                        colorPrimary: customRadioClasses.colorPrimary,
+                                        disabled: customRadioClasses.disabled
+                                    }} />}
+                                    <div className="ck-editor" dangerouslySetInnerHTML={{
+                                        __html: answer.content
+                                    }}></div>
+                                </>
+                            )}
+                            {question.type === QUESTION_TYPE.PAIRING_ANSWERS && (
+                                <Grid container spacing={3}>
+                                    <Grid item xs={6}>
+                                        <Box border={1} p={1} borderRadius={2} justifyContent="center" display="flex" height="100%">
+                                            <Typography variant="body1" align="justify">
+                                                {answer.content}
+                                            </Typography>
+                                        </Box>
+                                    </Grid>
+                                    <Grid item xs={6}>
+                                        <Box border={1} p={1} borderRadius={2} justifyContent="center" display="flex" height="100%">
+                                            <Typography variant="body1" align="justify">
+                                                {question.pairing_answers[index].content}
+                                            </Typography>
+                                        </Box>
+                                    </Grid>
+                                </Grid>
+                            )}
                         </Box>
                     </Box>
                 ))}
