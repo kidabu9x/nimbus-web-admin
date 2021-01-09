@@ -136,15 +136,14 @@ const QuestionList = () => {
         })
             .then(response => {
                 setQuestions(response.data.data);
+                setFiltering(false);
             })
             .catch(error => {
                 enqueueSnackbar(error, {
                     variant: "error"
                 });
-            })
-            .finally(() => {
                 setFiltering(false);
-            })
+            });
     }, [courseId, quizId, page, size, content]);
 
     if (org == null) {
@@ -317,16 +316,14 @@ const SearchBox = ({ content, setContent }) => {
 }
 
 const QuestionYupSchema = yup.object().shape({
-    id: yup.number(),
     course_id: yup.number().required("Bắt buộc"),
     quiz_id: yup.number().required("Bắt buộc"),
     type: yup.string().required("Bắt buộc"),
     content: yup.string().required("*Bắt buộc"),
     answers: yup.array().of(yup.object().shape({
-        id: yup.number(),
         type: yup.string().required("Bắt buộc"),
         content: yup.string().when("type", {
-            is: ANSWER_TYPE.PAIRING_SOURCE,
+            is: value => value === ANSWER_TYPE.PAIRING_SOURCE,
             then: yup.string(),
             otherwise: yup.string().required("*Không được bỏ trống")
         }),
@@ -336,7 +333,6 @@ const QuestionYupSchema = yup.object().shape({
         .required("Tối thiểu có 1 câu trả lời")
         .min(1, "Tối thiểu có 1 câu trả lời đúng"),
     pairing_answers: yup.array().of(yup.object().shape({
-        id: yup.number(),
         type: yup.string().required("Bắt buộc"),
         content: yup.string().required("*Không được bỏ trống"),
         description: yup.string(),
@@ -401,41 +397,41 @@ const Question = ({ index, viewable, courseId, quizId, question, onCreated, onUp
     });
 
     const onSubmit = async data => {
-        console.log(data);
-        // setRequesting(true);
-        // if (!data.id) {
-        //     try {
-        //         const createRes = await createQuestion(data);
-        //         const id = createRes.data.data;
-        //         const detailRes = await getQuestion(id);
-        //         const question = detailRes.data.data;
-        //         onCreated(question);
-        //     } catch (error) {
-        //         enqueueSnackbar("Đã có lỗi xảy ra", {
-        //             variant: "error"
-        //         });
-        //     }
+        setRequesting(true);
+        if (!data.id) {
+            try {
+                const createRes = await createQuestion(data);
+                const id = createRes.data.data;
+                const detailRes = await getQuestion(id);
+                const question = detailRes.data.data;
+                onCreated(question);
+            } catch (error) {
+                setRequesting(false);
+                enqueueSnackbar("Đã có lỗi xảy ra", {
+                    variant: "error"
+                });
+            }
 
-        // } else {
-        //     try {
-        //         await updateQuestion(data);
-        //         const detailRes = await getQuestion(data.id);
-        //         const question = detailRes.data.data;
-        //         onUpdated(question);
-        //         setRequesting(false);
-        //         setEditMode(false);
-        //         reset({
-        //             ...question,
-        //             course_id: courseId,
-        //             quiz_id: quizId
-        //         });
-        //     } catch (error) {
-        //         setRequesting(false);
-        //         enqueueSnackbar(error.message, {
-        //             variant: "error"
-        //         });
-        //     }
-        // }
+        } else {
+            try {
+                await updateQuestion(data);
+                const detailRes = await getQuestion(data.id);
+                const question = detailRes.data.data;
+                onUpdated(question);
+                setRequesting(false);
+                setEditMode(false);
+                reset({
+                    ...question,
+                    course_id: courseId,
+                    quiz_id: quizId
+                });
+            } catch (error) {
+                setRequesting(false);
+                enqueueSnackbar(error.message, {
+                    variant: "error"
+                });
+            }
+        }
     }
 
     const onCancel = () => {
@@ -697,9 +693,10 @@ const Question = ({ index, viewable, courseId, quizId, question, onCreated, onUp
                 <Box mt={2} display="flex" alignItems="center" justifyContent="space-between">
                     <Button
                         onClick={() => {
-                            answers.append({ id: null, content: "", description: "", is_correct: false });
+                            const type = watchType === QUESTION_TYPE.PAIRING_ANSWERS ? ANSWER_TYPE.PAIRING_SOURCE : ANSWER_TYPE.MULTIPLE_CHOICE_ANSWER;
+                            answers.append({ id: null, content: "", description: "", is_correct: false, type });
                             if (watchType === QUESTION_TYPE.PAIRING_ANSWERS) {
-                                pairingAnswers.append({ id: null, content: "", description: "", is_correct: false });
+                                pairingAnswers.append({ id: null, content: "", description: "", is_correct: false, type: ANSWER_TYPE.PAIRING_TARGET });
                             }
                         }}
                         disabled={requesting}

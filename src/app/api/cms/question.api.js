@@ -27,6 +27,7 @@ export function createQuestion(
                 "is_correct": true,
             }
         ],
+        pairing_answers = [],
         content = null,
         course_id = 0,
         description = null,
@@ -40,6 +41,7 @@ export function createQuestion(
     }
     return axios.post(`${BASE_URL}`, {
         answers,
+        pairing_answers,
         content,
         course_id,
         quiz_id,
@@ -58,8 +60,10 @@ export function updateQuestion(
                 content: null,
                 description: null,
                 is_correct: true,
+                type: null
             }
         ],
+        pairing_answers = [],
         content = null,
         course_id = 0,
         description = null,
@@ -73,6 +77,7 @@ export function updateQuestion(
     }
     return axios.put(`${BASE_URL}/${id}`, {
         answers,
+        pairing_answers,
         content,
         course_id,
         quiz_id,
