@@ -559,9 +559,9 @@ const Question = ({ index, viewable, courseId, quizId, question, onCreated, onUp
                     <Controller
                         render={({ value }) =>
                             <RadioGroup aria-label="type" value={value} row onChange={(e) => onTypeChange(e.target.value)}>
-                                <FormControlLabel value={QUESTION_TYPE.MULTIPLE_CHOICE_ONE_ANSWER} control={<Radio color="primary" />} label="1 đáp án" disabled={requesting} />
-                                <FormControlLabel value={QUESTION_TYPE.MULTIPLE_CHOICE_MULTIPLE_ANSWERS} control={<Radio color="primary" />} label="Nhiều đáp án" disabled={requesting} />
-                                <FormControlLabel value={QUESTION_TYPE.PAIRING_ANSWERS} control={<Radio color="primary" />} label="Ghép đôi" disabled={requesting} />
+                                <FormControlLabel value={QUESTION_TYPE.MULTIPLE_CHOICE_ONE_ANSWER} control={<Radio color="primary" />} label="1 đáp án" disabled={requesting || question.id != null} />
+                                <FormControlLabel value={QUESTION_TYPE.MULTIPLE_CHOICE_MULTIPLE_ANSWERS} control={<Radio color="primary" />} label="Nhiều đáp án" disabled={requesting || question.id != null} />
+                                <FormControlLabel value={QUESTION_TYPE.PAIRING_ANSWERS} control={<Radio color="primary" />} label="Ghép đôi" disabled={requesting || question.id != null} />
                             </RadioGroup>
                         }
                         name="type"
