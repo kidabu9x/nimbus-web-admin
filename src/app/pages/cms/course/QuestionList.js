@@ -91,7 +91,20 @@ function useQuery() {
     return new URLSearchParams(useLocation().search);
 }
 
+const rootStyles = makeStyles(theme => ({
+    stickyNav: {
+        position: "fixed",
+        top: "64px",
+        left: "240px",
+        width: "calc(100% - 240px)",
+        backgroundColor: "#fff",
+        padding: theme.spacing(1, 4, 0, 4),
+        zIndex: 10
+    }
+}));
+
 const QuestionList = () => {
+    const classes = rootStyles();
     const { org, course, quiz } = useSelector(({ cms }) => ({
         org: cms.org.org,
         course: cms.course.course,
@@ -113,6 +126,27 @@ const QuestionList = () => {
 
     const dispatch = useDispatch();
     const newQuestionRef = useRef();
+
+    const [showStickyNav, setShowStickyNav] = useState(false);
+    const stickyNavRef = useRef();
+    useEffect(() => {
+        let sticky = 0;
+        if (stickyNavRef.current) {
+            sticky = stickyNavRef.current.offsetTop;
+        }
+        const scrollCallBack = window.addEventListener("scroll", () => {
+            if (window.pageYOffset > sticky) {
+                setShowStickyNav(true);
+            } else {
+                setShowStickyNav(false);
+            }
+        });
+
+        return () => {
+            window.removeEventListener("scroll", scrollCallBack);
+        };
+    }, [stickyNavRef]);
+
     useEffect(() => {
         if (org != null) {
             dispatch(getCourse(courseId));
@@ -164,10 +198,13 @@ const QuestionList = () => {
 
     const createNewQuestion = () => {
         toggleIsCreate();
-        window.scrollTo({
-            behavior: "smooth",
-            top: newQuestionRef.current.offsetTop
-        });
+        setTimeout(() => {
+            newQuestionRef.current.scrollIntoView({
+                behavior: "smooth",
+                block: "nearest",
+                inline: "start"
+            });
+        }, 1);
     }
 
     const toggleIsCreate = () => {
@@ -217,24 +254,30 @@ const QuestionList = () => {
     }
 
     return <Container>
-        <Link style={{ opacity: ".5" }} to={ROUTES.cms.quiz(orgId, courseId, quizId)}>
-            <Button style={{ textTransform: "none" }} startIcon={<ArrowBackIosIcon />}>Bài trắc nghiệm</Button>
-        </Link>
+        <div ref={stickyNavRef} className={`${showStickyNav ? classes.stickyNav : ''}`}>
+            {!showStickyNav &&
+                <Link style={{ opacity: ".5" }} to={ROUTES.cms.quiz(orgId, courseId, quizId)}>
+                    <Button style={{ textTransform: "none" }} startIcon={<ArrowBackIosIcon />}>Bài trắc nghiệm</Button>
+                </Link>
+            }
 
-        <Box display="flex" justifyContent="space-between" marginTop={1} marginBottom={2}>
-            <Typography variant="h5">
-                Danh sách câu hỏi
-            </Typography>
-            {!isAddNew && <Button
-                variant="contained"
-                size="medium"
-                color="primary"
-                disableElevation
-                onClick={createNewQuestion}
-            >
-                Tạo mới
-            </Button>}
-        </Box>
+            <Box display="flex" justifyContent="space-between" marginTop={1} marginBottom={2}>
+                <Typography variant="h5">
+                    Danh sách câu hỏi
+                </Typography>
+                {!isAddNew &&
+                    <Button
+                        variant="contained"
+                        size="medium"
+                        color="primary"
+                        disableElevation
+                        onClick={createNewQuestion}
+                    >
+                        Tạo mới
+                    </Button>
+                }
+            </Box>
+        </div>
         <Divider />
 
         <Box display="flex" flexDirection="column" alignItems="center" marginTop={2}>
@@ -365,7 +408,7 @@ const Question = ({ index, viewable, courseId, quizId, question, onCreated, onUp
     const [showDelete, setShowDelete] = useState(false);
     const customRadioClasses = radioStyles();
 
-    const { control, handleSubmit, register, setValue, errors, reset, watch } = useForm({
+    const { control, handleSubmit, register, setValue, errors, reset, watch, getValues } = useForm({
         defaultValues: {
             ...question,
             course_id: courseId,
@@ -467,14 +510,15 @@ const Question = ({ index, viewable, courseId, quizId, question, onCreated, onUp
     }
 
     const switchCorrectAnswers = (index) => {
-        for (let i = 0; i < answers.fields.length; i++) {
+        const items = getValues().answers;
+        for (let i = 0; i < items.length; i++) {
             if (i !== index) {
-                answers.fields[i].is_correct = false;
+                items[i].is_correct = false;
             } else {
-                answers.fields[i].is_correct = true;
+                items[i].is_correct = true;
             }
         }
-        setValue("answers", answers.fields);
+        setValue("answers", items);
     }
 
     const onTypeChange = (type) => {
