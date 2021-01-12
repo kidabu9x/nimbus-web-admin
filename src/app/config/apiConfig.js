@@ -14,7 +14,7 @@ const configs = {
             blogService: 'https://api-internal.nimbus.com.vn/blog-service',
             authService: 'https://api-internal.nimbus.com.vn/auth-service',
             imageService: 'https://api-internal.nimbus.com.vn/image-service',
-            courseService: 'https://api-internal.nimbus.com.vn/course-service'
+            courseService: 'http://localhost:8080'
         }
     },
     production: {

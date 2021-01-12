@@ -72,19 +72,13 @@ const initQuestion = {
         }
     ],
     "pairing_answers": [
-        {
-            "type": ANSWER_TYPE.PAIRING_TARGET,
-            "content": "",
-            "description": "",
-            "id": null,
-            "is_correct": true
-        }
     ],
     "content": "",
     "description": "",
     "id": null,
     "position": 0,
-    "type": QUESTION_TYPE.MULTIPLE_CHOICE_ONE_ANSWER
+    "type": QUESTION_TYPE.MULTIPLE_CHOICE_ONE_ANSWER,
+    "definitely_appeared": false
 }
 
 function useQuery() {
@@ -363,6 +357,7 @@ const QuestionYupSchema = yup.object().shape({
     quiz_id: yup.number().required("Bắt buộc"),
     type: yup.string().required("Bắt buộc"),
     content: yup.string().required("*Bắt buộc"),
+    definitely_appeared: yup.boolean(),
     answers: yup.array().of(yup.object().shape({
         type: yup.string().required("Bắt buộc"),
         content: yup.string().when("type", {
@@ -418,6 +413,7 @@ const Question = ({ index, viewable, courseId, quizId, question, onCreated, onUp
     });
 
     const watchType = watch("type");
+    const definitelyAppeared = watch("definitely_appeared");
 
     const answers = useFieldArray(
         {
@@ -612,6 +608,23 @@ const Question = ({ index, viewable, courseId, quizId, question, onCreated, onUp
                         control={control}
                     />
                 </Box>
+                <Box mt={1} mb={2} display="flex" alignItems="center">
+                    <Box width="30%">
+                        <Typography variant="subtitle1">Chắc chắn xuất hiện</Typography>
+                    </Box>
+                    <Controller
+                        render={({ value, onChange }) =>
+                            <Checkbox
+                                checked={value}
+                                color="primary"
+                                onChange={e => onChange(e.target.checked)}
+                            />
+                        }
+                        name="definitely_appeared"
+                        control={control}
+                        defaultValue={false}
+                    />
+                </Box>
                 <Box mb={4}>
                     {watchType !== QUESTION_TYPE.PAIRING_ANSWERS
                         &&
@@ -757,7 +770,7 @@ const Question = ({ index, viewable, courseId, quizId, question, onCreated, onUp
     } else {
         return <Box bgcolor="white" p={2} width="560px" mb={4}>
             <Box mb={1} display="flex" alignItems="center" justifyContent="space-between">
-                <Typography variant="subtitle1">
+                <Typography variant="subtitle1" color={definitelyAppeared ? 'primary' : 'initial'}>
                     {index != null ? `Câu hỏi ${index + 1}` : "Câu hỏi mới"}
                 </Typography>
                 <PopupState variant="popover" popupId="more-action">
@@ -851,7 +864,19 @@ const Question = ({ index, viewable, courseId, quizId, question, onCreated, onUp
 
         </Box>
     }
+}
 
+const ConfigYupSchema = yup.object().shape({
+    quiz_id: yup.number().required("Bắt buộc"),
+    duration: yup.number().required("Bắt buộc"),
+    limit_number_of_questions: yup.number().required("Bắt buộc"),
+    reset_question_on_back: yup.boolean(),
+    shuffle_questions: yup.boolean()
+});
+
+const ConfigDialog = () => {
+    return <h1>Hello World
+    </h1>
 }
 
 export default QuestionList;

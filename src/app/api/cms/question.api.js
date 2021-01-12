@@ -33,7 +33,8 @@ export function createQuestion(
         description = null,
         position = 0,
         quiz_id = 0,
-        type = "MULTIPLE_CHOICE_ONE_ANSWER"
+        type = "MULTIPLE_CHOICE_ONE_ANSWER",
+        definitely_appeared = false
     } = {}
 ) {
     if (content === null || course_id === null || quiz_id === null || answers === null || answers.length === 0) {
@@ -47,7 +48,8 @@ export function createQuestion(
         quiz_id,
         description,
         position,
-        type
+        type,
+        definitely_appeared
     });
 }
 
@@ -69,7 +71,8 @@ export function updateQuestion(
         description = null,
         position = 0,
         quiz_id = 0,
-        type = "MULTIPLE_CHOICE_ONE_ANSWER"
+        type = "MULTIPLE_CHOICE_ONE_ANSWER",
+        definitely_appeared = false
     } = {}
 ) {
     if (id === null || content === null || course_id === null || quiz_id === null || answers === null || answers.length === 0) {
@@ -83,7 +86,8 @@ export function updateQuestion(
         quiz_id,
         description,
         position,
-        type
+        type,
+        definitely_appeared
     });
 }
 
