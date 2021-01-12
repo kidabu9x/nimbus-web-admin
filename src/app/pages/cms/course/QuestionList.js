@@ -113,7 +113,7 @@ const QuestionList = () => {
     let { orgId, courseId, quizId } = useParams();
     const query = useQuery();
     const [page] = useState(0);
-    const [size] = useState(50);
+    const [size] = useState(500);
     const searchContext = query.get("search");
     const [content, setContent] = useState(searchContext ? searchContext : "");
     const [questions, setQuestions] = useState([]);
