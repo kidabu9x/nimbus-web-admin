@@ -40,7 +40,17 @@ import {
 import {
     getQuiz
 } from "../../../store/cms/quiz/actions";
-import { filterQuestions, createQuestion, updateQuestion, getQuestion, deleteQuestion } from "../../../api/cms/question.api";
+import {
+    filterQuestions,
+    createQuestion,
+    updateQuestion,
+    getQuestion,
+    deleteQuestion
+} from "../../../api/cms/question.api";
+import {
+    getConfig,
+    updateConfig
+} from "../../../api/cms/quiz.api";
 
 import { Link, useHistory, useParams, useLocation } from "react-router-dom";
 import { ROUTES } from "../../../router/Routes";
@@ -113,6 +123,7 @@ const QuestionList = () => {
     const [questions, setQuestions] = useState([]);
     const [filtering, setFiltering] = useState(false);
     const [isAddNew, setIsAddNew] = useState(false);
+    const [openConfig, setOpenConfig] = useState(false);
     const { enqueueSnackbar } = useSnackbar();
     orgId = parseInt(orgId);
     courseId = parseInt(courseId);
@@ -247,6 +258,10 @@ const QuestionList = () => {
             })
     }
 
+    const toggleOpenDialog = () => {
+        setOpenConfig(!openConfig);
+    }
+
     return <Container>
         <div ref={stickyNavRef} className={`${showStickyNav ? classes.stickyNav : ''}`}>
             {!showStickyNav &&
@@ -259,17 +274,27 @@ const QuestionList = () => {
                 <Typography variant="h5">
                     Danh sách câu hỏi
                 </Typography>
-                {!isAddNew &&
+                <Box>
+                    <Button
+                        variant="contained"
+                        size="medium"
+                        disableElevation
+                        onClick={toggleOpenDialog}
+                        style={{ marginRight: "8px" }}
+                    >
+                        Cài đặt
+                    </Button>
                     <Button
                         variant="contained"
                         size="medium"
                         color="primary"
                         disableElevation
                         onClick={createNewQuestion}
+                        disabled={isAddNew}
                     >
                         Tạo mới
-                    </Button>
-                }
+                </Button>
+                </Box>
             </Box>
         </div>
         <Divider />
@@ -308,6 +333,8 @@ const QuestionList = () => {
                     </>
             }
         </Box>
+
+        <ConfigDialog quizId={quizId} open={openConfig} onClose={toggleOpenDialog} />
     </Container>
 }
 
@@ -874,9 +901,148 @@ const ConfigYupSchema = yup.object().shape({
     shuffle_questions: yup.boolean()
 });
 
-const ConfigDialog = () => {
-    return <h1>Hello World
-    </h1>
+const initConfig = {
+    "limit_number_of_questions": 40,
+    "shuffle_questions": true,
+    "reset_question_on_back": true,
+    "duration": 45
+}
+
+const ConfigDialog = ({ quizId, open, onClose }) => {
+    const [requesting, setRequesting] = React.useState(false);
+    const { control, handleSubmit, register, reset, errors } = useForm({
+        defaultValues: initConfig,
+        resolver: yupResolver(ConfigYupSchema)
+    });
+    const { enqueueSnackbar } = useSnackbar();
+
+    const inputTitleWidth = 60;
+
+    const handleClose = () => {
+        onClose();
+    };
+
+    useEffect(() => {
+        getConfig(quizId)
+            .then(res => {
+                const data = res.data.data;
+                reset(data);
+            })
+            .catch(e => {
+                console.log(e);
+            });
+    }, [quizId, reset]);
+
+    const onSubmit = (data) => {
+        setRequesting(true);
+        updateConfig(data)
+            .then(_ => {
+                setRequesting(false);
+                enqueueSnackbar("Đã lưu cài đặt", {
+                    variant: "success"
+                });
+                reset(data);
+                onClose();
+            })
+            .catch(error => {
+                setRequesting(false);
+                enqueueSnackbar(error.message, {
+                    variant: "error"
+                });
+            });
+    }
+
+    return <Dialog
+        open={open}
+        onClose={handleClose}
+        scroll="paper"
+        aria-labelledby="scroll-dialog-title"
+        aria-describedby="scroll-dialog-description"
+        disableBackdropClick={requesting}
+    >
+        <DialogTitle id="scroll-dialog-title">Cài đặt</DialogTitle>
+        {requesting && <LinearProgress />}
+        <DialogContent dividers={true}>
+            <form onSubmit={handleSubmit(onSubmit)}>
+                <input name="quiz_id" ref={register} type="hidden" />
+                <Box mt={1} mb={2} display="flex">
+                    <Box width={`${inputTitleWidth}%`}>
+                        <Typography variant="subtitle1">Trộn câu hỏi</Typography>
+                    </Box>
+                    <Box width={`${100 - inputTitleWidth}%`}>
+                        <Controller
+                            render={({ value, onChange }) =>
+                                <Checkbox
+                                    checked={value}
+                                    color="primary"
+                                    onChange={e => onChange(e.target.checked)}
+                                    disabled={requesting}
+                                />
+                            }
+                            name="shuffle_questions"
+                            control={control}
+                            defaultValue={false}
+                        />
+                    </Box>
+                </Box>
+                <Box mt={1} mb={2} display="flex" alignItems="center">
+                    <Box width={`${inputTitleWidth}%`}>
+                        <Typography variant="subtitle1">Giới hạn số lượng câu hỏi</Typography>
+                    </Box>
+                    <Box width={`${100 - inputTitleWidth}%`}>
+                        <TextField
+                            inputRef={register}
+                            name="limit_number_of_questions"
+                            type="number"
+                            variant="outlined"
+                            disabled={requesting}
+                        />
+                    </Box>
+                </Box>
+                <Box mt={1} mb={2} display="flex" alignItems="center">
+                    <Box width={`${inputTitleWidth}%`}>
+                        <Typography variant="subtitle1">Thời lượng</Typography>
+                    </Box>
+                    <Box width={`${100 - inputTitleWidth}%`}>
+                        <TextField
+                            inputRef={register}
+                            name="duration"
+                            type="number"
+                            variant="outlined"
+                            disabled={requesting}
+                        />
+                    </Box>
+                </Box>
+                <Box mt={1} mb={2} display="flex" alignItems="center">
+                    <Box width={`${inputTitleWidth}%`}>
+                        <Typography variant="subtitle1">Reset câu hỏi</Typography>
+                    </Box>
+                    <Controller
+                        render={({ value, onChange }) =>
+                            <Checkbox
+                                checked={value}
+                                color="primary"
+                                onChange={e => onChange(e.target.checked)}
+                                disabled={requesting}
+                            />
+                        }
+                        name="reset_question_on_back"
+                        control={control}
+                        defaultValue={false}
+                    />
+                </Box>
+            </form>
+        </DialogContent>
+        <DialogActions>
+            <Button onClick={handleClose} disabled={requesting}>
+                Hủy
+            </Button>
+            <Button onClick={handleSubmit(onSubmit)} color="primary" disabled={requesting}>
+                Lưu
+            </Button>
+        </DialogActions>
+    </Dialog>
+
 }
 
 export default QuestionList;

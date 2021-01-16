@@ -38,8 +38,29 @@ export function getQuiz(
     return axios.get(`${BASE_URL}/${id}`);
 }
 
-// return new Promise((resolve, reject) => {
-//     setTimeout(() => {
-//         resolve();
-//     }, 5000);
-// });
+export function getConfig(id) {
+    if (id === null) {
+        return null;
+    }
+    return axios.get(`${BASE_URL}/${id}/config`);
+}
+
+export function updateConfig(
+    {
+        quiz_id = null,
+        duration = 0,
+        limit_number_of_questions = 0,
+        reset_question_on_back = true,
+        shuffle_questions = true
+    }
+) {
+    if (quiz_id === null) {
+        return;
+    }
+    return axios.put(`${BASE_URL}/${quiz_id}/config`, {
+        duration,
+        limit_number_of_questions,
+        reset_question_on_back,
+        shuffle_questions
+    });
+}
