@@ -236,7 +236,7 @@ const BlogsList = () => {
               .map((blog) => (
                 <TableRow key={blog.id}>
                   <TableCell>
-                    {dayjs(blog.created_at).format("DD/MM/YY")}
+                    {dayjs(blog.created_at * 1000).format("DD/MM/YY")}
                   </TableCell>
                   <TableCell component="th" scope="blog">
                     {blog.title}

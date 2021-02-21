@@ -75,7 +75,7 @@ const BlogEdit = () => {
 
   const [openModalDelete, setOpenModalDelete] = useState(false);
 
-  const { handleSubmit, control, setValue, watch, register, errors, reset } = useForm({
+  const { handleSubmit, control, setValue, watch, register, errors, reset, getValues } = useForm({
     defaultValues: {
       id: null,
       title: "",
@@ -136,38 +136,42 @@ const BlogEdit = () => {
     setOpenModalDelete(true);
   };
 
-  const handleChangeImage = async (event) => {
+  const handleChangeImage = (event) => {
     if (event.target.value.length !== 0) {
-      setValue(THUMBNAIL, URL.createObjectURL(event.target.files[0]));
-      const { url } = await uploadImageBasic(event.target.files[0]);
-      setValue(THUMBNAIL, url);
+      // setValue(THUMBNAIL, URL.createObjectURL(event.target.files[0]));
+      uploadImageBasic(event.target.files[0])
+        .then((({ url }) => {
+          setValue(THUMBNAIL, String(url));
+        }));
     }
   };
 
   const onFormSubmit = async (blog) => {
-    setRequesting(true);
-    try {
-      if (blog.id && blog.id !== BLOG.QUERY_NEW) {
-        const response = await updateBlog(blog.id, blog);
-        const data = response.data.data;
-        reset(data);
-        enqueueSnackbar("Đã lưu", {
-          variant: "success"
-        });
-      } else {
-        const response = await createBlog(blog);
-        const data = response.data.data;
-        history.push(`${ROUTES.blogs}/${data.id}`);
-        enqueueSnackbar("Tạo blog thành công", {
-          variant: "success"
-        });
-      }
-    } catch (error) {
-      enqueueSnackbar(error, {
-        variant: "error"
-      });
-    }
-    setRequesting(false);
+    console.log(blog);
+
+    // setRequesting(true);
+    // try {
+    //   if (blog.id && blog.id !== BLOG.QUERY_NEW) {
+    //     const response = await updateBlog(blog.id, blog);
+    //     const data = response.data.data;
+    //     reset(data);
+    //     enqueueSnackbar("Đã lưu", {
+    //       variant: "success"
+    //     });
+    //   } else {
+    //     const response = await createBlog(blog);
+    //     const data = response.data.data;
+    //     history.push(`${ROUTES.blogs}/${data.id}`);
+    //     enqueueSnackbar("Tạo blog thành công", {
+    //       variant: "success"
+    //     });
+    //   }
+    // } catch (error) {
+    //   enqueueSnackbar(error, {
+    //     variant: "error"
+    //   });
+    // }
+    // setRequesting(false);
   }
 
   return (
@@ -362,23 +366,20 @@ const BlogEdit = () => {
                   action={
                     <>
                       Tải ảnh lên
-                          <input
+                      <input
                         type="file"
                         style={{ display: "none" }}
                         onChange={handleChangeImage}
                       />
-                      <input type="hidden" name={THUMBNAIL} ref={register} defaultValue="" />
                     </>
                   }
                 ></UiCardHeader>
                 <UiCardContent>
-                  {thumbnailWatch && (
-                    <img
-                      className={classes.thumbnail}
-                      src={thumbnailWatch}
-                      alt="thumb"
-                    />
-                  )}
+                  <input type="hidden" name={THUMBNAIL} ref={register} defaultValue="" />
+                  <img
+                    className={classes.thumbnail}
+                    src={thumbnailWatch}
+                  />
                 </UiCardContent>
               </UiCard>
               <UiCard>
