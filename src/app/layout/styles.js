@@ -12,7 +12,7 @@ export const rootStyles = makeStyles((theme) => ({
         flexGrow: 1,
         padding: theme.spacing(3)
     }
-}));
+}), { index: 1 });
 
 export const drawerStyles = makeStyles((theme) => ({
     drawer: {
@@ -30,7 +30,7 @@ export const drawerStyles = makeStyles((theme) => ({
         ...theme.mixins.toolbar,
         justifyContent: 'flex-end',
     }
-}));
+}), { index: 1 });
 
 export const appBarStyle = makeStyles((theme) => ({
     appBar: {
@@ -41,4 +41,4 @@ export const appBarStyle = makeStyles((theme) => ({
     title: {
         flexGrow: 1
     }
-}));
+}), { index: 1 });
