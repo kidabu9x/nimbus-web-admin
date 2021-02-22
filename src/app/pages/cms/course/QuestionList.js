@@ -183,7 +183,7 @@ const QuestionList = () => {
                 });
                 setFiltering(false);
             });
-    }, [courseId, quizId, page, size, content]);
+    }, [courseId, quizId, page, size, content, enqueueSnackbar]);
 
     if (org == null) {
         return <Container>
@@ -910,7 +910,7 @@ const initConfig = {
 
 const ConfigDialog = ({ quizId, open, onClose }) => {
     const [requesting, setRequesting] = React.useState(false);
-    const { control, handleSubmit, register, reset, errors } = useForm({
+    const { control, handleSubmit, register, reset } = useForm({
         defaultValues: initConfig,
         resolver: yupResolver(ConfigYupSchema)
     });

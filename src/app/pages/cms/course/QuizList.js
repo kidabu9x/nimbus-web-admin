@@ -146,12 +146,6 @@ export default function QuizList() {
             {filtering ? <Box display="flex" flexDirection="column" alignItems="center">
                 <CircularProgress />
             </Box> : null}
-        </Box>
-
-        <Box marginTop={2}>
-            {filtering ? <Box display="flex" flexDirection="column" alignItems="center">
-                <CircularProgress />
-            </Box> : null}
 
             <Box display="flex" flexWrap="wrap">
                 {quizzes.map(quiz => (

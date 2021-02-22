@@ -75,7 +75,9 @@ const BlogEdit = () => {
 
   const [openModalDelete, setOpenModalDelete] = useState(false);
 
-  const { handleSubmit, control, setValue, watch, register, errors, reset, getValues } = useForm({
+  const [thumbnail, setThumbnail] = useState(null);
+
+  const { handleSubmit, control, setValue, register, errors, reset, getValues } = useForm({
     defaultValues: {
       id: null,
       title: "",
@@ -91,8 +93,6 @@ const BlogEdit = () => {
     }
   });
 
-  const thumbnailWatch = watch(THUMBNAIL);
-
   useEffect(() => {
     disptach(getCategories());
   }, [disptach]);
@@ -104,6 +104,7 @@ const BlogEdit = () => {
         .then(response => {
           const data = response.data.data;
           reset(data);
+          setThumbnail(data[THUMBNAIL]);
         })
         .catch(error => {
           enqueueSnackbar(error, {
@@ -114,7 +115,7 @@ const BlogEdit = () => {
           setRequesting(false);
         });
     }
-  }, [id]);
+  }, [id, reset, enqueueSnackbar]);
 
   const onDelete = async () => {
     setRequesting(true);
@@ -138,40 +139,41 @@ const BlogEdit = () => {
 
   const handleChangeImage = (event) => {
     if (event.target.value.length !== 0) {
-      // setValue(THUMBNAIL, URL.createObjectURL(event.target.files[0]));
+      setThumbnail(URL.createObjectURL(event.target.files[0]));
       uploadImageBasic(event.target.files[0])
         .then((({ url }) => {
-          setValue(THUMBNAIL, String(url));
+          reset({
+            ...getValues(),
+            [THUMBNAIL]: url
+          });
         }));
     }
   };
 
   const onFormSubmit = async (blog) => {
-    console.log(blog);
-
-    // setRequesting(true);
-    // try {
-    //   if (blog.id && blog.id !== BLOG.QUERY_NEW) {
-    //     const response = await updateBlog(blog.id, blog);
-    //     const data = response.data.data;
-    //     reset(data);
-    //     enqueueSnackbar("Đã lưu", {
-    //       variant: "success"
-    //     });
-    //   } else {
-    //     const response = await createBlog(blog);
-    //     const data = response.data.data;
-    //     history.push(`${ROUTES.blogs}/${data.id}`);
-    //     enqueueSnackbar("Tạo blog thành công", {
-    //       variant: "success"
-    //     });
-    //   }
-    // } catch (error) {
-    //   enqueueSnackbar(error, {
-    //     variant: "error"
-    //   });
-    // }
-    // setRequesting(false);
+    setRequesting(true);
+    try {
+      if (blog.id && blog.id !== BLOG.QUERY_NEW) {
+        const response = await updateBlog(blog.id, blog);
+        const data = response.data.data;
+        reset(data);
+        enqueueSnackbar("Đã lưu", {
+          variant: "success"
+        });
+      } else {
+        const response = await createBlog(blog);
+        const data = response.data.data;
+        history.push(`${ROUTES.blogs}/${data.id}`);
+        enqueueSnackbar("Tạo blog thành công", {
+          variant: "success"
+        });
+      }
+    } catch (error) {
+      enqueueSnackbar(error, {
+        variant: "error"
+      });
+    }
+    setRequesting(false);
   }
 
   return (
@@ -376,10 +378,14 @@ const BlogEdit = () => {
                 ></UiCardHeader>
                 <UiCardContent>
                   <input type="hidden" name={THUMBNAIL} ref={register} defaultValue="" />
-                  <img
-                    className={classes.thumbnail}
-                    src={thumbnailWatch}
-                  />
+                  {thumbnail &&
+                    <img
+                      className={classes.thumbnail}
+                      src={thumbnail}
+                      alt="thumb"
+                    />
+                  }
+
                 </UiCardContent>
               </UiCard>
               <UiCard>
