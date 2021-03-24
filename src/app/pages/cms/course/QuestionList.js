@@ -385,6 +385,7 @@ const QuestionYupSchema = yup.object().shape({
     type: yup.string().required("Bắt buộc"),
     content: yup.string().required("*Bắt buộc"),
     definitely_appeared: yup.boolean(),
+    description: yup.string(),
     answers: yup.array().of(yup.object().shape({
         type: yup.string().required("Bắt buộc"),
         content: yup.string().when("type", {
@@ -615,8 +616,20 @@ const Question = ({ index, viewable, courseId, quizId, question, onCreated, onUp
                             const data = editor.getData();
                             setValue("content", data)
                         }}
-
                     />
+                    <Box pl={2} mt={2}>
+                        <TextField
+                            value={question.description}
+                            placeholder="Chú thích câu hỏi"
+                            inputRef={register}
+                            name="description"
+                            variant="outlined"
+                            disabled={requesting}
+                            fullWidth
+                            multiline
+                        />
+                    </Box>
+
                     {errors.content && <FormHelperText error>{errors.content.message}</FormHelperText>}
                 </Box>
                 <Box mt={1} mb={2} display="flex" alignItems="center">
