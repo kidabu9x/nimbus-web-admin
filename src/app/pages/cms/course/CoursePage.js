@@ -7,6 +7,7 @@ import { setOrgById } from "../../../store/cms/org/actions";
 import { CircularProgress, Box } from '@material-ui/core';
 import QuizList from "./QuizList";
 import QuestionList from "./QuestionList";
+import CourseCodeList from "./code/List";
 
 export default function CoursePage() {
   const { orgId } = useParams();
@@ -31,6 +32,7 @@ export default function CoursePage() {
     <Switch>
       <Route path={`${ROUTES.cms.question()}`} component={QuestionList} />
       <Route path={`${ROUTES.cms.quiz()}`} component={QuizList} />
+      <Route path={`${ROUTES.cms.courseCode()}`} component={CourseCodeList} />
       <Route path={`${ROUTES.cms.course()}`} component={CourseList} />
     </Switch>
   );

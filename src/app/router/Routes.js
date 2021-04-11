@@ -5,6 +5,13 @@ const buildCmsCourseLink = (orgId) => {
   return "/org/" + orgId + "/course";
 }
 
+const buildCmsCourseCodeLink = (orgId, courseId) => {
+  if (courseId == null) {
+    courseId = ":courseId";
+  }
+  return buildCmsCourseLink(orgId) + "/" + courseId + "/code";
+}
+
 const buildCmsQuizLink = (orgId, courseId) => {
   if (courseId == null) {
     courseId = ":courseId";
@@ -32,7 +39,8 @@ export const ROUTES = {
     org: "/org",
     course: buildCmsCourseLink,
     quiz: buildCmsQuizLink,
-    question: buildCmsQuestionLink
+    question: buildCmsQuestionLink,
+    courseCode: buildCmsCourseCodeLink
   }
 };
 
