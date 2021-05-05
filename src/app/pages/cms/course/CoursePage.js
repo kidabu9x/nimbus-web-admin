@@ -33,6 +33,7 @@ export default function CoursePage() {
       <Route path={`${ROUTES.cms.question()}`} component={QuestionList} />
       <Route path={`${ROUTES.cms.quiz()}`} component={QuizList} />
       <Route path={`${ROUTES.cms.courseCode()}`} component={CourseCodeList} />
+
       <Route path={`${ROUTES.cms.course()}`} component={CourseList} />
     </Switch>
   );
