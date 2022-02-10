@@ -63,7 +63,7 @@
   "devDependencies": {
     "copyfiles": "^2.1.1",
     "eslint-plugin-react-hooks": "^3.0.0",
-    "node-sass": "^4.13.0",
+    "node-sass": "^7.0.0",
     "prettier": "^1.19.1",
     "webpack-cli": "^3.3.10",
     "webpack-messages": "^2.0.4",
